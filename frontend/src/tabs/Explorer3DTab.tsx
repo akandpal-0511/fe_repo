@@ -148,20 +148,26 @@ function ScatterPanel({ weekAgo, today }: { weekAgo: Date; today: Date }) {
   }
   const labels = Object.keys(tagOpts);
 
-  const scatterAutoLoadRef = useRef(false);
+  const scatterShouldLoad = useRef(false);
   useEffect(() => {
     if (labels.length >= 3) {
       setXLbl(labels[0] ?? "");
       setYLbl(labels[1] ?? "");
       setZLbl(labels[2] ?? "");
-    }
-    if (!scatterAutoLoadRef.current && labels.length >= 3) {
-      scatterAutoLoadRef.current = true;
-      // small delay so label state settles
-      setTimeout(() => handleLoad(), 50);
+      scatterShouldLoad.current = true;
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selArea, labels.length]);
+
+  // Fire only after xLbl/yLbl/zLbl state has settled
+  const scatterAutoLoadRef = useRef(false);
+  useEffect(() => {
+    if (!scatterShouldLoad.current || !xLbl || !yLbl || !zLbl || scatterAutoLoadRef.current) return;
+    scatterAutoLoadRef.current = true;
+    scatterShouldLoad.current = false;
+    handleLoad();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [xLbl, yLbl, zLbl]);
 
   async function handleLoad() {
     if (!xLbl || !yLbl || !zLbl) return;
