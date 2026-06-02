@@ -139,10 +139,13 @@ function cellStyle(row: StackingRow | undefined, C: Colors, theme: "dark" | "lig
     whiteSpace: "nowrap",
   };
   if (!row) return { ...base, background: C.CARD2, color: C.MUTED };
-  if (row.status === "Not Started") return { ...base, background: "#fff3c4", color: "#111827", fontWeight: 600 };
   const palette = getMaterialColors(theme);
   const mc = palette[row.material] ?? { bg: C.CARD2, text: C.TEXT };
-  return { ...base, background: mc.bg, color: mc.text };
+  const style: React.CSSProperties = { ...base, background: mc.bg, color: mc.text };
+  if (row.status === "In Progress") {
+    style.animation = "stackingPulse 1.8s ease-in-out infinite";
+  }
+  return style;
 }
 
 // ── Component ──────────────────────────────────────────────────────────────────
@@ -203,6 +206,12 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0 }: { refreshKey
 
   return (
     <div style={{ padding: "16px 0" }}>
+      <style>{`
+        @keyframes stackingPulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.45; }
+        }
+      `}</style>
 
       {/* Title + mode toggle */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 12 }}>
