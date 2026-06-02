@@ -1,6 +1,10 @@
 bundle:
   name: fe-demo-app
 
+sync:
+  include:
+    - frontend/dist/**
+
 targets:
   dev:
     workspace:
