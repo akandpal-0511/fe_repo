@@ -10,4 +10,4 @@ resources:
   apps:
     fe_demo_app:
       name: fe-demo-app
-      source_code_path: .
+      source_code_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}/files
