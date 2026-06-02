@@ -148,14 +148,20 @@ function ScatterPanel({ weekAgo, today }: { weekAgo: Date; today: Date }) {
   }
   const labels = Object.keys(tagOpts);
 
+  const scatterAutoLoadRef = useRef(false);
   useEffect(() => {
     if (labels.length >= 3) {
       setXLbl(labels[0] ?? "");
       setYLbl(labels[1] ?? "");
       setZLbl(labels[2] ?? "");
     }
+    if (!scatterAutoLoadRef.current && labels.length >= 3) {
+      scatterAutoLoadRef.current = true;
+      // small delay so label state settles
+      setTimeout(() => handleLoad(), 50);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selArea]);
+  }, [selArea, labels.length]);
 
   async function handleLoad() {
     if (!xLbl || !yLbl || !zLbl) return;
@@ -297,7 +303,28 @@ function SurfacePanel({ weekAgo }: { weekAgo: Date }) {
     tagOpts[base] = p.Tag;
   }
   const allLabels = Object.keys(tagOpts);
-  useEffect(() => { setSelLabels([]); setSensorSearch(""); }, [selArea]); // eslint-disable-line
+
+  // Auto-select all sensors when area changes
+  useEffect(() => { setSensorSearch(""); }, [selArea]); // eslint-disable-line
+  const surfaceAutoSelectRef = useRef(false);
+  useEffect(() => {
+    if (allLabels.length === 0) return;
+    if (!surfaceAutoSelectRef.current) {
+      surfaceAutoSelectRef.current = true;
+      setSelLabels(allLabels);
+    } else {
+      setSelLabels(allLabels); // re-select all on area change
+    }
+  }, [allLabels.join(",")]); // eslint-disable-line
+
+  // Auto-load once sensors are selected
+  const surfaceLoadRef = useRef(false);
+  useEffect(() => {
+    if (surfaceLoadRef.current || selLabels.length < 2) return;
+    surfaceLoadRef.current = true;
+    setTimeout(() => handleLoad(), 50);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selLabels.length]);
 
   async function handleLoad() {
     if (selLabels.length < 2) { alert("Select at least 2 sensors."); return; }
@@ -471,6 +498,14 @@ function LeachPadPanel({ weekAgo, today }: { weekAgo: Date; today: Date }) {
     p.DataSource?.toLowerCase().includes("historian") &&
     !p.IsCalculated,
   );
+
+  const padAutoLoadRef = useRef(false);
+  useEffect(() => {
+    if (padAutoLoadRef.current || profiles.length === 0) return;
+    padAutoLoadRef.current = true;
+    handleLoad();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profiles.length]);
 
   async function handleLoad() {
     if (profiles.length === 0) return;

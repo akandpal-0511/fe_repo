@@ -62,7 +62,7 @@ export function CrossPATab() {
     borderRadius: 4, padding: "5px 14px", fontSize: "0.8rem", cursor: "pointer",
   };
 
-  const [activePAs,     setActivePAs]     = useState<Set<string>>(new Set());
+  const [activePAs,     setActivePAs]     = useState<Set<string>>(new Set(["Mining", "Crushing"]));
   const [bigfSubAreas,  setBigfSubAreas]  = useState<Set<string>>(new Set(["BIGF1"]));
   const [dsFilter,      setDsFilter]      = useState<"Historian only" | "All sources">("All sources");
   const [search,        setSearch]        = useState("");
@@ -91,6 +91,31 @@ export function CrossPATab() {
       .catch(() => setAllProfiles([]))
       .finally(() => setProfLoading(false));
   }, []);
+
+  // Auto-select all Mining + Crushing historian tags on first load
+  const autoSelectRef = useRef(false);
+  useEffect(() => {
+    if (autoSelectRef.current || allProfiles.length === 0) return;
+    const defaults = allProfiles.filter(
+      (p) => ["Mining", "Crushing"].includes(p.PerformanceArea) &&
+              p.DataSource?.toLowerCase().includes("historian")
+    ).map((p) => ({
+      tag: p.Tag, desc: p.Description, pa: p.PerformanceArea,
+      unit: p.Unit ?? "", lo: p.LowerLimit ?? null, hi: p.UpperLimit ?? null,
+    }));
+    if (defaults.length === 0) return;
+    autoSelectRef.current = true;
+    setSelectedTags(defaults);
+  }, [allProfiles]);
+
+  // Auto-load trends once tags are populated
+  const autoLoadRef = useRef(false);
+  useEffect(() => {
+    if (autoLoadRef.current || selectedTags.length === 0) return;
+    autoLoadRef.current = true;
+    handleLoad();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTags]);
 
   // Derive ordered PA options from loaded profiles
   const paOpts = useMemo(() => {
