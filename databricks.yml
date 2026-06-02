@@ -1,0 +1,13 @@
+bundle:
+  name: fe-demo-app
+
+targets:
+  dev:
+    workspace:
+      host: https://fevm-serverless-stable-82bi8w.cloud.databricks.com
+
+resources:
+  apps:
+    fe_demo_app:
+      name: fe-demo-app
+      source_code_path: .
