@@ -199,6 +199,7 @@ def get_stacking_data(mode: str = "prod") -> list[dict]:
     cells = ["A", "B", "C", "D", "E"]
     panels = [1, 2, 3, 4, 5]
     start_base = datetime(2024, 1, 1)
+    cell_material = {cell: rng.choice(_MATERIALS) for cell in cells}
     rows = []
     for ci, cell in enumerate(cells):
         for pi, panel in enumerate(panels):
@@ -212,7 +213,7 @@ def get_stacking_data(mode: str = "prod") -> list[dict]:
                 pct = 100.0
                 actual_tons = round(tons_planned * rng.uniform(0.95, 1.05))
                 delay_days = round(rng.uniform(-3, 5), 1)
-            elif stacking_order <= 18:
+            elif stacking_order == 13:
                 status = "In Progress"
                 pct = round(rng.uniform(20, 85), 1)
                 actual_tons = round(tons_planned * pct / 100)
@@ -225,7 +226,7 @@ def get_stacking_data(mode: str = "prod") -> list[dict]:
             rows.append({
                 "cell":                 cell,
                 "panel":                panel,
-                "material":             rng.choice(_MATERIALS),
+                "material":             cell_material[cell],
                 "stacking_order":       stacking_order,
                 "tons_planned":         tons_planned,
                 "actual_tons":          actual_tons,
