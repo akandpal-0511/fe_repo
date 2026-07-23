@@ -45,7 +45,7 @@ interface SelTag {
   hi: number | null;
 }
 
-export function CrossPATab() {
+export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAsOverride?: Set<string>; onActivePAsChange?: (s: Set<string>) => void } = {}) {
   const today   = new Date();
   const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate() - 7);
 
@@ -62,7 +62,9 @@ export function CrossPATab() {
     borderRadius: 4, padding: "5px 14px", fontSize: "0.8rem", cursor: "pointer",
   };
 
-  const [activePAs,     setActivePAs]     = useState<Set<string>>(new Set(["Mining", "Crushing"]));
+  const [activePAsLocal, setActivePAsLocal] = useState<Set<string>>(new Set(["Mining", "Crushing"]));
+  const activePAs    = activePAsOverride ?? activePAsLocal;
+  function setActivePAs(next: Set<string>) { setActivePAsLocal(next); onActivePAsChange?.(next); }
   const [bigfSubAreas,  setBigfSubAreas]  = useState<Set<string>>(new Set(["BIGF1"]));
   const [dsFilter,      setDsFilter]      = useState<"Historian only" | "All sources">("All sources");
   const [search,        setSearch]        = useState("");
@@ -314,67 +316,6 @@ export function CrossPATab() {
 
       {profLoading ? <Spinner text="Loading tag profiles…" /> : (
         <>
-          {/* ── PA toggle pills ─────────────────────────────── */}
-          <div style={{ marginBottom: 10 }}>
-            <div style={{ fontSize: "0.68rem", color: C.MUTED, marginBottom: 6 }}>
-              Toggle Performance Areas to browse their sensors:
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {paOpts.map((pa) => {
-                const active = activePAs.has(pa);
-                const col    = paColorMap[pa];
-                return (
-                  <button
-                    key={pa}
-                    onClick={() => togglePA(pa)}
-                    style={{
-                      background: active ? col + "22" : C.CARD2,
-                      border:     `1px solid ${active ? col : C.BORDER}`,
-                      color:      active ? col : C.MUTED,
-                      borderRadius: 20,
-                      padding:    "4px 11px",
-                      fontSize:   "0.72rem",
-                      cursor:     "pointer",
-                      fontWeight: active ? 700 : 400,
-                      transition: "all 0.15s",
-                    }}
-                  >
-                    {pa}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* ── BIGF sub-reactor selector ───────────────────── */}
-          {activePAs.has("BIGF Bioreactors") && (
-            <div style={{ marginBottom: 8, marginLeft: 4, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-              <span style={{ fontSize: "0.65rem", color: C.MUTED }}>↳ Reactors:</span>
-              {BIGF_AREAS.map((bf) => {
-                const active = bigfSubAreas.has(bf);
-                const col    = paColorMap["BIGF Bioreactors"];
-                return (
-                  <label key={bf} style={{ fontSize: "0.72rem", color: active ? col : C.MUTED, cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
-                    <input
-                      type="checkbox"
-                      checked={active}
-                      onChange={(e) => {
-                        const next = new Set(bigfSubAreas);
-                        e.target.checked ? next.add(bf) : next.delete(bf);
-                        setBigfSubAreas(next);
-                        // deselect tags from this reactor if unchecked
-                        if (!e.target.checked) {
-                          // t.pa is now the actual reactor name (BIGF1, BIGF2, etc.)
-                          setSelectedTags((prev) => prev.filter((t) => t.pa !== bf));
-                        }
-                      }}
-                    />
-                    {bf}
-                  </label>
-                );
-              })}
-            </div>
-          )}
 
           {/* ── Controls row ────────────────────────────────── */}
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "flex-end", marginBottom: 10 }}>

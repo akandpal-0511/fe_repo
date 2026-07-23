@@ -39,20 +39,20 @@ function FlowsheetPASelector({ selected, onSelect }: { selected: string; onSelec
   const { C } = useTheme();
   const [hovered, setHovered] = useState<string | null>(null);
   return (
-    <div>
+    <div style={{ maxWidth: "fit-content" }}>
     <div style={{ position: "relative", userSelect: "none", border: `1px solid ${C.BORDER}`, borderRadius: 6, overflow: "hidden" }}>
       <div style={{
         position: "absolute", top: "2%", right: "2%",
         fontSize: "0.72rem", fontWeight: 700, color: "#fff",
         display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap",
         zIndex: 10, pointerEvents: "none",
-        background: "#58a6ff", borderRadius: 20, padding: "3px 12px",
-        boxShadow: "0 0 10px #58a6ff99, 0 0 20px #58a6ff55",
+        background: "rgba(15,23,42,0.88)", borderRadius: 20, padding: "4px 14px",
+        border: "1px solid rgba(88,166,255,0.5)",
+        boxShadow: "0 2px 12px rgba(0,0,0,0.4)",
       }}>
         Click a&nbsp;
         <span style={{
-          background: "rgba(15,23,42,0.85)",
-          border: "1.5px solid rgba(255,255,255,0.4)",
+          background: "#58a6ff",
           borderRadius: 20, padding: "2px 9px",
           fontWeight: 700, color: "#fff",
         }}>
@@ -62,8 +62,8 @@ function FlowsheetPASelector({ selected, onSelect }: { selected: string; onSelec
       </div>
       <img
         src={flowsheetImg}
-        alt="Nuton Flowsheet"
-        style={{ width: "100%", height: "auto", display: "block", filter: "brightness(0.75)" }}
+        alt="Process Flowsheet"
+        style={{ width: "100%", height: "auto", display: "block" }}
       />
       {HOTSPOTS.map(({ pa, label, top, left }) => {
         const isSel = selected === pa;
@@ -78,13 +78,14 @@ function FlowsheetPASelector({ selected, onSelect }: { selected: string; onSelec
             style={{
               position: "absolute", top, left,
               transform: "translate(-50%, -50%)",
-              background: isSel ? "#1a5fa8" : isHov ? "rgba(88,166,255,0.85)" : "rgba(255,255,255,0.82)",
-              border: `1.5px solid ${isSel ? "#58a6ff" : isHov ? "#58a6ff" : "rgba(100,130,180,0.4)"}`,
-              color: isSel ? "#fff" : isHov ? "#fff" : "#1e2d45",
-              borderRadius: 20, padding: "2px 9px",
-              fontSize: "0.65rem", fontWeight: 700,
+              background: isSel ? "#1a3a6e" : isHov ? "#1a3a6e" : "rgba(15,23,42,0.82)",
+              border: `2px solid ${isSel ? "#58a6ff" : isHov ? "#58a6ff" : "rgba(88,166,255,0.5)"}`,
+              color: "#fff",
+              borderRadius: 20, padding: "3px 11px",
+              fontSize: "0.68rem", fontWeight: 700,
               cursor: "pointer", whiteSpace: "nowrap", transition: "all 0.15s",
-              boxShadow: isSel ? "0 0 12px #58a6ff88, 0 2px 6px rgba(0,0,0,0.3)" : "0 1px 4px rgba(0,0,0,0.2)",
+              boxShadow: isSel ? "0 0 14px #58a6ffaa, 0 2px 8px rgba(0,0,0,0.4)" : "0 1px 5px rgba(0,0,0,0.35)",
+              letterSpacing: "0.01em",
             }}
           >
             {label}
@@ -96,7 +97,7 @@ function FlowsheetPASelector({ selected, onSelect }: { selected: string; onSelec
   );
 }
 
-export function SensorTrendsTab() {
+export function SensorTrendsTab({ initialArea, onAreaChange }: { initialArea?: string; onAreaChange?: (pa: string) => void } = {}) {
   const { C, theme } = useTheme();
   const labelStyle: React.CSSProperties = { fontSize: "0.7rem", color: C.MUTED };
   const selectStyle: React.CSSProperties = {
@@ -117,7 +118,7 @@ export function SensorTrendsTab() {
   const [allProfiles, setAllProfiles] = useState<TagProfile[]>([]);
   const [profLoading, setProfLoading] = useState(true);
 
-  const [selArea,      setSelArea]      = useState<string>("Mining");
+  const [selArea,      setSelArea]      = useState<string>(initialArea ?? "Mining");
   const [dsFilter,     setDsFilter]     = useState<"Historian only" | "All sources">("All sources");
   const [bigfReactors, setBigfReactors] = useState<string[]>(["BIGF1"]);
   const [selLabels,    setSelLabels]    = useState<string[]>([]);
@@ -201,6 +202,22 @@ export function SensorTrendsTab() {
   const tagMeta = Object.fromEntries(allProfiles.filter((p) => trendTags.includes(p.Tag)).map((p) => [p.Tag, p]));
   const nCols = trendTags.length > 1 ? 2 : 1;
 
+  // Auto-select all sensors and load when PA changes
+  useEffect(() => {
+    if (allLabels.length === 0) return;
+    setSelLabels(allLabels);
+  }, [selArea, dsFilter, bigfReactors.join(","), allLabels.length]); // eslint-disable-line
+
+  // Auto-load once selLabels are set for a new PA
+  const autoLoadRef = useState<string>("")
+  useEffect(() => {
+    if (selLabels.length === 0) return;
+    const key = selLabels.join(",") + start + end;
+    if (key === autoLoadRef[0]) return;
+    autoLoadRef[1](key);
+    handleLoad();
+  }, [selLabels.length, selArea]); // eslint-disable-line
+
   return (
     <div>
       <SectionHeader>
@@ -213,12 +230,12 @@ export function SensorTrendsTab() {
       {profLoading ? <Spinner text="Loading tag profiles…" /> : (
         <>
           {/* ── Side-by-side: flowsheet left, selector right ── */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 10, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 55%) minmax(0, 45%)", gap: 12, marginBottom: 10, alignItems: "start" }}>
 
             {/* Left: clickable flowsheet */}
             <FlowsheetPASelector
               selected={selArea}
-              onSelect={(pa) => { setSelArea(pa); setSelLabels([]); setSensorSearch(""); setBigfReactors(["BIGF1"]); }}
+              onSelect={(pa) => { setSelArea(pa); onAreaChange?.(pa); setSelLabels([]); setSensorSearch(""); setBigfReactors(["BIGF1"]); }}
             />
 
             {/* Right: sensor selector */}
@@ -229,7 +246,7 @@ export function SensorTrendsTab() {
                 <label style={labelStyle}>Performance Area</label>
                 <select
                   value={selArea}
-                  onChange={(e) => { setSelArea(e.target.value); setSelLabels([]); setSensorSearch(""); setBigfReactors(["BIGF1"]); }}
+                  onChange={(e) => { setSelArea(e.target.value); onAreaChange?.(e.target.value); setSelLabels([]); setSensorSearch(""); setBigfReactors(["BIGF1"]); }}
                   style={selectStyle}
                 >
                   {paOpts.map((a) => <option key={a}>{a}</option>)}
@@ -385,7 +402,7 @@ export function SensorTrendsTab() {
                         height: 230,
                         title: { text: `<b>${desc}</b>${subtitle ? `  <span style="font-size:9px;color:${C.MUTED}">${subtitle}</span>` : ""}`,
                                  font: { size: 11 }, x: 0 },
-                        margin: { l: 52, r: 18, t: 36, b: 36 },
+                        margin: { l: 52, r: 18, t: 8, b: 36 },
                         plot_bgcolor: C.CARD,
                         paper_bgcolor: C.BG,
                         xaxis: { gridcolor: C.BORDER, color: C.MUTED, tickfont: { size: 9 }, automargin: true },

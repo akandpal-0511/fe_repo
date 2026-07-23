@@ -213,16 +213,25 @@ def get_stacking_data(mode: str = "prod") -> list[dict]:
                 pct = 100.0
                 actual_tons = round(tons_planned * rng.uniform(0.95, 1.05))
                 delay_days = round(rng.uniform(-3, 5), 1)
+                current_rate_tpd = None
+                actual_start_ts = (start_date + timedelta(hours=rng.randint(0, 12))).strftime("%Y-%m-%dT%H:%M:%S")
+                actual_end_ts = (end_date + timedelta(days=delay_days, hours=rng.randint(0, 8))).strftime("%Y-%m-%dT%H:%M:%S")
             elif stacking_order == 13:
                 status = "In Progress"
                 pct = round(rng.uniform(20, 85), 1)
                 actual_tons = round(tons_planned * pct / 100)
                 delay_days = round(rng.uniform(-1, 8), 1)
+                current_rate_tpd = round(rng.uniform(400, 800))
+                actual_start_ts = (start_date + timedelta(hours=rng.randint(0, 12))).strftime("%Y-%m-%dT%H:%M:%S")
+                actual_end_ts = None
             else:
                 status = "Not Started"
                 pct = None
                 actual_tons = None
                 delay_days = None
+                current_rate_tpd = None
+                actual_start_ts = None
+                actual_end_ts = None
             rows.append({
                 "cell":                 cell,
                 "panel":                panel,
@@ -231,8 +240,11 @@ def get_stacking_data(mode: str = "prod") -> list[dict]:
                 "tons_planned":         tons_planned,
                 "actual_tons":          actual_tons,
                 "days_stacked_planned": days_planned,
+                "current_rate_tpd":     current_rate_tpd,
                 "cell_start_date":      start_date.strftime("%Y-%m-%d"),
                 "cell_end_date":        end_date.strftime("%Y-%m-%d"),
+                "actual_start_ts":      actual_start_ts,
+                "actual_end_ts":        actual_end_ts,
                 "status":               status,
                 "pct_complete":         pct,
                 "delay_days":           delay_days,
@@ -277,6 +289,7 @@ def get_ore_feed_rate(days: int = 7) -> list[dict]:
             "ts":            ts.isoformat() + "Z",
             "rate_thr":      round(rate, 2),
             "tons_interval": tons_interval,
+            "tag":           "_155BS206_TonHr",
         })
         ts += timedelta(minutes=5)
     return rows

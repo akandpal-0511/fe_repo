@@ -11,8 +11,8 @@ interface ThemeCtx {
 }
 
 const ThemeContext = createContext<ThemeCtx>({
-  theme: "dark",
-  C: DARK_C,
+  theme: "light",
+  C: LIGHT_C,
   toggleTheme: () => {},
 });
 
@@ -21,7 +21,7 @@ export function useTheme() {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>("light");
   const C = theme === "dark" ? DARK_C : LIGHT_C;
   return (
     <ThemeContext.Provider value={{ theme, C, toggleTheme: () => setTheme((t) => (t === "dark" ? "light" : "dark")) }}>

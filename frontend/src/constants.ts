@@ -26,14 +26,19 @@ export const LIGHT_C = {
   OFF:    "#6e7781",
 } as const;
 
+export const GENIE_ONE_URL = "https://fevm-serverless-stable-82bi8w.cloud.databricks.com/genie/rooms";
+
 // backward-compat alias — prefer useTheme() in components
 export const C = DARK_C;
 
 export const PERF_AREAS = [
-  "Sensor Trends",
+  "Dashboard",
+  "Stacking Plan Status",
+  "3D Heap Viewer",
   "Multi-PA Analysis",
-  "Stacking",
-  "3D Explorer",
+  "Causality",
+  "Predict",
+  "Ask Genie",
 ] as const;
 
 export const BIGF_AREAS = ["BIGF1", "BIGF2", "BIGF3", "BIGF4"] as const;
@@ -48,16 +53,16 @@ const MATERIAL_COLORS_DARK: Record<string, { bg: string; text: string }> = {
   "Non-core BQ":    { bg: "#1e3a6e", text: "#a8c4f0" },
   "Non-core blend": { bg: "#6b3010", text: "#f0b98a" },
   "PV":             { bg: "#1a4d1a", text: "#88d488" },
-  "Core edge":      { bg: "#5a4a10", text: "#e0cc80" },
-  "Core":           { bg: "#2a2a3a", text: "#c8c8d8" },
+  "Core edge":      { bg: "#3d2e00", text: "#ffc000" },
+  "Core":           { bg: "#e8ecf0", text: "#1f2b3a" },
 };
 
 const MATERIAL_COLORS_LIGHT: Record<string, { bg: string; text: string }> = {
-  "Non-core BQ":    { bg: "#d0e4ff", text: "#1a3a7a" },
-  "Non-core blend": { bg: "#fde0c8", text: "#7a3010" },
-  "PV":             { bg: "#cff0cf", text: "#1a5c2a" },
-  "Core edge":      { bg: "#fdf0c8", text: "#7a5010" },
-  "Core":           { bg: "#ebebeb", text: "#3a3a4a" },
+  "Non-core BQ":    { bg: "#4472C4", text: "#ffffff" },
+  "Non-core blend": { bg: "#E8834A", text: "#ffffff" },
+  "PV":             { bg: "#70AD47", text: "#ffffff" },
+  "Core edge":      { bg: "#FFC000", text: "#4a3000" },
+  "Core":           { bg: "#f6f8fa", text: "#1f2328" },
 };
 
 export function getMaterialColors(theme: "dark" | "light") {
@@ -65,9 +70,9 @@ export function getMaterialColors(theme: "dark" | "light") {
 }
 
 export const MATERIAL_LEGEND: { label: string; color: string }[] = [
-  { label: "Non-core BQ",    color: "#4472C4" },
-  { label: "Non-core blend", color: "#E8834A" },
+  { label: "Core",           color: "#ffffff" },
+  { label: "Core edge",      color: "#FFC000" },
   { label: "PV",             color: "#70AD47" },
-  { label: "Core edge",      color: "#C2A64B" },
-  { label: "Core",           color: "#8c8c9e" },
+  { label: "Non-core blend", color: "#E8834A" },
+  { label: "Non-core BQ",    color: "#4472C4" },
 ];

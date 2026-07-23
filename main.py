@@ -1,11 +1,13 @@
 import math
 import logging
+import datetime as _dt
 from pathlib import Path
 
 import pandas as pd
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 from constants import BIGF_AREAS
 from helpers import buildValLookup, fmtVal, statusColor, _lim
@@ -15,6 +17,8 @@ from db import (
     getBioReactorDailyTrend, SCALE_UP_LIMITS,
     get_stacking_data, get_ore_feed_rate,
 )
+from causality import pa_heatmap, sensor_network, granger_test, early_warning
+from forecast import forecast_tag
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -100,6 +104,9 @@ def api_kpis(area: str):
 
     kpis = profiles[profiles["IsCalculated"] == True]
     if kpis.empty:
+        # Fall back to first 6 non-calculated sensors as KPI tiles
+        kpis = profiles[profiles["IsCalculated"] == False].head(6)
+    if kpis.empty:
         return []
 
     latest = getAllLatestValues()
@@ -107,7 +114,7 @@ def api_kpis(area: str):
         profiles["DataSource"].str.contains("Historian", na=False, case=False)
     ]["Tag"].tolist())
     latest_filt = latest[latest["Tag"].isin(hist_tags)] if not latest.empty else pd.DataFrame()
-    val_lookup  = buildValLookup(latest_filt)
+    val_lookup  = buildValLookup(latest_filt) if not latest_filt.empty else {}
 
     result = []
     for _, kr in kpis.head(8).iterrows():
@@ -185,6 +192,135 @@ def api_ore_feed_rate(days: int = 7):
 def api_cache_clear():
     clear_cache()
     return {"status": "cleared"}
+
+
+# ── Causality ─────────────────────────────────────────────────────────────────
+
+class CausalityHeatmapIn(BaseModel):
+    areas: list[str]
+    start: str
+    end: str
+    max_lag_hours: int = 48
+
+
+class CausalityNetworkIn(BaseModel):
+    areas: list[str]
+    start: str
+    end: str
+    max_lag_hours: int = 48
+    threshold: float = 0.4
+
+
+class CausalityGrangerIn(BaseModel):
+    edges: list[dict]
+    start: str
+    end: str
+    max_lag_hours: int = 48
+
+
+class EarlyWarningIn(BaseModel):
+    target_tag: str
+    areas: list[str]
+    start: str
+    end: str
+    max_lag_hours: int = 48
+    threshold: float = 0.5
+    top_n: int = 10
+
+
+@app.post("/api/causality/heatmap")
+def api_causality_heatmap(body: CausalityHeatmapIn):
+    return pa_heatmap(body.areas, body.start, body.end, body.max_lag_hours)
+
+
+@app.post("/api/causality/network")
+def api_causality_network(body: CausalityNetworkIn):
+    return sensor_network(body.areas, body.start, body.end, body.max_lag_hours, body.threshold)
+
+
+@app.post("/api/causality/granger")
+def api_causality_granger(body: CausalityGrangerIn):
+    return granger_test(body.edges, body.start, body.end, body.max_lag_hours)
+
+
+@app.post("/api/causality/early-warning")
+def api_causality_early_warning(body: EarlyWarningIn):
+    return early_warning(
+        body.target_tag, body.areas, body.start, body.end,
+        body.max_lag_hours, body.threshold, body.top_n,
+    )
+
+
+# ── Forecast ──────────────────────────────────────────────────────────────────
+
+class ForecastIn(BaseModel):
+    tag: str
+    start: str
+    end: str
+    horizon_hours: int = 12
+    lo: float | None = None
+    hi: float | None = None
+
+
+@app.post("/api/forecast")
+def api_forecast(body: ForecastIn):
+    return forecast_tag(body.tag, body.start, body.end, body.horizon_hours, body.lo, body.hi)
+
+
+# ── Comments (in-memory for demo) ─────────────────────────────────────────────
+
+_comments: list[dict] = []
+_comment_id_seq: int = 0
+
+
+class CommentIn(BaseModel):
+    category: str
+    text: str
+    area: str | None = None
+    tag_name: str | None = None
+    week_range: str | None = None
+
+
+def _current_user(request: Request) -> str:
+    h = request.headers
+    return (
+        h.get("X-Forwarded-Preferred-Username")
+        or h.get("X-Forwarded-Email")
+        or "demo.user"
+    )
+
+
+@app.get("/api/comments")
+def api_get_comments(area: str = "General"):
+    return [c for c in _comments if c["performance_area"] == area]
+
+
+@app.post("/api/comments")
+def api_add_comment(body: CommentIn, request: Request):
+    global _comment_id_seq
+    text = body.text.strip()
+    if not text:
+        from fastapi.responses import JSONResponse
+        return JSONResponse({"error": "Comment text is required."}, status_code=400)
+    _comment_id_seq += 1
+    _comments.append({
+        "id":                _comment_id_seq,
+        "performance_area":  body.area or "General",
+        "tag_name":          body.tag_name or "N/A",
+        "week_range":        body.week_range or "N/A",
+        "comment_category":  body.category,
+        "comment_text":      text,
+        "created_at":        _dt.datetime.now().isoformat(),
+        "created_by":        _current_user(request),
+    })
+    return {"status": "ok"}
+
+
+@app.delete("/api/comments/{comment_id}")
+def api_delete_comment(comment_id: int, area: str = "General"):
+    global _comments
+    _comments = [c for c in _comments if not (c["id"] == comment_id and c["performance_area"] == area)]
+    return {"status": "ok"}
 
 
 # ── Serve React frontend (must be last) ───────────────────────────────────────

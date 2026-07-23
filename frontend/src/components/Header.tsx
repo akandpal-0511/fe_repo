@@ -1,90 +1,58 @@
-import { useState } from "react";
 import { useTheme } from "../theme";
-import { api } from "../api";
+import { GENIE_ONE_URL } from "../constants";
 
 export function Header() {
   const { C, theme, toggleTheme } = useTheme();
-  const [refreshing, setRefreshing] = useState(false);
-  const [time, setTime] = useState(() => new Date().toLocaleTimeString());
-
-  async function handleRefresh() {
-    setRefreshing(true);
-    await api.clearCache();
-    setTime(new Date().toLocaleTimeString());
-    window.location.reload();
-  }
-
   return (
     <div style={{
-      display: "flex",
-      alignItems: "center",
-      gap: 12,
-      padding: "7px 12px 6px",
-      borderBottom: `2px solid ${C.ACCENT}`,
-      background: "linear-gradient(90deg,rgba(88,166,255,0.08) 0%,transparent 60%)",
-      flexShrink: 0,
+      display: "flex", alignItems: "center", gap: 10,
+      padding: "8px 16px", background: C.CARD,
+      borderBottom: `1px solid ${C.BORDER}`, flexShrink: 0,
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
-        <h1 style={{
-          margin: 0,
-          fontSize: "1.15rem",
-          fontWeight: 700,
-          color: C.TEXT,
-          letterSpacing: "0.5px",
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        {/* Wordmark — no customer branding */}
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "center",
+          width: 34, height: 34, borderRadius: 8,
+          background: "linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%)",
+          flexShrink: 0,
         }}>
+          <span style={{ color: "#fff", fontWeight: 800, fontSize: "1rem", letterSpacing: "-1px" }}>OP</span>
+        </div>
+        <span style={{ color: C.BORDER }}>|</span>
+        <span style={{ fontSize: "0.9rem", color: C.TEXT, fontWeight: 700 }}>
           Operations Monitor
-        </h1>
+        </span>
         <span style={{
-          fontSize: "0.6rem",
-          color: C.OK,
-          background: "rgba(63,185,80,0.12)",
-          border: "1px solid rgba(63,185,80,0.35)",
-          borderRadius: 3,
-          padding: "2px 7px",
-          fontWeight: 700,
-          letterSpacing: 1,
+          fontSize: "0.6rem", fontWeight: 700, letterSpacing: 1,
+          color: C.OK, background: C.OK + "18",
+          border: `1px solid ${C.OK}44`,
+          borderRadius: 4, padding: "1px 6px",
         }}>
-          LIVE
+          DEMO
         </span>
       </div>
 
-      <span style={{ fontSize: "0.7rem", color: C.MUTED }}>
-        {time}
-      </span>
-
-      <button
-        onClick={toggleTheme}
-        title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-        style={{
-          background: C.CARD2,
-          border: `1px solid ${C.BORDER}`,
-          color: C.MUTED,
-          borderRadius: 4,
-          padding: "3px 10px",
-          fontSize: "0.8rem",
-          cursor: "pointer",
-        }}
-      >
-        {theme === "dark" ? "☀" : "🌙"}
-      </button>
-
-      <button
-        onClick={handleRefresh}
-        disabled={refreshing}
-        title="Clear cache & refresh"
-        style={{
-          background: C.CARD2,
-          border: `1px solid ${C.BORDER}`,
-          color: C.MUTED,
-          borderRadius: 4,
-          padding: "3px 10px",
-          fontSize: "0.8rem",
-          cursor: "pointer",
-          transition: "color 0.15s, border-color 0.15s",
-        }}
-      >
-        {refreshing ? "…" : "↻"}
-      </button>
+      <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
+        <a
+          href={GENIE_ONE_URL}
+          target="_blank"
+          rel="noreferrer"
+          style={{ fontSize: "0.82rem", color: C.ACCENT, textDecoration: "none", fontWeight: 600 }}
+        >
+          Genie One ↗
+        </a>
+        <button
+          onClick={toggleTheme}
+          title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          style={{
+            background: "none", border: `1px solid ${C.BORDER}`, borderRadius: 6,
+            cursor: "pointer", padding: "5px 9px", fontSize: "0.82rem", color: C.TEXT,
+          }}
+        >
+          {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+        </button>
+      </div>
     </div>
   );
 }
