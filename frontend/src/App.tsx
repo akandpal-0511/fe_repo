@@ -23,9 +23,20 @@ type TabId = typeof TABS[number]["id"];
 const SHOW_BAR: Set<TabId> = new Set(["stacking", "3d-explorer", "sensor-trends", "multi-pa"]);
 const STATIC_PA: Partial<Record<TabId, string>> = { stacking: "Stacking" };
 
+// One-line demo talking point per tab — shown in a dismissible info banner.
+const TAB_INFO: Record<TabId, string> = {
+  "dashboard":     "KPI home: plan vs. actual per process area, color-coded, with trends and operator comments.",
+  "stacking":      "Ore-stacking execution grid: planned vs. actual tons, % complete, and schedule by panel/cell. In-progress cells blink.",
+  "3d-explorer":   "Pick 3 sensors as X/Y/Z axes and see how they relate in 3D over a date range.",
+  "sensor-trends": "Click the process flowsheet to pick a performance area, choose sensors, and view time-series trends.",
+  "multi-pa":      "Overlay sensors across multiple performance areas to correlate cause and effect across the process.",
+  "genie":         "Natural-language questions over your operations data, powered by Databricks Genie (live in production).",
+};
+
 export default function App() {
-  const { C } = useTheme();
+  const { C, theme } = useTheme();
   const [active,      setActive]      = useState<TabId>("dashboard");
+  const [infoOpen,    setInfoOpen]    = useState(true);
   const [sensorPA,    setSensorPA]    = useState("Mining");
   const [explorerPA,  setExplorerPA]  = useState("Mining");
   // Multi-PA uses a Set
@@ -107,6 +118,41 @@ export default function App() {
           );
         })}
       </nav>
+
+      {infoOpen ? (
+        <div style={{
+          display: "flex", alignItems: "flex-start", gap: 10,
+          padding: "7px 14px",
+          background: theme === "light" ? "#ddf4ff" : "#12233b",
+          borderBottom: `1px solid ${C.BORDER}`, flexShrink: 0,
+        }}>
+          <span style={{ fontSize: "0.82rem", lineHeight: 1.4, flexShrink: 0, color: C.ACCENT }}>ⓘ</span>
+          <span style={{ fontSize: "0.78rem", lineHeight: 1.4, color: C.TEXT, flex: 1 }}>
+            {TAB_INFO[active]}
+          </span>
+          <button
+            onClick={() => setInfoOpen(false)}
+            title="Hide"
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              color: C.MUTED, fontSize: "0.9rem", lineHeight: 1, padding: 0, flexShrink: 0,
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={() => setInfoOpen(true)}
+          title="Show tab info"
+          style={{
+            alignSelf: "flex-start", background: "none", border: "none", cursor: "pointer",
+            color: C.ACCENT, fontSize: "0.72rem", padding: "3px 14px", flexShrink: 0,
+          }}
+        >
+          ⓘ What is this tab?
+        </button>
+      )}
 
       {SHOW_BAR.has(active) && (
         <ProcessBar
