@@ -41,7 +41,7 @@ export const PERF_AREAS = [
   "Ask Genie",
 ] as const;
 
-export const BIGF_AREAS = ["BIO-1", "BIO-2", "BIO-3", "BIO-4"] as const;
+export const PA_SUB_AREAS = ["PA-8", "PA-9", "PA-10", "PA-11"] as const;
 
 export const PERF_AREA_TO_GOLD: Record<string, string> = {};
 

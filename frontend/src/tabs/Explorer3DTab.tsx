@@ -12,9 +12,9 @@ function isoDate(d: Date) { return d.toISOString().slice(0, 10); }
 
 const _PA_ORDER = [
   "PA-1", "PA-2", "PA-3", "PA-4", "PA-5",
-  "PA-6", "PA-7", "Bioreactors", "BIO Skid", "Scale Up",
+  "PA-6", "PA-7", "PA-8", "PA-9", "PA-10",
+  "PA-11", "PA-12", "PA-13",
 ];
-const _BIGF4 = new Set(["BIO-1", "BIO-2", "BIO-3", "BIO-4"]);
 
 function SearchableSelect({ value, options, onChange, selStyle }: {
   value: string; options: string[]; onChange: (v: string) => void; selStyle: React.CSSProperties;
@@ -93,14 +93,12 @@ function ScatterPanel({ weekAgo, today, initialArea, onAreaChange }: { weekAgo: 
 
   const paOpts = useMemo(() => {
     const raw   = new Set(allProfiles.map((p) => p.PerformanceArea));
-    const hasBigf = [...raw].some((a) => _BIGF4.has(a));
-    const avail = new Set([...raw].filter((a) => !_BIGF4.has(a)));
-    if (hasBigf) avail.add("Bioreactors");
+    const avail = new Set(raw);
     return _PA_ORDER.filter((a) => avail.has(a));
   }, [allProfiles]);
   useEffect(() => { if (selArea === "" && paOpts.length > 0) { setSelArea(paOpts[0]); onAreaChange?.(paOpts[0]); } }, [paOpts]); // eslint-disable-line
 
-  const areas: string[] = selArea === "Bioreactors" ? ["BIO-1","BIO-2","BIO-3","BIO-4"] : [selArea];
+  const areas: string[] = [selArea];
   const profSub = allProfiles.filter((p) =>
     areas.includes(p.PerformanceArea) && p.DataSource?.toLowerCase().includes("historian")
   );

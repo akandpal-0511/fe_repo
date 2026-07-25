@@ -8,7 +8,7 @@ def clear_cache():
     pass
 
 
-# ── Scale Up Bio Reactor limits (static, no DB needed) ────────────────────────
+# ── PA-13 limits (static, no DB needed) ──────────────────────────────────────
 
 SCALE_UP_LIMITS: dict[str, dict[str, tuple]] = {
     "SIG-037": {"30 ˚C": (1.1, 1.3),  "50 ˚C": (1.1, 1.3),  "60 ˚C": (1.1, 1.3)},
@@ -50,30 +50,30 @@ _TAG_PROFILES = [
     {"Id": 701, "PerformanceArea": "PA-7", "Area": "PA-7", "Container": "UNIT-01", "Measure": "KPI-01", "Description": "KPI-19", "Unit": "g/L", "Tag": "PA7.UNIT01.KPI01", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 0.1, "UpperLimit": 1.5, "DataSource": "Historian", "IsCalculated": False},
     {"Id": 702, "PerformanceArea": "PA-7", "Area": "PA-7", "Container": "UNIT-01", "Measure": "KPI-02", "Description": "KPI-20", "Unit": "", "Tag": "PA7.UNIT01.KPI02", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 1.4, "UpperLimit": 2.2, "DataSource": "Historian", "IsCalculated": False},
     {"Id": 703, "PerformanceArea": "PA-7", "Area": "PA-7", "Container": "UNIT-01", "Measure": "KPI-03", "Description": "KPI-21", "Unit": "m³/h", "Tag": "PA7.UNIT01.KPI03", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 50.0, "UpperLimit": 400.0, "DataSource": "Historian", "IsCalculated": False},
-    # BIO-1
-    {"Id": 801, "PerformanceArea": "BIO-1", "Area": "BIO-1", "Container": "BIO-1-R01", "Measure": "KPI-01", "Description": "KPI-22", "Unit": "", "Tag": "BIO1.R01.KPI01", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 1.0, "UpperLimit": 2.0, "DataSource": "Historian", "IsCalculated": False},
-    {"Id": 802, "PerformanceArea": "BIO-1", "Area": "BIO-1", "Container": "BIO-1-R02", "Measure": "KPI-02", "Description": "KPI-23", "Unit": "˚C", "Tag": "BIO1.R02.KPI02", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 25.0, "UpperLimit": 45.0, "DataSource": "Historian", "IsCalculated": False},
-    {"Id": 803, "PerformanceArea": "BIO-1", "Area": "BIO-1", "Container": "BIO-1-R01", "Measure": "KPI-03", "Description": "KPI-24", "Unit": "mV", "Tag": "BIO1.R01.KPI03", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 600.0, "UpperLimit": 850.0, "DataSource": "Historian", "IsCalculated": False},
-    # BIO-2
-    {"Id": 811, "PerformanceArea": "BIO-2", "Area": "BIO-2", "Container": "BIO-2-R01", "Measure": "KPI-01", "Description": "KPI-25", "Unit": "", "Tag": "BIO2.R01.KPI01", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 1.0, "UpperLimit": 2.0, "DataSource": "Historian", "IsCalculated": False},
-    {"Id": 812, "PerformanceArea": "BIO-2", "Area": "BIO-2", "Container": "BIO-2-R01", "Measure": "KPI-02", "Description": "KPI-26", "Unit": "mV", "Tag": "BIO2.R01.KPI02", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 600.0, "UpperLimit": 850.0, "DataSource": "Historian", "IsCalculated": False},
-    {"Id": 813, "PerformanceArea": "BIO-2", "Area": "BIO-2", "Container": "BIO-2-R01", "Measure": "KPI-03", "Description": "KPI-27", "Unit": "˚C", "Tag": "BIO2.R01.KPI03", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 25.0, "UpperLimit": 45.0, "DataSource": "Historian", "IsCalculated": False},
-    # BIO-3
-    {"Id": 821, "PerformanceArea": "BIO-3", "Area": "BIO-3", "Container": "BIO-3-R01", "Measure": "KPI-01", "Description": "KPI-28", "Unit": "˚C", "Tag": "BIO3.R01.KPI01", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 25.0, "UpperLimit": 45.0, "DataSource": "Historian", "IsCalculated": False},
-    {"Id": 822, "PerformanceArea": "BIO-3", "Area": "BIO-3", "Container": "BIO-3-R01", "Measure": "KPI-02", "Description": "KPI-29", "Unit": "mg/L", "Tag": "BIO3.R01.KPI02", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 0.1, "UpperLimit": 1.0, "DataSource": "Historian", "IsCalculated": False},
-    {"Id": 823, "PerformanceArea": "BIO-3", "Area": "BIO-3", "Container": "BIO-3-R01", "Measure": "KPI-03", "Description": "KPI-30", "Unit": "", "Tag": "BIO3.R01.KPI03", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 1.0, "UpperLimit": 2.0, "DataSource": "Historian", "IsCalculated": False},
-    # BIO-4
-    {"Id": 831, "PerformanceArea": "BIO-4", "Area": "BIO-4", "Container": "BIO-4-R01", "Measure": "KPI-01", "Description": "KPI-31", "Unit": "mV", "Tag": "BIO4.R01.KPI01", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 600.0, "UpperLimit": 850.0, "DataSource": "Historian", "IsCalculated": False},
-    {"Id": 832, "PerformanceArea": "BIO-4", "Area": "BIO-4", "Container": "BIO-4-R01", "Measure": "KPI-02", "Description": "KPI-32", "Unit": "g/L", "Tag": "BIO4.R01.KPI02", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 4.0, "UpperLimit": 12.0, "DataSource": "Historian", "IsCalculated": False},
-    {"Id": 833, "PerformanceArea": "BIO-4", "Area": "BIO-4", "Container": "BIO-4-R01", "Measure": "KPI-03", "Description": "KPI-33", "Unit": "", "Tag": "BIO4.R01.KPI03", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 1.0, "UpperLimit": 2.0, "DataSource": "Historian", "IsCalculated": False},
-    # BIO Skid
-    {"Id": 841, "PerformanceArea": "BIO Skid", "Area": "BIO Skid", "Container": "BIO-CS", "Measure": "KPI-01", "Description": "KPI-34", "Unit": "m³/min", "Tag": "BIOCS.KPI01", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 100.0, "UpperLimit": 500.0, "DataSource": "Historian", "IsCalculated": False},
-    {"Id": 842, "PerformanceArea": "BIO Skid", "Area": "BIO Skid", "Container": "BIO-CS", "Measure": "KPI-02", "Description": "KPI-35", "Unit": "m³/h", "Tag": "BIOCS.KPI02", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 5.0, "UpperLimit": 30.0, "DataSource": "Historian", "IsCalculated": False},
-    {"Id": 843, "PerformanceArea": "BIO Skid", "Area": "BIO Skid", "Container": "BIO-CS", "Measure": "KPI-03", "Description": "KPI-36", "Unit": "kPa", "Tag": "BIOCS.KPI03", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 50.0, "UpperLimit": 200.0, "DataSource": "Historian", "IsCalculated": False},
-    # Scale Up
-    {"Id": 9001, "PerformanceArea": "Scale Up", "Area": "Scale Up", "Container": "Scale Up", "Measure": "KPI-01", "Description": "KPI-37", "Unit": "", "Tag": "SIG-037", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 1.1, "UpperLimit": 1.3, "DataSource": "Bio Reactor", "IsCalculated": False},
-    {"Id": 9002, "PerformanceArea": "Scale Up", "Area": "Scale Up", "Container": "Scale Up", "Measure": "KPI-02", "Description": "KPI-38", "Unit": "mV", "Tag": "SIG-038", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 650.0, "UpperLimit": 850.0, "DataSource": "Bio Reactor", "IsCalculated": False},
-    {"Id": 9003, "PerformanceArea": "Scale Up", "Area": "Scale Up", "Container": "Scale Up", "Measure": "KPI-03", "Description": "KPI-39", "Unit": "˚C", "Tag": "SIG-039", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 28.0, "UpperLimit": 62.0, "DataSource": "Bio Reactor", "IsCalculated": False},
+    # PA-8
+    {"Id": 801, "PerformanceArea": "PA-8",  "Area": "PA-8",  "Container": "UNIT-01", "Measure": "KPI-01", "Description": "KPI-22", "Unit": "", "Tag": "PA8.UNIT01.KPI01", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 1.0, "UpperLimit": 2.0, "DataSource": "Historian", "IsCalculated": False},
+    {"Id": 802, "PerformanceArea": "PA-8",  "Area": "PA-8",  "Container": "UNIT-02", "Measure": "KPI-02", "Description": "KPI-23", "Unit": "˚C", "Tag": "PA8.UNIT02.KPI02", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 25.0, "UpperLimit": 45.0, "DataSource": "Historian", "IsCalculated": False},
+    {"Id": 803, "PerformanceArea": "PA-8",  "Area": "PA-8",  "Container": "UNIT-01", "Measure": "KPI-03", "Description": "KPI-24", "Unit": "mV", "Tag": "PA8.UNIT01.KPI03", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 600.0, "UpperLimit": 850.0, "DataSource": "Historian", "IsCalculated": False},
+    # PA-9
+    {"Id": 811, "PerformanceArea": "PA-9",  "Area": "PA-9",  "Container": "UNIT-01", "Measure": "KPI-01", "Description": "KPI-25", "Unit": "", "Tag": "PA9.UNIT01.KPI01", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 1.0, "UpperLimit": 2.0, "DataSource": "Historian", "IsCalculated": False},
+    {"Id": 812, "PerformanceArea": "PA-9",  "Area": "PA-9",  "Container": "UNIT-01", "Measure": "KPI-02", "Description": "KPI-26", "Unit": "mV", "Tag": "PA9.UNIT01.KPI02", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 600.0, "UpperLimit": 850.0, "DataSource": "Historian", "IsCalculated": False},
+    {"Id": 813, "PerformanceArea": "PA-9",  "Area": "PA-9",  "Container": "UNIT-01", "Measure": "KPI-03", "Description": "KPI-27", "Unit": "˚C", "Tag": "PA9.UNIT01.KPI03", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 25.0, "UpperLimit": 45.0, "DataSource": "Historian", "IsCalculated": False},
+    # PA-10
+    {"Id": 821, "PerformanceArea": "PA-10", "Area": "PA-10", "Container": "UNIT-01", "Measure": "KPI-01", "Description": "KPI-28", "Unit": "˚C", "Tag": "PA10.UNIT01.KPI01", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 25.0, "UpperLimit": 45.0, "DataSource": "Historian", "IsCalculated": False},
+    {"Id": 822, "PerformanceArea": "PA-10", "Area": "PA-10", "Container": "UNIT-01", "Measure": "KPI-02", "Description": "KPI-29", "Unit": "mg/L", "Tag": "PA10.UNIT01.KPI02", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 0.1, "UpperLimit": 1.0, "DataSource": "Historian", "IsCalculated": False},
+    {"Id": 823, "PerformanceArea": "PA-10", "Area": "PA-10", "Container": "UNIT-01", "Measure": "KPI-03", "Description": "KPI-30", "Unit": "", "Tag": "PA10.UNIT01.KPI03", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 1.0, "UpperLimit": 2.0, "DataSource": "Historian", "IsCalculated": False},
+    # PA-11
+    {"Id": 831, "PerformanceArea": "PA-11", "Area": "PA-11", "Container": "UNIT-01", "Measure": "KPI-01", "Description": "KPI-31", "Unit": "mV", "Tag": "PA11.UNIT01.KPI01", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 600.0, "UpperLimit": 850.0, "DataSource": "Historian", "IsCalculated": False},
+    {"Id": 832, "PerformanceArea": "PA-11", "Area": "PA-11", "Container": "UNIT-01", "Measure": "KPI-02", "Description": "KPI-32", "Unit": "g/L", "Tag": "PA11.UNIT01.KPI02", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 4.0, "UpperLimit": 12.0, "DataSource": "Historian", "IsCalculated": False},
+    {"Id": 833, "PerformanceArea": "PA-11", "Area": "PA-11", "Container": "UNIT-01", "Measure": "KPI-03", "Description": "KPI-33", "Unit": "", "Tag": "PA11.UNIT01.KPI03", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 1.0, "UpperLimit": 2.0, "DataSource": "Historian", "IsCalculated": False},
+    # PA-12
+    {"Id": 841, "PerformanceArea": "PA-12", "Area": "PA-12", "Container": "UNIT-01", "Measure": "KPI-01", "Description": "KPI-34", "Unit": "m³/min", "Tag": "PA12.UNIT01.KPI01", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 100.0, "UpperLimit": 500.0, "DataSource": "Historian", "IsCalculated": False},
+    {"Id": 842, "PerformanceArea": "PA-12", "Area": "PA-12", "Container": "UNIT-01", "Measure": "KPI-02", "Description": "KPI-35", "Unit": "m³/h", "Tag": "PA12.UNIT01.KPI02", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 5.0, "UpperLimit": 30.0, "DataSource": "Historian", "IsCalculated": False},
+    {"Id": 843, "PerformanceArea": "PA-12", "Area": "PA-12", "Container": "UNIT-01", "Measure": "KPI-03", "Description": "KPI-36", "Unit": "kPa", "Tag": "PA12.UNIT01.KPI03", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 50.0, "UpperLimit": 200.0, "DataSource": "Historian", "IsCalculated": False},
+    # PA-13
+    {"Id": 9001, "PerformanceArea": "PA-13", "Area": "PA-13", "Container": "UNIT-01", "Measure": "KPI-01", "Description": "KPI-37", "Unit": "", "Tag": "SIG-037", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 1.1, "UpperLimit": 1.3, "DataSource": "Historian", "IsCalculated": False},
+    {"Id": 9002, "PerformanceArea": "PA-13", "Area": "PA-13", "Container": "UNIT-01", "Measure": "KPI-02", "Description": "KPI-38", "Unit": "mV", "Tag": "SIG-038", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 650.0, "UpperLimit": 850.0, "DataSource": "Historian", "IsCalculated": False},
+    {"Id": 9003, "PerformanceArea": "PA-13", "Area": "PA-13", "Container": "UNIT-01", "Measure": "KPI-03", "Description": "KPI-39", "Unit": "˚C", "Tag": "SIG-039", "ValueType": "DOUBLE", "Statistic": "Mean", "LowerLimit": 28.0, "UpperLimit": 62.0, "DataSource": "Historian", "IsCalculated": False},
 ]
 
 
@@ -140,16 +140,16 @@ def getGoldLatestRow(gold_table: str) -> pd.DataFrame:
 
 
 def getBigFAll():
-    from constants import BIGF_AREAS
+    from constants import PA_SUB_AREAS
     from helpers import buildValLookup
     all_profiles = getAllTagProfiles()
     all_latest   = getAllLatestValues()
     profiles_by = {
         bf: all_profiles[all_profiles["PerformanceArea"] == bf].reset_index(drop=True)
-        for bf in BIGF_AREAS
+        for bf in PA_SUB_AREAS
     }
     all_vals = buildValLookup(all_latest) if not all_latest.empty else {}
-    vals_by = {bf: all_vals for bf in BIGF_AREAS}
+    vals_by = {bf: all_vals for bf in PA_SUB_AREAS}
     return profiles_by, vals_by
 
 

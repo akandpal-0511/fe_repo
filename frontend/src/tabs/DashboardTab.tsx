@@ -7,7 +7,7 @@ import type { TagProfile, TrendPoint } from "../types";
 
 const DASHBOARD_AREAS = [
   "PA-1", "PA-2", "PA-3", "PA-4", "PA-5",
-  "PA-6", "PA-7", "BIO-1", "BIO-2", "BIO-3", "BIO-4", "BIO Skid",
+  "PA-6", "PA-7", "PA-8", "PA-9", "PA-10", "PA-11", "PA-12",
 ];
 
 function isoNDaysAgo(n: number) {

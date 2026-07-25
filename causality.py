@@ -25,49 +25,45 @@ logger = logging.getLogger(__name__)
 # Process order — used to sort PA axis on the heatmap
 PROCESS_ORDER = [
     "PA-1", "PA-2", "PA-3", "PA-4", "PA-5",
-    "PA-6", "PA-7",
-    "Bioreactors", "BIO Skid", "BIO-1", "BIO-2", "BIO-3", "BIO-4",
-    "Scale Up",
+    "PA-6", "PA-7", "PA-8", "PA-9", "PA-10",
+    "PA-11", "PA-12", "PA-13",
 ]
 
-# Process rank for causal direction filtering.
 PROCESS_RANK: dict[str, int] = {
-    "PA-1":        1,
-    "PA-2":        2,
-    "BIO Skid":    2,
-    "BIO-1":       2,
-    "BIO-2":       2,
-    "BIO-3":       2,
-    "BIO-4":       2,
-    "Bioreactors": 2,
-    "PA-3":        3,
-    "PA-4":        4,
-    "PA-5":        5,
-    "PA-6":        6,
-    "PA-7":        7,
+    "PA-1":  1,
+    "PA-2":  2,
+    "PA-8":  2,
+    "PA-9":  2,
+    "PA-10": 2,
+    "PA-11": 2,
+    "PA-12": 2,
+    "PA-3":  3,
+    "PA-4":  4,
+    "PA-5":  5,
+    "PA-6":  6,
+    "PA-7":  7,
+    "PA-13": 8,
 }
 
-# Known feedback pairs — allowed even if source rank > target rank.
 FEEDBACK_PAIRS: set[tuple[str, str]] = {
     ("PA-7", "PA-3"),
     ("PA-7", "PA-2"),
 }
 
 PA_COLOURS = {
-    "PA-1":        "#f0883e",
-    "PA-2":        "#d29922",
-    "PA-3":        "#3fb950",
-    "PA-4":        "#58a6ff",
-    "PA-5":        "#a371f7",
-    "PA-6":        "#79c0ff",
-    "PA-7":        "#56d364",
-    "Bioreactors": "#ff7b72",
-    "BIO Skid":    "#ffa657",
-    "BIO-1":       "#ff7b72",
-    "BIO-2":       "#ffa657",
-    "BIO-3":       "#d2a8ff",
-    "BIO-4":       "#7ee787",
-    "Scale Up":    "#e3b341",
+    "PA-1":  "#f0883e",
+    "PA-2":  "#d29922",
+    "PA-3":  "#3fb950",
+    "PA-4":  "#58a6ff",
+    "PA-5":  "#a371f7",
+    "PA-6":  "#79c0ff",
+    "PA-7":  "#56d364",
+    "PA-8":  "#ff7b72",
+    "PA-9":  "#ffa657",
+    "PA-10": "#d2a8ff",
+    "PA-11": "#7ee787",
+    "PA-12": "#ffa657",
+    "PA-13": "#e3b341",
 }
 DEFAULT_COLOUR = "#7d8590"
 
@@ -86,7 +82,7 @@ def _sort_areas(areas: list[str]) -> list[str]:
 def _get_historian_tags(areas: list[str], all_sources: bool = False) -> dict[str, list[dict]]:
     """Return {pa → [{tag, description}, ...]} for sensors in the given areas.
 
-    all_sources=True includes non-Historian sources (e.g. Bioreactor Daily) — used
+    all_sources=True includes non-Historian sources — used
     for single-PA intra-sensor analysis where all available signals are relevant.
     """
     all_prof = getAllTagProfiles()

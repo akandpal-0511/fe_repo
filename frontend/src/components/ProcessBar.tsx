@@ -3,16 +3,19 @@ import { useTheme } from "../theme";
 import { api } from "../api";
 
 const STEPS = [
-  { pa: "PA-1",      label: "PA-1",      icon: "①" },
-  { pa: "PA-2",      label: "PA-2",      icon: "②" },
-  { pa: "PA-3",      label: "PA-3",      icon: "③" },
-  { pa: "BIO Skid",  label: "BIO Skid",  icon: "⑤" },
-  { pa: "Bioreactors", label: "BIO",     icon: "🧫" },
-  { pa: "PA-4",      label: "PA-4",      icon: "④" },
-  { pa: "PA-5",      label: "PA-5",      icon: "⑥" },
-  { pa: "PA-7",      label: "PA-7",      icon: "⑦" },
-  { pa: "PA-6",      label: "PA-6",      icon: "⑧" },
-  { pa: "Scale Up",  label: "Scale Up",  icon: "🔬" },
+  { pa: "PA-1",  label: "PA-1",  icon: "①" },
+  { pa: "PA-2",  label: "PA-2",  icon: "②" },
+  { pa: "PA-3",  label: "PA-3",  icon: "③" },
+  { pa: "PA-4",  label: "PA-4",  icon: "④" },
+  { pa: "PA-5",  label: "PA-5",  icon: "⑤" },
+  { pa: "PA-6",  label: "PA-6",  icon: "⑥" },
+  { pa: "PA-7",  label: "PA-7",  icon: "⑦" },
+  { pa: "PA-8",  label: "PA-8",  icon: "⑧" },
+  { pa: "PA-9",  label: "PA-9",  icon: "⑨" },
+  { pa: "PA-10", label: "PA-10", icon: "⑩" },
+  { pa: "PA-11", label: "PA-11", icon: "⑪" },
+  { pa: "PA-12", label: "PA-12", icon: "⑫" },
+  { pa: "PA-13", label: "PA-13", icon: "⑬" },
 ];
 
 function statusColor(val: number | null, lo: number | null, hi: number | null): string {

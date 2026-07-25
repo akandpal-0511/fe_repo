@@ -9,20 +9,23 @@ import type { HeatmapResponse, NetworkResponse, CausalityNode, CausalityEdge } f
 const PROCESS_ORDER = [
   "PA-1", "PA-2", "PA-3", "PA-4", "PA-5",
   "PA-6", "PA-7",
-  "BIO Skid", "BIO-1", "BIO-2", "BIO-3", "BIO-4",
+  "PA-8", "PA-9", "PA-10", "PA-11", "PA-12", "PA-13",
 ];
 
 const PA_COLOURS: Record<string, string> = {
-  "PA-1":        "#f0883e",
-  "PA-2":        "#d29922",
-  "PA-3":        "#3fb950",
-  "PA-4":        "#58a6ff",
-  "PA-5":        "#a371f7",
-  "PA-6":        "#79c0ff",
-  "PA-7":        "#56d364",
-  "Bioreactors": "#ff7b72",
-  "BIO Skid":    "#ffa657",
-  "Scale Up":    "#e3b341",
+  "PA-1":  "#f0883e",
+  "PA-2":  "#d29922",
+  "PA-3":  "#3fb950",
+  "PA-4":  "#58a6ff",
+  "PA-5":  "#a371f7",
+  "PA-6":  "#79c0ff",
+  "PA-7":  "#56d364",
+  "PA-8":  "#ff7b72",
+  "PA-9":  "#ffa657",
+  "PA-10": "#d2a8ff",
+  "PA-11": "#7ee787",
+  "PA-12": "#ffa657",
+  "PA-13": "#e3b341",
 };
 
 function isoToday() {

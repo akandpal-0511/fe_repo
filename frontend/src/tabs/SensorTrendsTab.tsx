@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Plot from "react-plotly.js";
-import { BIGF_AREAS } from "../constants";
+import { PA_SUB_AREAS } from "../constants";
 import { useTheme } from "../theme";
 import { api } from "../api";
 import { SectionHeader } from "../components/KPIStrip";
@@ -22,18 +22,21 @@ function statusColor(val: number | null, lo: number | null, hi: number | null) {
 
 const FLOW_STEPS: { pa: string; label: string }[][] = [
   [
-    { pa: "PA-1",      label: "PA-1" },
-    { pa: "PA-2",      label: "PA-2" },
-    { pa: "PA-3",      label: "PA-3" },
-    { pa: "PA-4",      label: "PA-4" },
-    { pa: "PA-5",      label: "PA-5" },
-    { pa: "PA-6",      label: "PA-6" },
-    { pa: "PA-7",      label: "PA-7" },
+    { pa: "PA-1",  label: "PA-1"  },
+    { pa: "PA-2",  label: "PA-2"  },
+    { pa: "PA-3",  label: "PA-3"  },
+    { pa: "PA-4",  label: "PA-4"  },
+    { pa: "PA-5",  label: "PA-5"  },
+    { pa: "PA-6",  label: "PA-6"  },
+    { pa: "PA-7",  label: "PA-7"  },
   ],
   [
-    { pa: "Bioreactors", label: "Bioreactors" },
-    { pa: "BIO Skid",    label: "BIO Skid" },
-    { pa: "Scale Up",    label: "Scale Up" },
+    { pa: "PA-8",  label: "PA-8"  },
+    { pa: "PA-9",  label: "PA-9"  },
+    { pa: "PA-10", label: "PA-10" },
+    { pa: "PA-11", label: "PA-11" },
+    { pa: "PA-12", label: "PA-12" },
+    { pa: "PA-13", label: "PA-13" },
   ],
 ];
 
@@ -108,7 +111,7 @@ export function SensorTrendsTab({ initialArea, onAreaChange }: { initialArea?: s
 
   const [selArea,      setSelArea]      = useState<string>(initialArea ?? "PA-1");
   const [dsFilter,     setDsFilter]     = useState<"Historian only" | "All sources">("All sources");
-  const [bigfReactors, setBigfReactors] = useState<string[]>(["BIO-1"]);
+  const [bigfReactors, setBigfReactors] = useState<string[]>([]);
   const [selLabels,    setSelLabels]    = useState<string[]>([]);
   const [sensorSearch, setSensorSearch] = useState("");
 
@@ -132,15 +135,12 @@ export function SensorTrendsTab({ initialArea, onAreaChange }: { initialArea?: s
 
   const _PA_ORDER = [
     "PA-1", "PA-2", "PA-3", "PA-4", "PA-5",
-    "PA-6", "PA-7", "Bioreactors", "BIO Skid", "Scale Up",
+    "PA-6", "PA-7", "PA-8", "PA-9", "PA-10",
+    "PA-11", "PA-12", "PA-13",
   ];
-  const _bigf4 = new Set(["BIO-1", "BIO-2", "BIO-3", "BIO-4"]);
   const _rawAreas = new Set(allProfiles.map((p) => p.PerformanceArea));
-  const _hasBigf  = [..._rawAreas].some((a) => _bigf4.has(a));
-  const _available = new Set([..._rawAreas].filter((a) => !_bigf4.has(a)));
-  if (_hasBigf) _available.add("Bioreactors");
-  const paOpts = _PA_ORDER.filter((a) => _available.has(a));
-  const dbAreas = selArea === "Bioreactors" ? bigfReactors : [selArea];
+  const paOpts = _PA_ORDER.filter((a) => _rawAreas.has(a));
+  const dbAreas = [selArea];
   let areaProf = allProfiles.filter((p) => dbAreas.includes(p.PerformanceArea));
   if (dsFilter === "Historian only") {
     areaProf = areaProf.filter((p) => p.DataSource?.toLowerCase().includes("historian"));
@@ -194,7 +194,7 @@ export function SensorTrendsTab({ initialArea, onAreaChange }: { initialArea?: s
   useEffect(() => {
     if (allLabels.length === 0) return;
     setSelLabels(allLabels);
-  }, [selArea, dsFilter, bigfReactors.join(","), allLabels.length]); // eslint-disable-line
+  }, [selArea, dsFilter, allLabels.length]); // eslint-disable-line
 
   // Auto-load once selLabels are set for a new PA
   const autoLoadRef = useState<string>("")
@@ -223,7 +223,7 @@ export function SensorTrendsTab({ initialArea, onAreaChange }: { initialArea?: s
             {/* Left: clickable flowsheet */}
             <FlowsheetPASelector
               selected={selArea}
-              onSelect={(pa) => { setSelArea(pa); onAreaChange?.(pa); setSelLabels([]); setSensorSearch(""); setBigfReactors(["BIO-1"]); }}
+              onSelect={(pa) => { setSelArea(pa); onAreaChange?.(pa); setSelLabels([]); setSensorSearch(""); }}
             />
 
             {/* Right: sensor selector */}
@@ -234,7 +234,7 @@ export function SensorTrendsTab({ initialArea, onAreaChange }: { initialArea?: s
                 <label style={labelStyle}>Performance Area</label>
                 <select
                   value={selArea}
-                  onChange={(e) => { setSelArea(e.target.value); onAreaChange?.(e.target.value); setSelLabels([]); setSensorSearch(""); setBigfReactors(["BIO-1"]); }}
+                  onChange={(e) => { setSelArea(e.target.value); onAreaChange?.(e.target.value); setSelLabels([]); setSensorSearch(""); }}
                   style={selectStyle}
                 >
                   {paOpts.map((a) => <option key={a}>{a}</option>)}
@@ -256,22 +256,6 @@ export function SensorTrendsTab({ initialArea, onAreaChange }: { initialArea?: s
               </div>
 
               {/* BIGF reactor checkboxes */}
-              {selArea === "Bioreactors" && (
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {BIGF_AREAS.map((bf) => (
-                    <label key={bf} style={{ fontSize: "0.72rem", color: C.MUTED, cursor: "pointer" }}>
-                      <input type="checkbox"
-                             checked={bigfReactors.includes(bf)}
-                             onChange={(e) => setBigfReactors(e.target.checked
-                               ? [...bigfReactors, bf]
-                               : bigfReactors.filter((x) => x !== bf)
-                             )}
-                             style={{ marginRight: 4 }} />
-                      {bf}
-                    </label>
-                  ))}
-                </div>
-              )}
 
               {/* Sensor list */}
               <div style={{ background: C.CARD, border: `1px solid ${C.BORDER}`, borderRadius: 6, padding: 10 }}>

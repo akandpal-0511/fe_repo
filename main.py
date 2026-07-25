@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from constants import BIGF_AREAS
+from constants import PA_SUB_AREAS
 from helpers import buildValLookup, fmtVal, statusColor, _lim
 from db import (
     getAllTagProfiles, getTagProfiles, getAllLatestValues,
@@ -141,7 +141,7 @@ def api_kpis(area: str):
 def api_bigf_profiles():
     all_prof = getAllTagProfiles()
     result = {}
-    for bf in BIGF_AREAS:
+    for bf in PA_SUB_AREAS:
         sub = all_prof[all_prof["PerformanceArea"] == bf] if not all_prof.empty else pd.DataFrame()
         sensor = sub[
             sub["DataSource"].str.contains("Historian", na=False, case=False) &

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import Plot from "react-plotly.js";
-import { BIGF_AREAS } from "../constants";
+import { PA_SUB_AREAS } from "../constants";
 import { useTheme } from "../theme";
 import { api } from "../api";
 import { SectionHeader } from "../components/KPIStrip";
@@ -12,14 +12,10 @@ function isoDate(d: Date) { return d.toISOString().slice(0, 10); }
 
 const _PA_ORDER = [
   "PA-1", "PA-2", "PA-3", "PA-4", "PA-5",
-  "PA-6", "PA-7", "Bioreactors", "BIO Skid", "Scale Up",
+  "PA-6", "PA-7", "PA-8", "PA-9", "PA-10",
+  "PA-11", "PA-12", "PA-13",
 ];
-const _BIGF4 = new Set(["BIO-1", "BIO-2", "BIO-3", "BIO-4"]);
-
-// Some display PA names map to multiple PerformanceArea values in the DB
-const PA_EXPAND: Record<string, string[]> = {
-  "Bioreactors": ["BIO-1", "BIO-2", "BIO-3", "BIO-4"],
-};
+const PA_EXPAND: Record<string, string[]> = {};
 // Reverse map: db PerformanceArea → display PA name (for colour lookup)
 const DB_PA_TO_DISPLAY: Record<string, string> = {};
 for (const [display, dbs] of Object.entries(PA_EXPAND)) {
@@ -65,7 +61,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
   const [activePAsLocal, setActivePAsLocal] = useState<Set<string>>(new Set(["PA-1", "PA-2"]));
   const activePAs    = activePAsOverride ?? activePAsLocal;
   function setActivePAs(next: Set<string>) { setActivePAsLocal(next); onActivePAsChange?.(next); }
-  const [bigfSubAreas,  setBigfSubAreas]  = useState<Set<string>>(new Set(["BIO-1"]));
+  const [bigfSubAreas,  setBigfSubAreas]  = useState<Set<string>>(new Set());
   const [dsFilter,      setDsFilter]      = useState<"Historian only" | "All sources">("All sources");
   const [search,        setSearch]        = useState("");
   const [selectedTags,  setSelectedTags]  = useState<SelTag[]>([]);
@@ -77,14 +73,14 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
   const [totalBatches,    setTotalBatches]    = useState(0);
   const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false);
 
-  // Scale Up bio-reactor specific state
+  // PA-13 specific state
   const [bioData,   setBioData]   = useState<BioReactorPoint[]>([]);
   const [bioLimits, setBioLimits] = useState<Record<string, Record<string, [number, number]>>>({});
 
-  /** Returns true if a SelTag comes from the Scale Up bio-reactor data source */
+  /** Returns true if a SelTag is from PA-13 */
   function isBioTag(tag: string): boolean {
     const prof = allProfiles.find((p) => p.Tag === tag);
-    return prof?.DataSource === "Bio Reactor" && prof?.PerformanceArea === "Scale Up";
+    return prof?.PerformanceArea === "PA-13";
   }
 
   useEffect(() => {
@@ -94,7 +90,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
       .finally(() => setProfLoading(false));
   }, []);
 
-  // Auto-select all PA-1 + PA-2 historian tags on first load
+  // Auto-select PA-1 + PA-2 historian tags on first load
   const autoSelectRef = useRef(false);
   useEffect(() => {
     if (autoSelectRef.current || allProfiles.length === 0) return;
@@ -122,9 +118,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
   // Derive ordered PA options from loaded profiles
   const paOpts = useMemo(() => {
     const rawAreas = new Set(allProfiles.map((p) => p.PerformanceArea));
-    const hasBigf  = [...rawAreas].some((a) => _BIGF4.has(a));
-    const available = new Set([...rawAreas].filter((a) => !_BIGF4.has(a)));
-    if (hasBigf) available.add("Bioreactors");
+    const available = new Set(rawAreas);
     return _PA_ORDER.filter((a) => available.has(a));
   }, [allProfiles]);
 
@@ -135,7 +129,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
     return map;
   }, [paOpts]);
 
-  // Resolve colour for any PA — BIO-1/2/3/4 share the "Bioreactors" colour
+  // Resolve colour for PA
   function colourForPA(pa: string): string {
     return paColorMap[pa] ?? paColorMap[displayPA(pa)] ?? "#aaa";
   }
@@ -144,7 +138,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
   const filteredProfiles = useMemo(() => {
     const expandedPAs = new Set(
       Array.from(activePAs).flatMap((pa) =>
-        pa === "Bioreactors" ? Array.from(bigfSubAreas) : (PA_EXPAND[pa] ?? [pa])
+        (PA_EXPAND[pa] ?? [pa])
       )
     );
     let profs = allProfiles.filter((p) => expandedPAs.has(p.PerformanceArea));
@@ -166,7 +160,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
   const grouped = useMemo(() => {
     const map = new Map<string, TagProfile[]>();
     for (const p of filteredProfiles) {
-      // key by actual PerformanceArea so BIO-1/BIO-2/etc get separate sections
+      // key by actual PerformanceArea
       const key = p.PerformanceArea;
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(p);
@@ -183,7 +177,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
       setSelectedTags((prev) => [
         ...prev,
         { tag: p.Tag, desc: p.Description,
-          // store actual PerformanceArea (BIO-1, BIO-2, etc.) for labelling
+          // store actual PerformanceArea for labelling
           pa: p.PerformanceArea,
           unit: p.Unit ?? "", lo: p.LowerLimit ?? null, hi: p.UpperLimit ?? null },
       ]);
@@ -194,7 +188,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
     const next = new Set(activePAs);
     if (next.has(pa)) {
       next.delete(pa);
-      // deselect any tags from that PA (expand to sub-areas for grouped PAs like Bioreactors)
+      // deselect any tags from that PA
       const expanded = new Set(PA_EXPAND[pa] ?? [pa]);
       setSelectedTags((prev) => prev.filter((t) => !expanded.has(t.pa) && t.pa !== pa));
     } else {
@@ -243,7 +237,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
       }
     }
 
-    // ── Scale Up bio-reactor tags ──────────────────────────────────────────
+    // ── PA-13 tags ────────────────────────────────────────────────────────
     if (bioTags.length > 0) {
       fetches.push(
         api.bioReactorDaily(bioTags, start, end)
@@ -643,7 +637,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
             </div>
           )}
 
-          {/* ── Scale Up Bio-Reactor charts (multi-series per measure) ── */}
+          {/* ── PA-13 charts (multi-series per measure) ── */}
           <BioReactorCharts
             selectedTags={selectedTags}
             bioData={bioData}
@@ -767,7 +761,7 @@ function BioReactorCharts({ selectedTags, bioData, bioLimits, isBioTag, colourFo
       )}
 
       <div style={{ fontSize: "0.68rem", color: C.MUTED, marginBottom: 6 }}>
-        Scale Up — daily actuals per container
+        PA-13 — daily actuals per container
       </div>
       <div style={{ display: "grid", gridTemplateColumns: `repeat(${bioCols}, 1fr)`, gap: 8 }}>
         {bioSelected.map((t) => {
