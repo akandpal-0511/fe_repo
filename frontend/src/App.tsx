@@ -26,9 +26,9 @@ const STATIC_PA: Partial<Record<TabId, string>> = { stacking: "Stacking" };
 // One-line demo talking point per tab — shown in a dismissible info banner.
 const TAB_INFO: Record<TabId, string> = {
   "dashboard":     "KPI home: plan vs. actual per process area, color-coded, with trends and operator comments.",
-  "stacking":      "Ore-stacking execution grid: planned vs. actual tons, % complete, and schedule by panel/cell. In-progress cells blink.",
+  "stacking":      "Plan Status grid: planned vs. actual units, % complete, and schedule by panel/cell. In-progress cells blink.",
   "3d-explorer":   "Pick 3 sensors as X/Y/Z axes and see how they relate in 3D over a date range.",
-  "sensor-trends": "Click the process flowsheet to pick a performance area, choose sensors, and view time-series trends.",
+  "sensor-trends": "Click a process area box to select it, choose sensors from the panel, and view time-series trends.",
   "multi-pa":      "Overlay sensors across multiple performance areas to correlate cause and effect across the process.",
   "genie":         "Natural-language questions over your operations data, powered by Databricks Genie (live in production).",
 };
@@ -37,10 +37,10 @@ export default function App() {
   const { C, theme } = useTheme();
   const [active,      setActive]      = useState<TabId>("dashboard");
   const [infoOpen,    setInfoOpen]    = useState(true);
-  const [sensorPA,    setSensorPA]    = useState("Mining");
-  const [explorerPA,  setExplorerPA]  = useState("Mining");
+  const [sensorPA,    setSensorPA]    = useState("PA-1");
+  const [explorerPA,  setExplorerPA]  = useState("PA-1");
   // Multi-PA uses a Set
-  const [activePAs,   setActivePAs]   = useState<Set<string>>(new Set(["Mining", "Crushing"]));
+  const [activePAs,   setActivePAs]   = useState<Set<string>>(new Set(["PA-1", "PA-2"]));
 
   const isDashboard = active === "dashboard";
   const isMultiPA   = active === "multi-pa";

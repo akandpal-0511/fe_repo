@@ -22,55 +22,52 @@ from db import getTrendData, getAllTagProfiles
 
 logger = logging.getLogger(__name__)
 
-# Physical process order — used to sort PA axis on the heatmap
+# Process order — used to sort PA axis on the heatmap
 PROCESS_ORDER = [
-    "Mining", "Crushing", "Agglomeration", "Stacking", "Leaching",
-    "PLS SX EW", "Raffinate",
-    "BIGF Bioreactors", "BIGF Common Skid", "BIGF1", "BIGF2", "BIGF3", "BIGF4",
-    "Scale Up Bioreactors",
+    "PA-1", "PA-2", "PA-3", "PA-4", "PA-5",
+    "PA-6", "PA-7",
+    "Bioreactors", "BIO Skid", "BIO-1", "BIO-2", "BIO-3", "BIO-4",
+    "Scale Up",
 ]
 
 # Process rank for causal direction filtering.
-# BIGFs run parallel to Crushing (rank 2) and feed into Agglomeration.
-# PAs not listed get rank 99 — edges involving them are not filtered.
 PROCESS_RANK: dict[str, int] = {
-    "Mining":            1,
-    "Crushing":          2,
-    "BIGF Common Skid":  2,
-    "BIGF1":             2,
-    "BIGF2":             2,
-    "BIGF3":             2,
-    "BIGF4":             2,
-    "BIGF Bioreactors":  2,
-    "Agglomeration":     3,
-    "Stacking":          4,
-    "Leaching":          5,
-    "PLS SX EW":         6,
-    "Raffinate":         7,
+    "PA-1":        1,
+    "PA-2":        2,
+    "BIO Skid":    2,
+    "BIO-1":       2,
+    "BIO-2":       2,
+    "BIO-3":       2,
+    "BIO-4":       2,
+    "Bioreactors": 2,
+    "PA-3":        3,
+    "PA-4":        4,
+    "PA-5":        5,
+    "PA-6":        6,
+    "PA-7":        7,
 }
 
-# Known physical feedback pairs — allowed even if source rank > target rank.
-# Raffinate recycles acid back to Agglomeration.
+# Known feedback pairs — allowed even if source rank > target rank.
 FEEDBACK_PAIRS: set[tuple[str, str]] = {
-    ("Raffinate", "Agglomeration"),
-    ("Raffinate", "Crushing"),
+    ("PA-7", "PA-3"),
+    ("PA-7", "PA-2"),
 }
 
 PA_COLOURS = {
-    "Mining":              "#f0883e",
-    "Crushing":            "#d29922",
-    "Agglomeration":       "#3fb950",
-    "Stacking":            "#58a6ff",
-    "Leaching":            "#a371f7",
-    "PLS SX EW":           "#79c0ff",
-    "Raffinate":           "#56d364",
-    "BIGF Bioreactors":    "#ff7b72",
-    "BIGF Common Skid":    "#ffa657",
-    "BIGF1":               "#ff7b72",
-    "BIGF2":               "#ffa657",
-    "BIGF3":               "#d2a8ff",
-    "BIGF4":               "#7ee787",
-    "Scale Up Bioreactors":"#e3b341",
+    "PA-1":        "#f0883e",
+    "PA-2":        "#d29922",
+    "PA-3":        "#3fb950",
+    "PA-4":        "#58a6ff",
+    "PA-5":        "#a371f7",
+    "PA-6":        "#79c0ff",
+    "PA-7":        "#56d364",
+    "Bioreactors": "#ff7b72",
+    "BIO Skid":    "#ffa657",
+    "BIO-1":       "#ff7b72",
+    "BIO-2":       "#ffa657",
+    "BIO-3":       "#d2a8ff",
+    "BIO-4":       "#7ee787",
+    "Scale Up":    "#e3b341",
 }
 DEFAULT_COLOUR = "#7d8590"
 

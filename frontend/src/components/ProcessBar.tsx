@@ -3,16 +3,16 @@ import { useTheme } from "../theme";
 import { api } from "../api";
 
 const STEPS = [
-  { pa: "Mining",               label: "Mining",       icon: "⛏" },
-  { pa: "Crushing",             label: "Crushing",     icon: "①" },
-  { pa: "Agglomeration",        label: "Agglom.",      icon: "④" },
-  { pa: "BIGF Common Skid",     label: "BIGF Skid",    icon: "⑤" },
-  { pa: "BIGF Bioreactors",     label: "BIGF",         icon: "🧫" },
-  { pa: "Stacking",             label: "Stacking",     icon: "⑥" },
-  { pa: "Leaching",             label: "Leaching",     icon: "⑦" },
-  { pa: "Raffinate",            label: "Raffinate",    icon: "⑩" },
-  { pa: "PLS SX EW",            label: "PLS SX EW",    icon: "⑪" },
-  { pa: "Scale Up Bioreactors", label: "Scale Up",     icon: "🔬" },
+  { pa: "PA-1",      label: "PA-1",      icon: "①" },
+  { pa: "PA-2",      label: "PA-2",      icon: "②" },
+  { pa: "PA-3",      label: "PA-3",      icon: "③" },
+  { pa: "BIO Skid",  label: "BIO Skid",  icon: "⑤" },
+  { pa: "Bioreactors", label: "BIO",     icon: "🧫" },
+  { pa: "PA-4",      label: "PA-4",      icon: "④" },
+  { pa: "PA-5",      label: "PA-5",      icon: "⑥" },
+  { pa: "PA-7",      label: "PA-7",      icon: "⑦" },
+  { pa: "PA-6",      label: "PA-6",      icon: "⑧" },
+  { pa: "Scale Up",  label: "Scale Up",  icon: "🔬" },
 ];
 
 function statusColor(val: number | null, lo: number | null, hi: number | null): string {

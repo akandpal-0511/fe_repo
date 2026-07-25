@@ -11,10 +11,10 @@ import type { TagProfile, TrendPoint } from "../types";
 function isoDate(d: Date) { return d.toISOString().slice(0, 10); }
 
 const _PA_ORDER = [
-  "Mining", "Crushing", "Agglomeration", "Stacking", "Leaching",
-  "PLS SX EW", "Raffinate", "BIGF Bioreactors", "BIGF Common Skid", "Scale Up Bioreactors",
+  "PA-1", "PA-2", "PA-3", "PA-4", "PA-5",
+  "PA-6", "PA-7", "Bioreactors", "BIO Skid", "Scale Up",
 ];
-const _BIGF4 = new Set(["BIGF1", "BIGF2", "BIGF3", "BIGF4"]);
+const _BIGF4 = new Set(["BIO-1", "BIO-2", "BIO-3", "BIO-4"]);
 
 function SearchableSelect({ value, options, onChange, selStyle }: {
   value: string; options: string[]; onChange: (v: string) => void; selStyle: React.CSSProperties;
@@ -95,12 +95,12 @@ function ScatterPanel({ weekAgo, today, initialArea, onAreaChange }: { weekAgo: 
     const raw   = new Set(allProfiles.map((p) => p.PerformanceArea));
     const hasBigf = [...raw].some((a) => _BIGF4.has(a));
     const avail = new Set([...raw].filter((a) => !_BIGF4.has(a)));
-    if (hasBigf) avail.add("BIGF Bioreactors");
+    if (hasBigf) avail.add("Bioreactors");
     return _PA_ORDER.filter((a) => avail.has(a));
   }, [allProfiles]);
   useEffect(() => { if (selArea === "" && paOpts.length > 0) { setSelArea(paOpts[0]); onAreaChange?.(paOpts[0]); } }, [paOpts]); // eslint-disable-line
 
-  const areas: string[] = selArea === "BIGF Bioreactors" ? ["BIGF1","BIGF2","BIGF3","BIGF4"] : [selArea];
+  const areas: string[] = selArea === "Bioreactors" ? ["BIO-1","BIO-2","BIO-3","BIO-4"] : [selArea];
   const profSub = allProfiles.filter((p) =>
     areas.includes(p.PerformanceArea) && p.DataSource?.toLowerCase().includes("historian")
   );

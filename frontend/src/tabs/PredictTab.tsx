@@ -10,8 +10,8 @@ const today   = new Date();
 const monthAgo = new Date(today); monthAgo.setDate(monthAgo.getDate() - 30);
 
 const AREAS_FOR_EARLY_WARNING = [
-  "Mining", "Crushing", "Agglomeration", "Stacking", "Leaching", "PLS SX EW", "Raffinate",
-  "BIGF Common Skid", "BIGF1", "BIGF2", "BIGF3", "BIGF4",
+  "PA-1", "PA-2", "PA-3", "PA-4", "PA-5", "PA-6", "PA-7",
+  "BIO Skid", "BIO-1", "BIO-2", "BIO-3", "BIO-4",
 ];
 
 const HORIZON_OPTS = [6, 12, 24, 48] as const;

@@ -7,7 +7,6 @@ import { SectionHeader } from "../components/KPIStrip";
 import { Spinner } from "../components/FlowsheetChart";
 import { DateRangeBar } from "../components/DateRangeBar";
 import type { TagProfile, TrendPoint } from "../types";
-import flowsheetImg from "../assets/nuton_flowsheet.png";
 
 function isoDate(d: Date) { return d.toISOString().slice(0, 10); }
 function statusColor(val: number | null, lo: number | null, hi: number | null) {
@@ -21,78 +20,67 @@ function statusColor(val: number | null, lo: number | null, hi: number | null) {
 }
 
 
-// Hotspot positions as % of image width/height
-const HOTSPOTS: { pa: string; label: string; top: string; left: string }[] = [
-  { pa: "Mining",               label: "Mining",        top: "30%", left: "8%"  },
-  { pa: "Crushing",             label: "① Crushing",    top: "55%", left: "10%" },
-  { pa: "Agglomeration",        label: "④ Agglom.",     top: "46%", left: "42%" },
-  { pa: "BIGF Bioreactors",     label: "⑤ BIGF",        top: "10%", left: "47%" },
-  { pa: "BIGF Common Skid",     label: "Common Skid",   top: "22%", left: "47%" },
-  { pa: "Stacking",             label: "⑥ Stacking",    top: "42%", left: "55%" },
-  { pa: "Leaching",             label: "⑦ Leaching",    top: "33%", left: "64%" },
-  { pa: "Raffinate",            label: "⑩ Raffinate",   top: "52%", left: "72%" },
-  { pa: "PLS SX EW",            label: "⑪ PLS SX EW",   top: "76%", left: "72%" },
-  { pa: "Scale Up Bioreactors", label: "Scale Up",      top: "10%", left: "76%" },
+const FLOW_STEPS: { pa: string; label: string }[][] = [
+  [
+    { pa: "PA-1",      label: "PA-1" },
+    { pa: "PA-2",      label: "PA-2" },
+    { pa: "PA-3",      label: "PA-3" },
+    { pa: "PA-4",      label: "PA-4" },
+    { pa: "PA-5",      label: "PA-5" },
+    { pa: "PA-6",      label: "PA-6" },
+    { pa: "PA-7",      label: "PA-7" },
+  ],
+  [
+    { pa: "Bioreactors", label: "Bioreactors" },
+    { pa: "BIO Skid",    label: "BIO Skid" },
+    { pa: "Scale Up",    label: "Scale Up" },
+  ],
 ];
 
 function FlowsheetPASelector({ selected, onSelect }: { selected: string; onSelect: (pa: string) => void }) {
   const { C } = useTheme();
   const [hovered, setHovered] = useState<string | null>(null);
+
   return (
-    <div style={{ maxWidth: "fit-content" }}>
-    <div style={{ position: "relative", userSelect: "none", border: `1px solid ${C.BORDER}`, borderRadius: 6, overflow: "hidden" }}>
-      <div style={{
-        position: "absolute", top: "2%", right: "2%",
-        fontSize: "0.72rem", fontWeight: 700, color: "#fff",
-        display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap",
-        zIndex: 10, pointerEvents: "none",
-        background: "rgba(15,23,42,0.88)", borderRadius: 20, padding: "4px 14px",
-        border: "1px solid rgba(88,166,255,0.5)",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.4)",
-      }}>
-        Click a&nbsp;
-        <span style={{
-          background: "#58a6ff",
-          borderRadius: 20, padding: "2px 9px",
-          fontWeight: 700, color: "#fff",
-        }}>
-          process step
-        </span>
-        &nbsp;→ pick sensors from right panel → view trends
+    <div style={{ border: `1px solid ${C.BORDER}`, borderRadius: 8, padding: "10px 14px", background: C.CARD, userSelect: "none" }}>
+      <div style={{ fontSize: "0.65rem", color: C.MUTED, marginBottom: 8, fontStyle: "italic" }}>
+        Click a process area → pick sensors → view trends
       </div>
-      <img
-        src={flowsheetImg}
-        alt="Process Flowsheet"
-        style={{ width: "100%", height: "auto", display: "block" }}
-      />
-      {HOTSPOTS.map(({ pa, label, top, left }) => {
-        const isSel = selected === pa;
-        const isHov = hovered === pa;
-        return (
-          <div
-            key={pa}
-            onClick={() => onSelect(pa)}
-            onMouseEnter={() => setHovered(pa)}
-            onMouseLeave={() => setHovered(null)}
-            title={pa}
-            style={{
-              position: "absolute", top, left,
-              transform: "translate(-50%, -50%)",
-              background: isSel ? "#1a3a6e" : isHov ? "#1a3a6e" : "rgba(15,23,42,0.82)",
-              border: `2px solid ${isSel ? "#58a6ff" : isHov ? "#58a6ff" : "rgba(88,166,255,0.5)"}`,
-              color: "#fff",
-              borderRadius: 20, padding: "3px 11px",
-              fontSize: "0.68rem", fontWeight: 700,
-              cursor: "pointer", whiteSpace: "nowrap", transition: "all 0.15s",
-              boxShadow: isSel ? "0 0 14px #58a6ffaa, 0 2px 8px rgba(0,0,0,0.4)" : "0 1px 5px rgba(0,0,0,0.35)",
-              letterSpacing: "0.01em",
-            }}
-          >
-            {label}
-          </div>
-        );
-      })}
-    </div>
+      {FLOW_STEPS.map((row, ri) => (
+        <div key={ri} style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: ri < FLOW_STEPS.length - 1 ? 8 : 0, flexWrap: "wrap" }}>
+          {row.map(({ pa, label }, i) => {
+            const isSel = selected === pa;
+            const isHov = hovered === pa;
+            return (
+              <div key={pa} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <div
+                  onClick={() => onSelect(pa)}
+                  onMouseEnter={() => setHovered(pa)}
+                  onMouseLeave={() => setHovered(null)}
+                  style={{
+                    padding: "6px 14px",
+                    borderRadius: 6,
+                    cursor: "pointer",
+                    fontWeight: isSel ? 700 : 500,
+                    fontSize: "0.75rem",
+                    border: `2px solid ${isSel ? C.ACCENT : isHov ? C.ACCENT + "88" : C.BORDER}`,
+                    background: isSel ? C.ACCENT + "22" : isHov ? C.ACCENT + "11" : C.CARD2,
+                    color: isSel ? C.ACCENT : isHov ? C.ACCENT : C.TEXT,
+                    transition: "all 0.12s",
+                    whiteSpace: "nowrap",
+                    boxShadow: isSel ? `0 0 8px ${C.ACCENT}44` : "none",
+                  }}
+                >
+                  {label}
+                </div>
+                {i < row.length - 1 && (
+                  <span style={{ color: C.BORDER, fontSize: "0.7rem" }}>→</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ))}
     </div>
   );
 }
@@ -118,9 +106,9 @@ export function SensorTrendsTab({ initialArea, onAreaChange }: { initialArea?: s
   const [allProfiles, setAllProfiles] = useState<TagProfile[]>([]);
   const [profLoading, setProfLoading] = useState(true);
 
-  const [selArea,      setSelArea]      = useState<string>(initialArea ?? "Mining");
+  const [selArea,      setSelArea]      = useState<string>(initialArea ?? "PA-1");
   const [dsFilter,     setDsFilter]     = useState<"Historian only" | "All sources">("All sources");
-  const [bigfReactors, setBigfReactors] = useState<string[]>(["BIGF1"]);
+  const [bigfReactors, setBigfReactors] = useState<string[]>(["BIO-1"]);
   const [selLabels,    setSelLabels]    = useState<string[]>([]);
   const [sensorSearch, setSensorSearch] = useState("");
 
@@ -143,16 +131,16 @@ export function SensorTrendsTab({ initialArea, onAreaChange }: { initialArea?: s
   }, []);
 
   const _PA_ORDER = [
-    "Mining", "Crushing", "Agglomeration", "Stacking", "Leaching",
-    "PLS SX EW", "Raffinate", "BIGF Bioreactors", "BIGF Common Skid", "Scale Up Bioreactors",
+    "PA-1", "PA-2", "PA-3", "PA-4", "PA-5",
+    "PA-6", "PA-7", "Bioreactors", "BIO Skid", "Scale Up",
   ];
-  const _bigf4 = new Set(["BIGF1", "BIGF2", "BIGF3", "BIGF4"]);
+  const _bigf4 = new Set(["BIO-1", "BIO-2", "BIO-3", "BIO-4"]);
   const _rawAreas = new Set(allProfiles.map((p) => p.PerformanceArea));
   const _hasBigf  = [..._rawAreas].some((a) => _bigf4.has(a));
   const _available = new Set([..._rawAreas].filter((a) => !_bigf4.has(a)));
-  if (_hasBigf) _available.add("BIGF Bioreactors");
+  if (_hasBigf) _available.add("Bioreactors");
   const paOpts = _PA_ORDER.filter((a) => _available.has(a));
-  const dbAreas = selArea === "BIGF Bioreactors" ? bigfReactors : [selArea];
+  const dbAreas = selArea === "Bioreactors" ? bigfReactors : [selArea];
   let areaProf = allProfiles.filter((p) => dbAreas.includes(p.PerformanceArea));
   if (dsFilter === "Historian only") {
     areaProf = areaProf.filter((p) => p.DataSource?.toLowerCase().includes("historian"));
@@ -235,7 +223,7 @@ export function SensorTrendsTab({ initialArea, onAreaChange }: { initialArea?: s
             {/* Left: clickable flowsheet */}
             <FlowsheetPASelector
               selected={selArea}
-              onSelect={(pa) => { setSelArea(pa); onAreaChange?.(pa); setSelLabels([]); setSensorSearch(""); setBigfReactors(["BIGF1"]); }}
+              onSelect={(pa) => { setSelArea(pa); onAreaChange?.(pa); setSelLabels([]); setSensorSearch(""); setBigfReactors(["BIO-1"]); }}
             />
 
             {/* Right: sensor selector */}
@@ -246,7 +234,7 @@ export function SensorTrendsTab({ initialArea, onAreaChange }: { initialArea?: s
                 <label style={labelStyle}>Performance Area</label>
                 <select
                   value={selArea}
-                  onChange={(e) => { setSelArea(e.target.value); onAreaChange?.(e.target.value); setSelLabels([]); setSensorSearch(""); setBigfReactors(["BIGF1"]); }}
+                  onChange={(e) => { setSelArea(e.target.value); onAreaChange?.(e.target.value); setSelLabels([]); setSensorSearch(""); setBigfReactors(["BIO-1"]); }}
                   style={selectStyle}
                 >
                   {paOpts.map((a) => <option key={a}>{a}</option>)}
@@ -268,7 +256,7 @@ export function SensorTrendsTab({ initialArea, onAreaChange }: { initialArea?: s
               </div>
 
               {/* BIGF reactor checkboxes */}
-              {selArea === "BIGF Bioreactors" && (
+              {selArea === "Bioreactors" && (
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {BIGF_AREAS.map((bf) => (
                     <label key={bf} style={{ fontSize: "0.72rem", color: C.MUTED, cursor: "pointer" }}>

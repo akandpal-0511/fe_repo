@@ -55,11 +55,11 @@ function makeMetrics(C: Colors, theme: "dark" | "light") {
 
   return [
     {
-      label: "Planned Tons",
+      label: "Planned Units",
       render: (r: StackingRow) => <>{r.tons_planned == null ? "—" : r.tons_planned.toLocaleString()}</>,
     },
     {
-      label: "Actual Tons",
+      label: "Actual Units",
       render: (r: StackingRow) => {
         if (r.status === "Not Started") return <span style={{ color: MUTED }}>—</span>;
         if (r.actual_tons == null) return <span style={{ color: MUTED }}>—</span>;
@@ -78,7 +78,7 @@ function makeMetrics(C: Colors, theme: "dark" | "light") {
       },
     },
     {
-      label: "Rate Plan (t/day)",
+      label: "Rate Plan (u/day)",
       render: (r: StackingRow) => {
         if (r.status === "Not Started") return <span style={{ color: MUTED }}>—</span>;
         if (r.tons_planned == null || r.days_stacked_planned == null || r.days_stacked_planned === 0) return <>—</>;
@@ -86,7 +86,7 @@ function makeMetrics(C: Colors, theme: "dark" | "light") {
       },
     },
     {
-      label: "Rate Actual (t/day)",
+      label: "Rate Actual (u/day)",
       render: (r: StackingRow) => {
         if (r.status === "Not Started") return <span style={{ color: MUTED }}>—</span>;
         if (r.current_rate_tpd == null || r.current_rate_tpd === 0) return <span style={{ color: MUTED }}>—</span>;
@@ -254,7 +254,7 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
       `}</style>
 
 
-      {/* Ore Feed Rate chart (collapsible) */}
+      {/* Feed Rate chart (collapsible) */}
       <div style={{ marginBottom: 14, border: `1px solid ${C.BORDER}`, borderRadius: 8, overflow: "hidden" }}>
         <button
           onClick={() => setChartOpen(o => !o)}
@@ -265,7 +265,7 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
           }}
         >
           <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span>Ore Feed Rate &amp; Interval Tons</span>
+            <span>Feed Rate &amp; Interval Units</span>
             <span style={{ fontSize: "0.7rem", color: C.ACCENT, fontWeight: 400 }}>{chartOpen ? "▲ click to hide" : "▼ click to expand"}</span>
           </span>
         </button>
@@ -309,8 +309,8 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
             default:                return feedRate;
           }
         })();
-        const filteredCV = filtered.filter(p => p.tag === "_155CV218_TonHr");
-        const filteredBS = filtered.filter(p => p.tag === "_155BS206_TonHr");
+        const filteredCV = filtered.filter(p => p.tag === "TAG-002");
+        const filteredBS = filtered.filter(p => p.tag === "TAG-001");
         // If neither tag is present (old server without tag column), fall back to all data as single trace
         const hasTagData  = filteredCV.length > 0 || filteredBS.length > 0;
         const cvData      = hasTagData ? filteredCV : filtered;
@@ -358,7 +358,7 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
                     x: cvData.map(p => p.ts),
                     y: cvData.map(p => p.rate_thr),
                     yaxis: "y",
-                    name: "Ore Discharge Rate from Agglomerator",
+                    name: "Unit Discharge Rate",
                     line: { color: C.ACCENT, width: 1.5 },
                     hovertemplate: "<b>%{y:.1f} t/hr</b><extra>Discharge</extra>",
                   } as Plotly.Data,
@@ -367,7 +367,7 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
                     x: bsData.map(p => p.ts),
                     y: bsData.map(p => p.rate_thr),
                     yaxis: "y",
-                    name: "Ore Feed Rate to Agglomerator",
+                    name: "Unit Feed Rate",
                     line: { color: "#4caf76", width: 1.5 },
                     hovertemplate: "<b>%{y:.1f} t/hr</b><extra>Feed</extra>",
                   } as Plotly.Data] : []),
@@ -416,7 +416,7 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
 
         const buildDaily = (tag: string) => {
           const m: Record<string, number> = {};
-          chainFeed.filter(p => p.tag === tag || (!p.tag && tag === "_155CV218_TonHr")).forEach(p => {
+          chainFeed.filter(p => p.tag === tag || (!p.tag && tag === "TAG-002")).forEach(p => {
             let date: string;
             if (dailyMode === "shift") {
               const hour = parseInt(p.ts.slice(11, 13), 10);
@@ -434,8 +434,8 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
           });
           return m;
         };
-        const dailyCV = buildDaily("_155CV218_TonHr");
-        const dailyBS = buildDaily("_155BS206_TonHr");
+        const dailyCV = buildDaily("TAG-002");
+        const dailyBS = buildDaily("TAG-001");
         const daysCV  = Object.keys(dailyCV).sort();
         const daysBS  = Object.keys(dailyBS).sort();
         const allDays = [...new Set([...daysCV, ...daysBS])].sort();
@@ -455,7 +455,7 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
               }}
             >
               <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span>Daily Tons Stacked</span>
+                <span>Daily Units Processed</span>
                 <span style={{ fontSize: "0.7rem", color: C.ACCENT, fontWeight: 400 }}>{dailyOpen ? "▲ click to hide" : "▼ click to expand"}</span>
               </span>
             </button>
@@ -492,7 +492,7 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
                       type: "bar" as const,
                       x: allDays,
                       y: allDays.map(d => dailyCV[d] != null ? Math.round(dailyCV[d]) : null),
-                      name: "Ore Discharge",
+                      name: "Discharge",
                       marker: { color: C.ACCENT },
                       text: allDays.map(d => dailyCV[d] != null ? Math.round(dailyCV[d]).toLocaleString() : ""),
                       textposition: "inside" as const,
@@ -504,7 +504,7 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
                       type: "bar" as const,
                       x: allDays,
                       y: allDays.map(d => dailyBS[d] != null ? Math.round(dailyBS[d]) : null),
-                      name: "Ore Feed",
+                      name: "Feed",
                       marker: { color: "#4caf76" },
                       text: allDays.map(d => dailyBS[d] != null ? Math.round(dailyBS[d]).toLocaleString() : ""),
                       textposition: "inside" as const,
@@ -524,7 +524,7 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
                     showlegend: true,
                     legend: { orientation: "h", x: 0, y: 1.14, font: { size: 9, color: C.TEXT } },
                     xaxis: { color: C.MUTED, gridcolor: C.BORDER, tickfont: { size: 8 }, type: "category" as const },
-                    yaxis: { color: C.MUTED, gridcolor: C.BORDER, tickfont: { size: 8 }, title: { text: "tons", font: { size: 8, color: C.MUTED } } },
+                    yaxis: { color: C.MUTED, gridcolor: C.BORDER, tickfont: { size: 8 }, title: { text: "units", font: { size: 8, color: C.MUTED } } },
                     annotations: [{
                       xref: "paper", yref: "paper", x: 1, y: 1.14,
                       xanchor: "right", yanchor: "bottom",
@@ -627,7 +627,7 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
                     return (
                       <td
                         key={panel}
-                        style={{ ...cellStyle(row, C, theme, mi === 0), ...(row?.status === "In Progress" ? { animation: `${theme === "light" && row.material === "Core" ? "cell-pulse-dim" : "cell-pulse"} 1.8s ease-in-out infinite` } : {}) }}
+                        style={{ ...cellStyle(row, C, theme, mi === 0), ...(row?.status === "In Progress" ? { animation: `${theme === "light" && row.material === "Type-E" ? "cell-pulse-dim" : "cell-pulse"} 1.8s ease-in-out infinite` } : {}) }}
                       >
                         {row ? metric.render(row) : "—"}
                       </td>

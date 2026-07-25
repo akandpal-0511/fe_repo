@@ -23,7 +23,7 @@ from forecast import forecast_tag
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Nuton Demo API")
+app = FastAPI(title="Operations Demo API")
 
 app.add_middleware(
     CORSMiddleware,

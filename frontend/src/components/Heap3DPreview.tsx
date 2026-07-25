@@ -14,11 +14,11 @@ const T_HALF = 0.28;
 const FLAT_H = 0.08;
 
 const MATERIAL_COLORS: Record<string, string> = {
-  "Non-core BQ":    "#4a90d9",
-  "Non-core blend": "#e08c5c",
-  "PV":             "#4caf76",
-  "Core edge":      "#ffc107",
-  "Core":           "#c0c0c0",
+  "Type-A": "#4a90d9",
+  "Type-B": "#e08c5c",
+  "Type-C": "#4caf76",
+  "Type-D": "#ffc107",
+  "Type-E": "#c0c0c0",
 };
 
 const FACE_I = [0,0,4,4,0,0,3,3,0,0,1,1];

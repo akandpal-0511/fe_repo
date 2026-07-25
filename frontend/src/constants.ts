@@ -41,28 +41,26 @@ export const PERF_AREAS = [
   "Ask Genie",
 ] as const;
 
-export const BIGF_AREAS = ["BIGF1", "BIGF2", "BIGF3", "BIGF4"] as const;
+export const BIGF_AREAS = ["BIO-1", "BIO-2", "BIO-3", "BIO-4"] as const;
 
-export const PERF_AREA_TO_GOLD: Record<string, string> = {
-  Stacking: "jcm_process_data_stacking",
-};
+export const PERF_AREA_TO_GOLD: Record<string, string> = {};
 
 // ── Material type colours for the stacking table ──────────────────────────────
 
 const MATERIAL_COLORS_DARK: Record<string, { bg: string; text: string }> = {
-  "Non-core BQ":    { bg: "#1e3a6e", text: "#a8c4f0" },
-  "Non-core blend": { bg: "#6b3010", text: "#f0b98a" },
-  "PV":             { bg: "#1a4d1a", text: "#88d488" },
-  "Core edge":      { bg: "#3d2e00", text: "#ffc000" },
-  "Core":           { bg: "#e8ecf0", text: "#1f2b3a" },
+  "Type-A": { bg: "#1e3a6e", text: "#a8c4f0" },
+  "Type-B": { bg: "#6b3010", text: "#f0b98a" },
+  "Type-C": { bg: "#1a4d1a", text: "#88d488" },
+  "Type-D": { bg: "#3d2e00", text: "#ffc000" },
+  "Type-E": { bg: "#e8ecf0", text: "#1f2b3a" },
 };
 
 const MATERIAL_COLORS_LIGHT: Record<string, { bg: string; text: string }> = {
-  "Non-core BQ":    { bg: "#4472C4", text: "#ffffff" },
-  "Non-core blend": { bg: "#E8834A", text: "#ffffff" },
-  "PV":             { bg: "#70AD47", text: "#ffffff" },
-  "Core edge":      { bg: "#FFC000", text: "#4a3000" },
-  "Core":           { bg: "#f6f8fa", text: "#1f2328" },
+  "Type-A": { bg: "#4472C4", text: "#ffffff" },
+  "Type-B": { bg: "#E8834A", text: "#ffffff" },
+  "Type-C": { bg: "#70AD47", text: "#ffffff" },
+  "Type-D": { bg: "#FFC000", text: "#4a3000" },
+  "Type-E": { bg: "#f6f8fa", text: "#1f2328" },
 };
 
 export function getMaterialColors(theme: "dark" | "light") {
@@ -70,9 +68,9 @@ export function getMaterialColors(theme: "dark" | "light") {
 }
 
 export const MATERIAL_LEGEND: { label: string; color: string }[] = [
-  { label: "Core",           color: "#ffffff" },
-  { label: "Core edge",      color: "#FFC000" },
-  { label: "PV",             color: "#70AD47" },
-  { label: "Non-core blend", color: "#E8834A" },
-  { label: "Non-core BQ",    color: "#4472C4" },
+  { label: "Type-E", color: "#ffffff" },
+  { label: "Type-D", color: "#FFC000" },
+  { label: "Type-C", color: "#70AD47" },
+  { label: "Type-B", color: "#E8834A" },
+  { label: "Type-A", color: "#4472C4" },
 ];

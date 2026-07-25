@@ -7,7 +7,7 @@ PERF_AREAS = [
 
 PERF_AREA_TO_GOLD: dict = {}
 
-BIGF_AREAS = ["BIGF1", "BIGF2", "BIGF3", "BIGF4"]
+BIGF_AREAS = ["BIO-1", "BIO-2", "BIO-3", "BIO-4"]
 
 DATASOURCE_TABLE_MAP: dict = {}
 
