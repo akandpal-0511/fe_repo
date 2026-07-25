@@ -265,7 +265,7 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
           }}
         >
           <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span>Feed Rate &amp; Interval Units</span>
+            <span>Rate &amp; Interval</span>
             <span style={{ fontSize: "0.7rem", color: C.ACCENT, fontWeight: 400 }}>{chartOpen ? "▲ click to hide" : "▼ click to expand"}</span>
           </span>
         </button>
@@ -358,18 +358,18 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
                     x: cvData.map(p => p.ts),
                     y: cvData.map(p => p.rate_thr),
                     yaxis: "y",
-                    name: "Unit Discharge Rate",
+                    name: "Signal-A",
                     line: { color: C.ACCENT, width: 1.5 },
-                    hovertemplate: "<b>%{y:.1f} t/hr</b><extra>Discharge</extra>",
+                    hovertemplate: "<b>%{y:.1f}</b><extra>Signal-A</extra>",
                   } as Plotly.Data,
                   ...(bsData.length > 0 ? [{
                     type: "scatter", mode: "lines",
                     x: bsData.map(p => p.ts),
                     y: bsData.map(p => p.rate_thr),
                     yaxis: "y",
-                    name: "Unit Feed Rate",
+                    name: "Signal-B",
                     line: { color: "#4caf76", width: 1.5 },
-                    hovertemplate: "<b>%{y:.1f} t/hr</b><extra>Feed</extra>",
+                    hovertemplate: "<b>%{y:.1f}</b><extra>Signal-B</extra>",
                   } as Plotly.Data] : []),
                 ]}
                 layout={{
@@ -379,7 +379,7 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
                   xaxis: chartAxisStyle,
                   yaxis: {
                     ...chartAxisStyle, type: undefined,
-                    title: { text: "t/hr", font: { color: C.MUTED, size: 8 } },
+                    title: { text: "rate", font: { color: C.MUTED, size: 8 } },
                     rangemode: "tozero", tickfont: { size: 8, color: C.MUTED },
                   },
                   showlegend: true,
@@ -455,7 +455,7 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
               }}
             >
               <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span>Daily Units Processed</span>
+                <span>Daily Totals</span>
                 <span style={{ fontSize: "0.7rem", color: C.ACCENT, fontWeight: 400 }}>{dailyOpen ? "▲ click to hide" : "▼ click to expand"}</span>
               </span>
             </button>
@@ -492,25 +492,25 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
                       type: "bar" as const,
                       x: allDays,
                       y: allDays.map(d => dailyCV[d] != null ? Math.round(dailyCV[d]) : null),
-                      name: "Discharge",
+                      name: "Signal-A",
                       marker: { color: C.ACCENT },
                       text: allDays.map(d => dailyCV[d] != null ? Math.round(dailyCV[d]).toLocaleString() : ""),
                       textposition: "inside" as const,
                       insidetextanchor: "middle" as const,
                       textfont: { size: 8, color: "#ffffff" },
-                      hovertemplate: "<b>%{y:,} t</b><extra>Discharge</extra>",
+                      hovertemplate: "<b>%{y:,}</b><extra>Signal-A</extra>",
                     }] : []),
                     ...(daysBS.length > 0 ? [{
                       type: "bar" as const,
                       x: allDays,
                       y: allDays.map(d => dailyBS[d] != null ? Math.round(dailyBS[d]) : null),
-                      name: "Feed",
+                      name: "Signal-B",
                       marker: { color: "#4caf76" },
                       text: allDays.map(d => dailyBS[d] != null ? Math.round(dailyBS[d]).toLocaleString() : ""),
                       textposition: "inside" as const,
                       insidetextanchor: "middle" as const,
                       textfont: { size: 8, color: "#ffffff" },
-                      hovertemplate: "<b>%{y:,} t</b><extra>Feed</extra>",
+                      hovertemplate: "<b>%{y:,}</b><extra>Signal-B</extra>",
                     }] : []),
                   ]}
                   layout={{
@@ -529,8 +529,8 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
                       xref: "paper", yref: "paper", x: 1, y: 1.14,
                       xanchor: "right", yanchor: "bottom",
                       text: [
-                        daysCV.length > 0 ? `Discharge: <b>${totalCV.toLocaleString()} t</b>` : "",
-                        daysBS.length > 0 ? `Feed: <b>${totalBS.toLocaleString()} t</b>` : "",
+                        daysCV.length > 0 ? `Signal-A: <b>${totalCV.toLocaleString()}</b>` : "",
+                        daysBS.length > 0 ? `Signal-B: <b>${totalBS.toLocaleString()}</b>` : "",
                       ].filter(Boolean).join("  |  "),
                       showarrow: false, font: { size: 9, color: C.TEXT },
                     }],
