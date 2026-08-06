@@ -1,0 +1,22 @@
+bundle:
+  name: fe-demo-apps
+
+include:
+  - resources/*.yml
+
+sync:
+  paths:
+    - ../apps/ops-monitor
+    - ../apps/data-entry
+
+variables:
+  env:
+    default: dev
+
+targets:
+  dev:
+    workspace:
+      host: https://fevm-serverless-stable-82bi8w.cloud.databricks.com
+      profile: ashutosh
+    variables:
+      env: dev
