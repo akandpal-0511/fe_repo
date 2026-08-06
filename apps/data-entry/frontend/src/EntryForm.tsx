@@ -169,7 +169,7 @@ const ALL_COLS: { key: string; label: string; group: string }[] = [
   { key: "total_acid_consumed_short_tons",    label: "Total Acid (ST)",    group: "Acid" },
 ];
 
-function RecentTable({ refresh, onEdit }: { refresh: number; onEdit: (row: Record<string, unknown>) => void }) {
+function RecentTable({ refresh, onEdit, onDelete }: { refresh: number; onEdit: (row: Record<string, unknown>) => void; onDelete: () => void }) {
   const { C } = useTheme();
   const [rows, setRows]   = useState<Record<string, unknown>[]>([]);
   const [limit, setLimit] = useState(10);
@@ -234,7 +234,7 @@ function RecentTable({ refresh, onEdit }: { refresh: number; onEdit: (row: Recor
           <thead>
             {/* group header row */}
             <tr>
-              <th style={{ ...thStyle, borderRight: `1px solid ${C.BORDER}` }} /> {/* edit col */}
+              <th style={{ ...thStyle, borderRight: `1px solid ${C.BORDER}` }} colSpan={2} /> {/* actions cols */}
               {groups.map((g, i) => (
                 <th key={i} colSpan={g.span} style={{
                   ...thStyle,
@@ -249,7 +249,7 @@ function RecentTable({ refresh, onEdit }: { refresh: number; onEdit: (row: Recor
             </tr>
             {/* column header row */}
             <tr>
-              <th style={{ ...thStyle, color: C.MUTED, top: 24, paddingRight: 8 }}>Edit</th>
+              <th style={{ ...thStyle, color: C.MUTED, top: 24, paddingRight: 8 }} colSpan={2}>Actions</th>
               {ALL_COLS.map(c => (
                 <th key={c.key} style={{ ...thStyle, color: C.MUTED, top: 24 }}>
                   {c.label}
@@ -260,17 +260,32 @@ function RecentTable({ refresh, onEdit }: { refresh: number; onEdit: (row: Recor
           <tbody>
             {rows.map((row, i) => (
               <tr key={i} style={{ background: i % 2 === 0 ? "transparent" : C.CARD }}>
-                <td style={{ padding: "4px 8px", borderBottom: `1px solid ${C.BORDER}`, whiteSpace: "nowrap" }}>
+                <td style={{ padding: "4px 4px", borderBottom: `1px solid ${C.BORDER}`, whiteSpace: "nowrap" }}>
                   <button
                     onClick={() => onEdit(row)}
                     style={{
                       fontSize: "0.72rem", padding: "2px 8px",
                       background: "none", border: `1px solid ${C.ACCENT}`,
-                      borderRadius: 3, color: C.ACCENT, cursor: "pointer",
-                      fontWeight: 600,
+                      borderRadius: 3, color: C.ACCENT, cursor: "pointer", fontWeight: 600,
                     }}
                   >
                     Edit
+                  </button>
+                </td>
+                <td style={{ padding: "4px 8px", borderBottom: `1px solid ${C.BORDER}`, whiteSpace: "nowrap" }}>
+                  <button
+                    onClick={async () => {
+                      if (!confirm(`Delete entry for ${row.report_date}?`)) return;
+                      await fetch(`${API}/${row.report_date}`, { method: "DELETE" });
+                      onDelete();
+                    }}
+                    style={{
+                      fontSize: "0.72rem", padding: "2px 8px",
+                      background: "none", border: `1px solid ${C.ALARM}`,
+                      borderRadius: 3, color: C.ALARM, cursor: "pointer", fontWeight: 600,
+                    }}
+                  >
+                    Delete
                   </button>
                 </td>
                 {ALL_COLS.map(c => (
@@ -521,7 +536,7 @@ export function EntryForm() {
         </span>
       </div>
 
-      <RecentTable refresh={refresh} onEdit={handleEdit} />
+      <RecentTable refresh={refresh} onEdit={handleEdit} onDelete={() => setRefresh(r => r + 1)} />
     </div>
   );
 }

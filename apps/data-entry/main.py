@@ -1,19 +1,38 @@
 import math
+import json
+import logging
 import datetime as _dt
 from pathlib import Path
 from typing import Optional
 
 import pandas as pd
-import numpy as np
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-# ── in-memory store ───────────────────────────────────────────────────────────
+logger = logging.getLogger(__name__)
 
+# ── workspace file store ──────────────────────────────────────────────────────
+# On Databricks: persists to /Users/<user>/fe_data_entry/nuton_load.json
+# Locally: falls back to a local file in data/
+
+_WS_PATH = "/Users/ashutosh.kandpal@databricks.com/fe_data_entry/nuton_load.json"
+_LOCAL_PATH = Path(__file__).parent / "data" / "nuton_load.json"
 _EXCEL = Path(__file__).parent / "data" / "synthetic_physicals_master.xlsx"
+
+# try to init Databricks SDK — only available when running inside the platform
+try:
+    from databricks.sdk import WorkspaceClient
+    from databricks.sdk.service.workspace import ImportFormat
+    _ws_client = WorkspaceClient()
+    _USE_WS = True
+    logger.info("Databricks SDK available — using workspace file store")
+except Exception:
+    _ws_client = None
+    _USE_WS = False
+    logger.info("Databricks SDK not available — using local file store")
 
 
 def _clean(v):
@@ -22,7 +41,7 @@ def _clean(v):
     return v
 
 
-def _load_seed() -> list[dict]:
+def _rows_from_excel() -> list[dict]:
     if not _EXCEL.exists():
         return []
     df = pd.read_excel(_EXCEL, sheet_name="Nuton Load", engine="openpyxl")
@@ -31,12 +50,58 @@ def _load_seed() -> list[dict]:
     return [{k: _clean(v) for k, v in row.items()} for row in records]
 
 
-_rows: list[dict] = _load_seed()
-_next_id: int = len(_rows) + 1
+def _read_store() -> list[dict]:
+    """Load rows from workspace file, local file, or Excel seed — in that order."""
+    if _USE_WS:
+        try:
+            import base64
+            resp = _ws_client.api_client.do("GET", "/api/2.0/workspace/export",
+                                            query={"path": _WS_PATH, "format": "AUTO", "direct_download": True})
+            return json.loads(resp) if isinstance(resp, (str, bytes)) else []
+        except Exception as e:
+            logger.warning(f"Workspace file not found, trying local: {e}")
+
+    if _LOCAL_PATH.exists():
+        try:
+            return json.loads(_LOCAL_PATH.read_text())
+        except Exception:
+            pass
+
+    # first run — seed from Excel
+    rows = _rows_from_excel()
+    _write_store(rows)
+    return rows
+
+
+def _write_store(rows: list[dict]):
+    """Persist rows to workspace file (on Databricks) or local file."""
+    payload = json.dumps(rows, default=str)
+    if _USE_WS:
+        try:
+            import base64
+            encoded = base64.b64encode(payload.encode()).decode()
+            _ws_client.api_client.do("POST", "/api/2.0/workspace/import", body={
+                "path": _WS_PATH,
+                "format": "AUTO",
+                "overwrite": True,
+                "content": encoded,
+            })
+            return
+        except Exception as e:
+            logger.warning(f"Workspace write failed, falling back to local: {e}")
+
+    _LOCAL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _LOCAL_PATH.write_text(payload)
+
+
+# load on startup
+_rows: list[dict] = _read_store()
+_next_id: int = max((r.get("_id", 0) for r in _rows), default=0) + 1
 
 
 def _get_all(limit: int = 100, offset: int = 0) -> list[dict]:
-    return list(reversed(_rows))[offset: offset + limit]
+    sorted_rows = sorted(_rows, key=lambda r: r.get("report_date", ""), reverse=True)
+    return sorted_rows[offset: offset + limit]
 
 
 def _get_by_date(report_date: str) -> Optional[dict]:
@@ -51,11 +116,23 @@ def _upsert(entry: dict) -> dict:
     for i, row in enumerate(_rows):
         if row.get("report_date") == entry["report_date"]:
             _rows[i] = entry
+            _write_store(_rows)
             return entry
     entry["_id"] = _next_id
     _next_id += 1
     _rows.append(entry)
+    _write_store(_rows)
     return entry
+
+
+def _delete(report_date: str) -> bool:
+    global _rows
+    before = len(_rows)
+    _rows = [r for r in _rows if r.get("report_date") != report_date]
+    if len(_rows) < before:
+        _write_store(_rows)
+        return True
+    return False
 
 
 def _derive(entry: dict) -> dict:
@@ -237,6 +314,13 @@ def api_post(body: NutonLoadEntry, request: Request):
     entry["submitted_at"] = _dt.datetime.now().isoformat()
     saved = _upsert(entry)
     return {"status": "ok", "entry": _sanitize(saved)}
+
+
+@app.delete("/api/nuton-load/{report_date}")
+def api_delete(report_date: str):
+    if _delete(report_date):
+        return {"status": "ok", "deleted": report_date}
+    return JSONResponse({"error": "Not found"}, status_code=404)
 
 
 @app.get("/api/monthly-report")
