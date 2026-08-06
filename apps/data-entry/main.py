@@ -26,13 +26,22 @@ _EXCEL = Path(__file__).parent / "data" / "synthetic_physicals_master.xlsx"
 import os, requests as _requests
 
 _DB_HOST  = os.environ.get("DATABRICKS_HOST", "").rstrip("/")
-_DB_TOKEN = os.environ.get("DATABRICKS_TOKEN", "")
+# Apps inject the token under DATABRICKS_TOKEN; fall back to other common names
+_DB_TOKEN = (
+    os.environ.get("DATABRICKS_TOKEN") or
+    os.environ.get("DATABRICKS_APP_TOKEN") or
+    os.environ.get("DATABRICKS_OAUTH_TOKEN") or
+    ""
+)
 _USE_WS   = bool(_DB_HOST and _DB_TOKEN)
 
+# log which env vars are present (never log the actual token value)
+_env_keys = [k for k in os.environ if "DATABRICKS" in k.upper()]
+logger.warning(f"Databricks env vars present: {_env_keys}")
 if _USE_WS:
-    logger.warning(f"Databricks host detected — using workspace file store at {_WS_PATH}")
+    logger.warning(f"Using workspace file store at {_WS_PATH}")
 else:
-    logger.warning(f"No Databricks credentials (HOST={_DB_HOST!r}, TOKEN={'set' if _DB_TOKEN else 'MISSING'}) — using local file store")
+    logger.warning(f"TOKEN missing — falling back to local file store. HOST={'set' if _DB_HOST else 'MISSING'}")
 
 
 def _clean(v):
