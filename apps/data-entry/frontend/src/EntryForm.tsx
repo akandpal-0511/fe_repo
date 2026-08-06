@@ -363,86 +363,33 @@ export function EntryForm() {
 
   return (
     <div>
-      {/* ── sticky top bar: title + save ── */}
-      <div style={{
-        position: "sticky", top: 0, zIndex: 10,
-        background: C.BG, borderBottom: `1px solid ${C.BORDER}`,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "10px 0 10px", marginBottom: 16,
-      }}>
-        <div>
-          <h2 style={{ fontSize: "1.05rem", fontWeight: 700, color: C.TEXT, margin: 0 }}>
-            Daily Operator Entry
-            {editingDate && (
-              <span style={{ fontSize: "0.78rem", fontWeight: 400, color: C.ACCENT, marginLeft: 10 }}>
-                Editing {editingDate}
-              </span>
-            )}
-          </h2>
-          <p style={{ fontSize: "0.75rem", color: C.MUTED, margin: "2px 0 0" }}>
-            Fields marked <span style={{ color: C.ACCENT }}>auto</span> are calculated automatically.
-          </p>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
-          {status === "ok"    && <span style={{ color: "#22a06b", fontSize: "0.82rem", fontWeight: 600 }}>✓ Saved</span>}
-          {status === "error" && <span style={{ color: "#e05c2a", fontSize: "0.82rem", fontWeight: 600 }}>✗ {errMsg || "Save failed"}</span>}
-          <button
-            form="entry-form"
-            type="submit"
-            disabled={status === "saving"}
-            style={{
-              padding: "8px 24px", fontSize: "0.85rem", fontWeight: 700,
-              background: C.ACCENT, color: "#fff", border: "none",
-              borderRadius: 5, cursor: status === "saving" ? "not-allowed" : "pointer",
-              opacity: status === "saving" ? 0.6 : 1,
-            }}
-          >
-            {status === "saving" ? "Saving…" : editingDate ? "Update Entry" : "Save Entry"}
-          </button>
-        </div>
-      </div>
 
-      {/* ── how-to banner ── */}
+      {/* ── compact how-to bar ── */}
       <div style={{
-        marginBottom: 20, padding: "12px 16px",
+        marginBottom: 16, padding: "7px 14px",
         background: C.CARD, border: `1px solid ${C.BORDER}`,
-        borderRadius: 6, fontSize: "0.78rem", color: C.TEXT,
-        display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px 24px",
+        borderRadius: 6, fontSize: "0.75rem", color: C.MUTED,
+        display: "flex", alignItems: "center", gap: 20,
+        flexWrap: "wrap",
       }}>
-        <div style={{ display: "flex", gap: 10 }}>
-          <span style={{ fontSize: "1.1rem" }}>📅</span>
-          <div>
-            <div style={{ fontWeight: 700, marginBottom: 2 }}>Pick a date</div>
-            <div style={{ color: C.MUTED, lineHeight: 1.4 }}>If an entry already exists for that date it loads automatically into the form.</div>
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 10 }}>
-          <span style={{ fontSize: "1.1rem" }}>✏️</span>
-          <div>
-            <div style={{ fontWeight: 700, marginBottom: 2 }}>Fill in readings</div>
-            <div style={{ color: C.MUTED, lineHeight: 1.4 }}>Fields marked <span style={{ color: C.ACCENT }}>auto</span> calculate themselves — no need to fill those in.</div>
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 10 }}>
-          <span style={{ fontSize: "1.1rem" }}>💾</span>
-          <div>
-            <div style={{ fontWeight: 700, marginBottom: 2 }}>Save / Update Entry</div>
-            <div style={{ color: C.MUTED, lineHeight: 1.4 }}>Saves new entries or overwrites an existing one for the same date. Button stays visible at the top as you scroll.</div>
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 10 }}>
-          <span style={{ fontSize: "1.1rem" }}>🔁</span>
-          <div>
-            <div style={{ fontWeight: 700, marginBottom: 2 }}>Edit a past entry</div>
-            <div style={{ color: C.MUTED, lineHeight: 1.4 }}>Click <strong>Edit</strong> on any row in the table below to load it back into the form. Fix values and hit Update Entry.</div>
-          </div>
-        </div>
+        <span>📅 <strong style={{ color: C.TEXT }}>Pick date</strong> — loads existing entry automatically</span>
+        <span style={{ color: C.BORDER }}>|</span>
+        <span>✏️ <span style={{ color: C.ACCENT }}>auto</span> fields calculate themselves</span>
+        <span style={{ color: C.BORDER }}>|</span>
+        <span>💾 <strong style={{ color: C.TEXT }}>Save</strong> button stays visible while scrolling</span>
+        <span style={{ color: C.BORDER }}>|</span>
+        <span>🔁 <strong style={{ color: C.TEXT }}>Edit</strong> any past row from the table below</span>
       </div>
 
       <form id="entry-form" onSubmit={handleSubmit}>
-        {/* Date picker */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-          <label style={{ fontSize: "0.82rem", fontWeight: 600, color: C.TEXT }}>Report Date</label>
+        {/* ── sticky date + save row ── */}
+        <div style={{
+          position: "sticky", top: 0, zIndex: 10,
+          background: C.BG, borderBottom: `1px solid ${C.BORDER}`,
+          display: "flex", alignItems: "center", gap: 12,
+          padding: "8px 0", marginBottom: 16, flexWrap: "wrap",
+        }}>
+          <label style={{ fontSize: "0.82rem", fontWeight: 600, color: C.TEXT, whiteSpace: "nowrap" }}>Report Date</label>
           <input
             type="date"
             value={data.report_date ?? today()}
@@ -450,18 +397,37 @@ export function EntryForm() {
             style={{ ...inputStyle(C), width: 160 }}
           />
           {editingDate && (
+            <>
+              <span style={{ fontSize: "0.78rem", fontWeight: 600, color: C.ACCENT }}>Editing {editingDate}</span>
+              <button
+                type="button"
+                onClick={() => { setData({ report_date: today() }); setEditingDate(null); loadDate(today()); }}
+                style={{
+                  fontSize: "0.75rem", padding: "4px 10px",
+                  background: "none", border: `1px solid ${C.BORDER}`,
+                  borderRadius: 4, color: C.MUTED, cursor: "pointer",
+                }}
+              >
+                ✕ Cancel
+              </button>
+            </>
+          )}
+          <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
+            {status === "ok"    && <span style={{ color: "#22a06b", fontSize: "0.8rem", fontWeight: 600 }}>✓ Saved</span>}
+            {status === "error" && <span style={{ color: "#e05c2a", fontSize: "0.8rem", fontWeight: 600 }}>✗ {errMsg || "Save failed"}</span>}
             <button
-              type="button"
-              onClick={() => { setData({ report_date: today() }); setEditingDate(null); loadDate(today()); }}
+              type="submit"
+              disabled={status === "saving"}
               style={{
-                fontSize: "0.75rem", padding: "4px 10px",
-                background: "none", border: `1px solid ${C.BORDER}`,
-                borderRadius: 4, color: C.MUTED, cursor: "pointer",
+                padding: "6px 22px", fontSize: "0.85rem", fontWeight: 700,
+                background: C.ACCENT, color: "#fff", border: "none",
+                borderRadius: 5, cursor: status === "saving" ? "not-allowed" : "pointer",
+                opacity: status === "saving" ? 0.6 : 1, whiteSpace: "nowrap",
               }}
             >
-              ✕ Cancel edit
+              {status === "saving" ? "Saving…" : editingDate ? "Update Entry" : "Save Entry"}
             </button>
-          )}
+          </div>
         </div>
 
         {/* Sections */}
