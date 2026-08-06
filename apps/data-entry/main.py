@@ -25,23 +25,37 @@ _EXCEL = Path(__file__).parent / "data" / "synthetic_physicals_master.xlsx"
 # use Databricks workspace files API when DATABRICKS_HOST + token are available
 import os, requests as _requests
 
-_DB_HOST  = os.environ.get("DATABRICKS_HOST", "").rstrip("/")
-# Apps inject the token under DATABRICKS_TOKEN; fall back to other common names
-_DB_TOKEN = (
-    os.environ.get("DATABRICKS_TOKEN") or
-    os.environ.get("DATABRICKS_APP_TOKEN") or
-    os.environ.get("DATABRICKS_OAUTH_TOKEN") or
-    ""
-)
-_USE_WS   = bool(_DB_HOST and _DB_TOKEN)
+_DB_HOST       = os.environ.get("DATABRICKS_HOST", "").rstrip("/")
+_DB_CLIENT_ID  = os.environ.get("DATABRICKS_CLIENT_ID", "")
+_DB_CLIENT_SECRET = os.environ.get("DATABRICKS_CLIENT_SECRET", "")
+_USE_WS        = bool(_DB_HOST and _DB_CLIENT_ID and _DB_CLIENT_SECRET)
 
-# log which env vars are present (never log the actual token value)
-_env_keys = [k for k in os.environ if "DATABRICKS" in k.upper()]
-logger.warning(f"Databricks env vars present: {_env_keys}")
+_cached_token: dict = {}   # {"access_token": ..., "expires_at": ...}
+
+
+def _get_token() -> str:
+    """Fetch OAuth M2M token, cached until near expiry."""
+    import time
+    now = time.time()
+    if _cached_token.get("access_token") and _cached_token.get("expires_at", 0) > now + 60:
+        return _cached_token["access_token"]
+    r = _requests.post(
+        f"{_DB_HOST}/oidc/v1/token",
+        data={"grant_type": "client_credentials", "scope": "all-apis"},
+        auth=(_DB_CLIENT_ID, _DB_CLIENT_SECRET),
+        timeout=10,
+    )
+    r.raise_for_status()
+    data = r.json()
+    _cached_token["access_token"] = data["access_token"]
+    _cached_token["expires_at"]   = now + data.get("expires_in", 3600)
+    return _cached_token["access_token"]
+
+
 if _USE_WS:
-    logger.warning(f"Using workspace file store at {_WS_PATH}")
+    logger.warning(f"OAuth M2M credentials found — using workspace file store at {_WS_PATH}")
 else:
-    logger.warning(f"TOKEN missing — falling back to local file store. HOST={'set' if _DB_HOST else 'MISSING'}")
+    logger.warning("No Databricks M2M credentials — using local file store")
 
 
 def _clean(v):
@@ -60,7 +74,7 @@ def _rows_from_excel() -> list[dict]:
 
 
 def _ws_headers() -> dict:
-    return {"Authorization": f"Bearer {_DB_TOKEN}", "Content-Type": "application/json"}
+    return {"Authorization": f"Bearer {_get_token()}", "Content-Type": "application/json"}
 
 
 def _read_store() -> list[dict]:
