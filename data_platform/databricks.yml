@@ -1,0 +1,23 @@
+bundle:
+  name: fe-demo-platform
+
+include:
+  - resources/*.yml
+
+sync:
+  paths:
+    - ..   # sync repo root so notebooks can reach ../../src and ../../conf
+
+variables:
+  env:
+    default: dev
+  warehouse_id:
+    default: ""
+
+targets:
+  dev:
+    mode: development
+    workspace:
+      host: https://fevm-serverless-stable-82bi8w.cloud.databricks.com
+    variables:
+      env: dev

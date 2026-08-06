@@ -1,0 +1,6 @@
+resources:
+  apps:
+    ops_monitor_app:
+      name: fe-demo-app
+      description: "Operations Monitor — demo app with Dashboard, Causality, Predict, Stacking tabs"
+      source_code_path: ../../apps/ops-monitor
