@@ -30,9 +30,9 @@ _DB_TOKEN = os.environ.get("DATABRICKS_TOKEN", "")
 _USE_WS   = bool(_DB_HOST and _DB_TOKEN)
 
 if _USE_WS:
-    logger.info(f"Databricks host detected — using workspace file store at {_WS_PATH}")
+    logger.warning(f"Databricks host detected — using workspace file store at {_WS_PATH}")
 else:
-    logger.info("No Databricks credentials — using local file store")
+    logger.warning(f"No Databricks credentials (HOST={_DB_HOST!r}, TOKEN={'set' if _DB_TOKEN else 'MISSING'}) — using local file store")
 
 
 def _clean(v):
@@ -89,6 +89,7 @@ def _write_store(rows: list[dict]):
     if _USE_WS:
         try:
             encoded = base64.b64encode(payload.encode()).decode()
+            logger.warning(f"Writing to workspace: {_WS_PATH}")
             r = _requests.post(
                 f"{_DB_HOST}/api/2.0/workspace/import",
                 headers=_ws_headers(),
@@ -96,6 +97,7 @@ def _write_store(rows: list[dict]):
                 timeout=10,
             )
             if r.status_code == 200:
+                logger.warning(f"Workspace write OK")
                 return
             logger.warning(f"Workspace write failed ({r.status_code}): {r.text}, falling back to local")
         except Exception as e:
