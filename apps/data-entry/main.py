@@ -22,17 +22,17 @@ _WS_PATH = "/Users/ashutosh.kandpal@databricks.com/fe_data_entry/nuton_load.json
 _LOCAL_PATH = Path(__file__).parent / "data" / "nuton_load.json"
 _EXCEL = Path(__file__).parent / "data" / "synthetic_physicals_master.xlsx"
 
-# try to init Databricks SDK — only available when running inside the platform
-try:
-    from databricks.sdk import WorkspaceClient
-    from databricks.sdk.service.workspace import ImportFormat
-    _ws_client = WorkspaceClient()
-    _USE_WS = True
-    logger.info("Databricks SDK available — using workspace file store")
-except Exception:
-    _ws_client = None
-    _USE_WS = False
-    logger.info("Databricks SDK not available — using local file store")
+# use Databricks workspace files API when DATABRICKS_HOST + token are available
+import os, requests as _requests
+
+_DB_HOST  = os.environ.get("DATABRICKS_HOST", "").rstrip("/")
+_DB_TOKEN = os.environ.get("DATABRICKS_TOKEN", "")
+_USE_WS   = bool(_DB_HOST and _DB_TOKEN)
+
+if _USE_WS:
+    logger.info(f"Databricks host detected — using workspace file store at {_WS_PATH}")
+else:
+    logger.info("No Databricks credentials — using local file store")
 
 
 def _clean(v):
@@ -50,16 +50,25 @@ def _rows_from_excel() -> list[dict]:
     return [{k: _clean(v) for k, v in row.items()} for row in records]
 
 
+def _ws_headers() -> dict:
+    return {"Authorization": f"Bearer {_DB_TOKEN}", "Content-Type": "application/json"}
+
+
 def _read_store() -> list[dict]:
     """Load rows from workspace file, local file, or Excel seed — in that order."""
     if _USE_WS:
         try:
-            import base64
-            resp = _ws_client.api_client.do("GET", "/api/2.0/workspace/export",
-                                            query={"path": _WS_PATH, "format": "AUTO", "direct_download": True})
-            return json.loads(resp) if isinstance(resp, (str, bytes)) else []
+            r = _requests.get(
+                f"{_DB_HOST}/api/2.0/workspace/export",
+                headers=_ws_headers(),
+                params={"path": _WS_PATH, "format": "AUTO", "direct_download": "true"},
+                timeout=10,
+            )
+            if r.status_code == 200:
+                return json.loads(r.text)
+            logger.warning(f"Workspace file not found (status {r.status_code}), seeding from Excel")
         except Exception as e:
-            logger.warning(f"Workspace file not found, trying local: {e}")
+            logger.warning(f"Workspace read failed: {e}")
 
     if _LOCAL_PATH.exists():
         try:
@@ -67,7 +76,7 @@ def _read_store() -> list[dict]:
         except Exception:
             pass
 
-    # first run — seed from Excel
+    # first run — seed from Excel then persist
     rows = _rows_from_excel()
     _write_store(rows)
     return rows
@@ -75,20 +84,22 @@ def _read_store() -> list[dict]:
 
 def _write_store(rows: list[dict]):
     """Persist rows to workspace file (on Databricks) or local file."""
+    import base64
     payload = json.dumps(rows, default=str)
     if _USE_WS:
         try:
-            import base64
             encoded = base64.b64encode(payload.encode()).decode()
-            _ws_client.api_client.do("POST", "/api/2.0/workspace/import", body={
-                "path": _WS_PATH,
-                "format": "AUTO",
-                "overwrite": True,
-                "content": encoded,
-            })
-            return
+            r = _requests.post(
+                f"{_DB_HOST}/api/2.0/workspace/import",
+                headers=_ws_headers(),
+                json={"path": _WS_PATH, "format": "AUTO", "overwrite": True, "content": encoded},
+                timeout=10,
+            )
+            if r.status_code == 200:
+                return
+            logger.warning(f"Workspace write failed ({r.status_code}): {r.text}, falling back to local")
         except Exception as e:
-            logger.warning(f"Workspace write failed, falling back to local: {e}")
+            logger.warning(f"Workspace write exception: {e}, falling back to local")
 
     _LOCAL_PATH.parent.mkdir(parents=True, exist_ok=True)
     _LOCAL_PATH.write_text(payload)
