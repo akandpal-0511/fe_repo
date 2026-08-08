@@ -97,7 +97,10 @@ export default function DataTable({ tabs }: Props) {
 
   const colLabel = (col: string) => {
     const field = currentTab?.fields.find(f => f.snake === col)
-    return field?.label ?? col.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    if (!field) return col.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    return field.subsection && field.subsection !== field.section
+      ? `${field.subsection} — ${field.label}`
+      : field.label
   }
 
   return (
