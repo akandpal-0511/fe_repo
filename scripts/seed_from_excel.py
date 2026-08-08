@@ -139,9 +139,15 @@ col_list = ", ".join(f"`{c}`" for c in all_cols)
 
 for i, row in enumerate(rows_to_insert):
     # Build single-row MERGE using SELECT literals (avoids VALUES alias restriction)
-    select_exprs = ", ".join(f"CAST({lit(row.get(c))} AS STRING) AS `{c}`" if c == "stacking_date"
-                             else f"CAST({lit(row.get(c))} AS DOUBLE) AS `{c}`"
-                             for c in all_cols)
+    def cast_expr(col, val):
+        if col == "stacking_date":
+            return f"CAST({lit(val)} AS STRING) AS `{col}`"
+        # if value is a non-numeric string, cast to STRING so it lands as NULL via TRY_CAST
+        if isinstance(val, str) and val not in _NA_STRINGS:
+            return f"TRY_CAST({lit(val)} AS DOUBLE) AS `{col}`"
+        return f"CAST({lit(val)} AS DOUBLE) AS `{col}`"
+
+    select_exprs = ", ".join(cast_expr(c, row.get(c)) for c in all_cols)
     update_set   = ", ".join(f"t.`{c}` = s.`{c}`" for c in all_cols if c != "stacking_date")
     val_list     = ", ".join(f"s.`{c}`" for c in all_cols)
 
