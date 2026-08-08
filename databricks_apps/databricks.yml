@@ -8,6 +8,8 @@ sync:
   paths:
     - ../apps/ops-monitor
     - ../apps/data-entry
+    - ../apps/data-entry-real
+    - ../sql
 
 variables:
   env:

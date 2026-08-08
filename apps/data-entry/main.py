@@ -12,50 +12,14 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+import sys, os
+sys.path.insert(0, str(Path(__file__).parent))
+import delta_store as _delta
+
 logger = logging.getLogger(__name__)
 
-# ── workspace file store ──────────────────────────────────────────────────────
-# On Databricks: persists to /Users/<user>/fe_data_entry/nuton_load.json
-# Locally: falls back to a local file in data/
-
-_WS_PATH = "/Users/ashutosh.kandpal@databricks.com/fe_data_entry/nuton_load.json"
 _LOCAL_PATH = Path(__file__).parent / "data" / "nuton_load.json"
 _EXCEL = Path(__file__).parent / "data" / "synthetic_physicals_master.xlsx"
-
-# use Databricks workspace files API when DATABRICKS_HOST + token are available
-import os, requests as _requests
-
-_DB_HOST       = os.environ.get("DATABRICKS_HOST", "").rstrip("/")
-_DB_CLIENT_ID  = os.environ.get("DATABRICKS_CLIENT_ID", "")
-_DB_CLIENT_SECRET = os.environ.get("DATABRICKS_CLIENT_SECRET", "")
-_USE_WS        = bool(_DB_HOST and _DB_CLIENT_ID and _DB_CLIENT_SECRET)
-
-_cached_token: dict = {}   # {"access_token": ..., "expires_at": ...}
-
-
-def _get_token() -> str:
-    """Fetch OAuth M2M token, cached until near expiry."""
-    import time
-    now = time.time()
-    if _cached_token.get("access_token") and _cached_token.get("expires_at", 0) > now + 60:
-        return _cached_token["access_token"]
-    r = _requests.post(
-        f"{_DB_HOST}/oidc/v1/token",
-        data={"grant_type": "client_credentials", "scope": "all-apis"},
-        auth=(_DB_CLIENT_ID, _DB_CLIENT_SECRET),
-        timeout=10,
-    )
-    r.raise_for_status()
-    data = r.json()
-    _cached_token["access_token"] = data["access_token"]
-    _cached_token["expires_at"]   = now + data.get("expires_in", 3600)
-    return _cached_token["access_token"]
-
-
-if _USE_WS:
-    logger.warning(f"OAuth M2M credentials found — using workspace file store at {_WS_PATH}")
-else:
-    logger.warning("No Databricks M2M credentials — using local file store")
 
 
 def _clean(v):
@@ -73,74 +37,67 @@ def _rows_from_excel() -> list[dict]:
     return [{k: _clean(v) for k, v in row.items()} for row in records]
 
 
-def _ws_headers() -> dict:
-    return {"Authorization": f"Bearer {_get_token()}", "Content-Type": "application/json"}
-
-
-def _read_store() -> list[dict]:
-    """Load rows from workspace file, local file, or Excel seed — in that order."""
-    if _USE_WS:
-        try:
-            r = _requests.get(
-                f"{_DB_HOST}/api/2.0/workspace/export",
-                headers=_ws_headers(),
-                params={"path": _WS_PATH, "format": "AUTO", "direct_download": "true"},
-                timeout=10,
-            )
-            if r.status_code == 200:
-                return json.loads(r.text)
-            logger.warning(f"Workspace file not found (status {r.status_code}), seeding from Excel")
-        except Exception as e:
-            logger.warning(f"Workspace read failed: {e}")
-
+def _load_memory_fallback() -> list[dict]:
+    """Seed in-memory store: local JSON → Excel."""
     if _LOCAL_PATH.exists():
         try:
             return json.loads(_LOCAL_PATH.read_text())
         except Exception:
             pass
-
-    # first run — seed from Excel then persist
     rows = _rows_from_excel()
-    _write_store(rows)
+    _LOCAL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _LOCAL_PATH.write_text(json.dumps(rows, default=str))
     return rows
 
 
-def _write_store(rows: list[dict]):
-    """Persist rows to workspace file (on Databricks) or local file."""
-    import base64
-    payload = json.dumps(rows, default=str)
-    if _USE_WS:
-        try:
-            encoded = base64.b64encode(payload.encode()).decode()
-            logger.warning(f"Writing to workspace: {_WS_PATH}")
-            r = _requests.post(
-                f"{_DB_HOST}/api/2.0/workspace/import",
-                headers=_ws_headers(),
-                json={"path": _WS_PATH, "format": "AUTO", "overwrite": True, "content": encoded},
-                timeout=10,
-            )
-            if r.status_code == 200:
-                logger.warning(f"Workspace write OK")
-                return
-            logger.warning(f"Workspace write failed ({r.status_code}): {r.text}, falling back to local")
-        except Exception as e:
-            logger.warning(f"Workspace write exception: {e}, falling back to local")
-
+def _save_memory_fallback(rows: list[dict]):
     _LOCAL_PATH.parent.mkdir(parents=True, exist_ok=True)
-    _LOCAL_PATH.write_text(payload)
+    _LOCAL_PATH.write_text(json.dumps(rows, default=str))
 
 
-# load on startup
-_rows: list[dict] = _read_store()
-_next_id: int = max((r.get("_id", 0) for r in _rows), default=0) + 1
+# ── startup ───────────────────────────────────────────────────────────────────
 
+_USE_DELTA = _delta.available()
+
+if _USE_DELTA:
+    logger.warning("DATABRICKS_WAREHOUSE_ID found — using Delta table %s", _delta.FULL)
+    _delta.ensure_table()
+    _delta_rows = _delta.read_all()
+    if _delta_rows is not None:
+        _rows: list[dict] = _delta_rows
+        logger.info("Delta: loaded %d rows", len(_rows))
+    else:
+        logger.warning("Delta read failed on startup — falling back to memory")
+        _USE_DELTA = False
+        _rows = _load_memory_fallback()
+else:
+    logger.warning("No DATABRICKS_WAREHOUSE_ID — using in-memory store (local JSON fallback)")
+    _rows = _load_memory_fallback()
+
+_next_id: int = max((r.get("_id", 0) or 0 for r in _rows), default=0) + 1
+
+
+# ── store operations (Delta primary, memory fallback) ─────────────────────────
 
 def _get_all(limit: int = 100, offset: int = 0) -> list[dict]:
+    if _USE_DELTA:
+        rows = _delta.read_all()
+        if rows is not None:
+            return rows[offset: offset + limit]
+        logger.warning("Delta read_all failed — serving from memory")
     sorted_rows = sorted(_rows, key=lambda r: r.get("report_date", ""), reverse=True)
     return sorted_rows[offset: offset + limit]
 
 
 def _get_by_date(report_date: str) -> Optional[dict]:
+    if _USE_DELTA:
+        rows = _delta.read_all()
+        if rows is not None:
+            for row in rows:
+                if row.get("report_date") == report_date:
+                    return row
+            return None
+        logger.warning("Delta read failed for get_by_date — falling back to memory")
     for row in _rows:
         if row.get("report_date") == report_date:
             return row
@@ -149,26 +106,46 @@ def _get_by_date(report_date: str) -> Optional[dict]:
 
 def _upsert(entry: dict) -> dict:
     global _next_id
+    if _USE_DELTA:
+        if _delta.upsert(entry):
+            # mirror to memory so fallback stays warm
+            for i, row in enumerate(_rows):
+                if row.get("report_date") == entry["report_date"]:
+                    _rows[i] = entry
+                    return entry
+            entry.setdefault("_id", _next_id)
+            _next_id += 1
+            _rows.append(entry)
+            return entry
+        logger.warning("Delta upsert failed — writing to memory only")
+
+    # memory path
     for i, row in enumerate(_rows):
         if row.get("report_date") == entry["report_date"]:
             _rows[i] = entry
-            _write_store(_rows)
+            _save_memory_fallback(_rows)
             return entry
     entry["_id"] = _next_id
     _next_id += 1
     _rows.append(entry)
-    _write_store(_rows)
+    _save_memory_fallback(_rows)
     return entry
 
 
 def _delete(report_date: str) -> bool:
     global _rows
+    deleted = False
+    if _USE_DELTA:
+        deleted = _delta.delete(report_date)
+        if not deleted:
+            logger.warning("Delta delete failed — removing from memory only")
+
     before = len(_rows)
     _rows = [r for r in _rows if r.get("report_date") != report_date]
-    if len(_rows) < before:
-        _write_store(_rows)
-        return True
-    return False
+    mem_deleted = len(_rows) < before
+    if mem_deleted:
+        _save_memory_fallback(_rows)
+    return deleted or mem_deleted
 
 
 def _derive(entry: dict) -> dict:

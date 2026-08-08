@@ -1,0 +1,1876 @@
+{
+  "table": "serverless_stable_82bi8w_catalog.data_entry.nuton_load_daily_real",
+  "join_key": "stacking_date",
+  "tabs": [
+    {
+      "id": "general",
+      "label": "General",
+      "fields": [
+        {
+          "snake": "stacking_date",
+          "label": "Stacking Date",
+          "unit": "",
+          "type": "date",
+          "col": "B"
+        }
+      ]
+    },
+    {
+      "id": "ore",
+      "label": "Ore Delivered",
+      "fields": [
+        {
+          "snake": "nuton_crushedd",
+          "label": "Crushed(D) (Tons)",
+          "unit": "Tons",
+          "type": "number",
+          "col": "H",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_crushedn",
+          "label": "Crushed(N) (Tons)",
+          "unit": "Tons",
+          "type": "number",
+          "col": "I",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_wet_total_crushed",
+          "label": "Wet Total Crushed (Tons)",
+          "unit": "Tons",
+          "type": "number",
+          "col": "J",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_dry_crushed",
+          "label": "Dry Crushed",
+          "unit": "",
+          "type": "number",
+          "col": "K",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_eom",
+          "label": "EOM",
+          "unit": "",
+          "type": "number",
+          "col": "L",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_stackedd",
+          "label": "Stacked(D) (Tons)",
+          "unit": "Tons",
+          "type": "number",
+          "col": "M",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_stackedn",
+          "label": "Stacked(N) (Tons)",
+          "unit": "Tons",
+          "type": "number",
+          "col": "N",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_total_stacked",
+          "label": "Total Stacked (Tons)",
+          "unit": "Tons",
+          "type": "number",
+          "col": "O",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_dry_total_stacked",
+          "label": "Dry Total Stacked (Tons)",
+          "unit": "Tons",
+          "type": "number",
+          "col": "P",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_tontcu",
+          "label": "Ton*Tcu",
+          "unit": "",
+          "type": "number",
+          "col": "Q",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_tonas",
+          "label": "Ton*AS",
+          "unit": "",
+          "type": "number",
+          "col": "R",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_toncn",
+          "label": "Ton*CN",
+          "unit": "",
+          "type": "number",
+          "col": "S",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_toncus",
+          "label": "Ton*CuS",
+          "unit": "",
+          "type": "number",
+          "col": "T",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_grade",
+          "label": "Grade (%TCu)",
+          "unit": "%TCu",
+          "type": "number",
+          "col": "U",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_grade_1",
+          "label": "Grade (%AsCu)",
+          "unit": "%AsCu",
+          "type": "number",
+          "col": "V",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_grade_2",
+          "label": "Grade (%CuCN)",
+          "unit": "%CuCN",
+          "type": "number",
+          "col": "W",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_grade_3",
+          "label": "Grade (%CuS)",
+          "unit": "%CuS",
+          "type": "number",
+          "col": "X",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_pound_tcu",
+          "label": "Pound TCu (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "Y",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_pound_ascu",
+          "label": "Pound AsCu (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "Z",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_pound_cucn",
+          "label": "Pound CuCN (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "AA",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_pound_residual",
+          "label": "Pound Residual (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "AB",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_aggl_acid_target",
+          "label": "Aggl Acid Target (st)",
+          "unit": "st",
+          "type": "number",
+          "col": "AC",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "nuton_acid_cons",
+          "label": "Acid Cons. (lb/t)",
+          "unit": "lb/t",
+          "type": "number",
+          "col": "AD",
+          "section": "Nuton",
+          "subsection": "Nuton"
+        },
+        {
+          "snake": "p80_34_passing",
+          "label": "3/4 Passing (inc)",
+          "unit": "inc",
+          "type": "number",
+          "col": "AE",
+          "section": "Stacked",
+          "subsection": "P80"
+        },
+        {
+          "snake": "p80_12_passing",
+          "label": "1/2 passing (inc)",
+          "unit": "inc",
+          "type": "number",
+          "col": "AF",
+          "section": "Stacked",
+          "subsection": "P80"
+        },
+        {
+          "snake": "p80_100",
+          "label": "-100# (inc)",
+          "unit": "inc",
+          "type": "number",
+          "col": "AG",
+          "section": "Stacked",
+          "subsection": "P80"
+        },
+        {
+          "snake": "p80_34_passing_1",
+          "label": "3/4 Passing (inc)",
+          "unit": "inc",
+          "type": "number",
+          "col": "AI",
+          "section": "Crushed",
+          "subsection": "P80"
+        },
+        {
+          "snake": "p80_12_passing_1",
+          "label": "1/2 passing (inc)",
+          "unit": "inc",
+          "type": "number",
+          "col": "AJ",
+          "section": "Crushed",
+          "subsection": "P80"
+        },
+        {
+          "snake": "p80_100_1",
+          "label": "-100# (inc)",
+          "unit": "inc",
+          "type": "number",
+          "col": "AK",
+          "section": "Crushed",
+          "subsection": "P80"
+        },
+        {
+          "snake": "tons_rom",
+          "label": "ROM",
+          "unit": "",
+          "type": "number",
+          "col": "AM",
+          "section": "Mining",
+          "subsection": "Tons"
+        },
+        {
+          "snake": "tons_non_core",
+          "label": "Non Core",
+          "unit": "",
+          "type": "number",
+          "col": "AN",
+          "section": "Mining",
+          "subsection": "Tons"
+        },
+        {
+          "snake": "tons_core",
+          "label": "Core",
+          "unit": "",
+          "type": "number",
+          "col": "AO",
+          "section": "Mining",
+          "subsection": "Tons"
+        },
+        {
+          "snake": "nuton_raffinate_pad_flow",
+          "label": "Pad Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "BF",
+          "section": "Raffinate",
+          "subsection": "Nuton Raffinate"
+        },
+        {
+          "snake": "nuton_raffinate_skid_flow",
+          "label": "Skid Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "BG",
+          "section": "Raffinate",
+          "subsection": "Nuton Raffinate"
+        },
+        {
+          "snake": "nuton_raffinate_totalizer",
+          "label": "Totalizer",
+          "unit": "",
+          "type": "number",
+          "col": "BH",
+          "section": "Raffinate",
+          "subsection": "Nuton Raffinate"
+        },
+        {
+          "snake": "nuton_raffinate_raff_to_aggl",
+          "label": "Raff to Aggl (Gal)",
+          "unit": "Gal",
+          "type": "number",
+          "col": "BI",
+          "section": "Raffinate",
+          "subsection": "Nuton Raffinate"
+        },
+        {
+          "snake": "nuton_raffinate_cu_grade",
+          "label": "Cu Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "BJ",
+          "section": "Raffinate",
+          "subsection": "Nuton Raffinate"
+        },
+        {
+          "snake": "nuton_raffinate_acid_grade",
+          "label": "Acid Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "BK",
+          "section": "Raffinate",
+          "subsection": "Nuton Raffinate"
+        },
+        {
+          "snake": "nuton_raffinate_acid_bf",
+          "label": "Acid BF (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "BL",
+          "section": "Raffinate",
+          "subsection": "Nuton Raffinate"
+        },
+        {
+          "snake": "nuton_raffinate_h2so4",
+          "label": "H2SO4 (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "BM",
+          "section": "Raffinate",
+          "subsection": "Nuton Raffinate"
+        },
+        {
+          "snake": "nuton_raffinate_gross_acid_pounds",
+          "label": "Gross Acid Pounds (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "BN",
+          "section": "Raffinate",
+          "subsection": "Nuton Raffinate"
+        },
+        {
+          "snake": "nuton_raffinate_total_acid_pounds",
+          "label": "Total Acid Pounds (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "BO",
+          "section": "Raffinate",
+          "subsection": "Nuton Raffinate"
+        },
+        {
+          "snake": "nuton_raffinate_total_cu_pounds",
+          "label": "Total Cu Pounds (lbs)",
+          "unit": "lbs",
+          "type": "number",
+          "col": "BP",
+          "section": "Raffinate",
+          "subsection": "Nuton Raffinate"
+        },
+        {
+          "snake": "nuton_pls_flow",
+          "label": "Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "BQ",
+          "section": "PLS (Pad5)",
+          "subsection": "Nuton  PLS"
+        },
+        {
+          "snake": "nuton_pls_flume_flow",
+          "label": "Flume Flow",
+          "unit": "",
+          "type": "number",
+          "col": "BR",
+          "section": "PLS (Pad5)",
+          "subsection": "Nuton  PLS"
+        },
+        {
+          "snake": "nuton_pls_grade",
+          "label": "Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "BS",
+          "section": "PLS (Pad5)",
+          "subsection": "Nuton  PLS"
+        },
+        {
+          "snake": "nuton_pls_acid",
+          "label": "Acid (pH)",
+          "unit": "pH",
+          "type": "number",
+          "col": "BT",
+          "section": "PLS (Pad5)",
+          "subsection": "Nuton  PLS"
+        },
+        {
+          "snake": "nuton_pls_acid_1",
+          "label": "Acid (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "BU",
+          "section": "PLS (Pad5)",
+          "subsection": "Nuton  PLS"
+        },
+        {
+          "snake": "nuton_pls_h2so4",
+          "label": "H2SO4 (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "BV",
+          "section": "PLS (Pad5)",
+          "subsection": "Nuton  PLS"
+        },
+        {
+          "snake": "nuton_pls_flowgrade_cu",
+          "label": "Flow*Grade Cu",
+          "unit": "",
+          "type": "number",
+          "col": "BW",
+          "section": "PLS (Pad5)",
+          "subsection": "Nuton  PLS"
+        },
+        {
+          "snake": "nuton_pls_flowgrade_ph",
+          "label": "Flow*Grade pH",
+          "unit": "",
+          "type": "number",
+          "col": "BX",
+          "section": "PLS (Pad5)",
+          "subsection": "Nuton  PLS"
+        },
+        {
+          "snake": "nuton_pls_flowgrade_acid",
+          "label": "Flow*Grade Acid",
+          "unit": "",
+          "type": "number",
+          "col": "BY",
+          "section": "PLS (Pad5)",
+          "subsection": "Nuton  PLS"
+        },
+        {
+          "snake": "nuton_pls_gross_acid_pounds",
+          "label": "Gross Acid Pounds (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "BZ",
+          "section": "PLS (Pad5)",
+          "subsection": "Nuton  PLS"
+        },
+        {
+          "snake": "nuton_pls_gross_cu_pounds",
+          "label": "Gross Cu Pounds (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "CA",
+          "section": "PLS (Pad5)",
+          "subsection": "Nuton  PLS"
+        },
+        {
+          "snake": "nuton_pls_total_net_cu_pounds",
+          "label": "Total Net Cu Pounds (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "CB",
+          "section": "PLS (Pad5)",
+          "subsection": "Nuton  PLS"
+        },
+        {
+          "snake": "nuton_pls_pls_raff",
+          "label": "PLS -Raff (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "CC",
+          "section": "PLS (Pad5)",
+          "subsection": "Nuton  PLS"
+        },
+        {
+          "snake": "nuton_acid_to_hlp_raff_totalizer_short_tons",
+          "label": "Short Tons",
+          "unit": "",
+          "type": "number",
+          "col": "GZ",
+          "section": "Reagents",
+          "subsection": "Nuton Acid to HLP Raff Totalizer"
+        }
+      ]
+    },
+    {
+      "id": "raffinate",
+      "label": "Raffinate",
+      "fields": [
+        {
+          "snake": "rom_acid_cure_flow",
+          "label": "Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "AP",
+          "section": "Raffinate",
+          "subsection": "ROM Acid Cure"
+        },
+        {
+          "snake": "rom_acid_cure_rom_panel_or_agg",
+          "label": "ROM Panel or Agg. (Location)",
+          "unit": "Location",
+          "type": "number",
+          "col": "AQ",
+          "section": "Raffinate",
+          "subsection": "ROM Acid Cure"
+        },
+        {
+          "snake": "rom_acid_cure_cu_grade",
+          "label": "Cu Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "AR",
+          "section": "Raffinate",
+          "subsection": "ROM Acid Cure"
+        },
+        {
+          "snake": "rom_acid_cure_acid_grade_bf",
+          "label": "Acid Grade BF (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "AS",
+          "section": "Raffinate",
+          "subsection": "ROM Acid Cure"
+        },
+        {
+          "snake": "rom_acid_cure_acid_grade_af",
+          "label": "Acid Grade AF (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "AT",
+          "section": "Raffinate",
+          "subsection": "ROM Acid Cure"
+        },
+        {
+          "snake": "rom_acid_cure_acid_bf",
+          "label": "Acid BF (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "AU",
+          "section": "Raffinate",
+          "subsection": "ROM Acid Cure"
+        },
+        {
+          "snake": "rom_acid_cure_gross_acid_pounds_af",
+          "label": "Gross Acid Pounds AF",
+          "unit": "",
+          "type": "number",
+          "col": "AV",
+          "section": "Raffinate",
+          "subsection": "ROM Acid Cure"
+        },
+        {
+          "snake": "rom_acid_cure_total_acid_poundsaggl",
+          "label": "Total Acid Pounds-Aggl",
+          "unit": "",
+          "type": "number",
+          "col": "AW",
+          "section": "Raffinate",
+          "subsection": "ROM Acid Cure"
+        },
+        {
+          "snake": "rom_acid_cure_rom_acid_pounds",
+          "label": "ROM Acid Pounds (lbs)",
+          "unit": "lbs",
+          "type": "number",
+          "col": "AX",
+          "section": "Raffinate",
+          "subsection": "ROM Acid Cure"
+        },
+        {
+          "snake": "rom_raffinate_flow",
+          "label": "Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "AY",
+          "section": "Raffinate",
+          "subsection": "ROM Raffinate"
+        },
+        {
+          "snake": "rom_raffinate_cu_grade",
+          "label": "Cu Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "AZ",
+          "section": "Raffinate",
+          "subsection": "ROM Raffinate"
+        },
+        {
+          "snake": "rom_raffinate_acid_grade",
+          "label": "Acid Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "BA",
+          "section": "Raffinate",
+          "subsection": "ROM Raffinate"
+        },
+        {
+          "snake": "rom_raffinate_acid_bf",
+          "label": "Acid BF (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "BB",
+          "section": "Raffinate",
+          "subsection": "ROM Raffinate"
+        },
+        {
+          "snake": "rom_raffinate_gross_acid_pounds",
+          "label": "Gross Acid Pounds (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "BC",
+          "section": "Raffinate",
+          "subsection": "ROM Raffinate"
+        },
+        {
+          "snake": "rom_raffinate_total_acid_pounds",
+          "label": "Total Acid Pounds (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "BD",
+          "section": "Raffinate",
+          "subsection": "ROM Raffinate"
+        },
+        {
+          "snake": "rom_raffinate_total_cu_pounds",
+          "label": "Total Cu Pounds (lbs)",
+          "unit": "lbs",
+          "type": "number",
+          "col": "BE",
+          "section": "Raffinate",
+          "subsection": "ROM Raffinate"
+        },
+        {
+          "snake": "e2a_cu_grade",
+          "label": "Cu Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "DF",
+          "section": "Plant Raffinate",
+          "subsection": "E2-A"
+        },
+        {
+          "snake": "e2a_break_time_time",
+          "label": "Time (Min / Sec)",
+          "unit": "Min / Sec",
+          "type": "number",
+          "col": "DG",
+          "section": "Plant Raffinate",
+          "subsection": "E2-A Break Time"
+        },
+        {
+          "snake": "e1a_cu_grade",
+          "label": "Cu Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "DH",
+          "section": "Plant Raffinate",
+          "subsection": "E1-A"
+        },
+        {
+          "snake": "e1a_break_time_time",
+          "label": "Time (Min / Sec)",
+          "unit": "Min / Sec",
+          "type": "number",
+          "col": "DI",
+          "section": "Plant Raffinate",
+          "subsection": "E1-A Break Time"
+        },
+        {
+          "snake": "e2b_cu_grade",
+          "label": "Cu Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "DJ",
+          "section": "Plant Raffinate",
+          "subsection": "E2-B"
+        },
+        {
+          "snake": "e2b_break_time_time",
+          "label": "Time (Min / Sec)",
+          "unit": "Min / Sec",
+          "type": "number",
+          "col": "DK",
+          "section": "Plant Raffinate",
+          "subsection": "E2-B Break Time"
+        },
+        {
+          "snake": "e1b_cu_grade",
+          "label": "Cu Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "DL",
+          "section": "Plant Raffinate",
+          "subsection": "E1-B"
+        },
+        {
+          "snake": "e1b_break_time_time",
+          "label": "Time (Min / Sec)",
+          "unit": "Min / Sec",
+          "type": "number",
+          "col": "DM",
+          "section": "Plant Raffinate",
+          "subsection": "E1-B Break Time"
+        },
+        {
+          "snake": "avg_raff_cu_grade",
+          "label": "Cu Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "DN",
+          "section": "Plant Raffinate",
+          "subsection": "Avg Raff"
+        },
+        {
+          "snake": "in_raffinate_lb",
+          "label": "Lb (lbs)",
+          "unit": "lbs",
+          "type": "number",
+          "col": "EZ",
+          "section": "SX Extraction Recovery",
+          "subsection": "In Raffinate"
+        }
+      ]
+    },
+    {
+      "id": "pls",
+      "label": "PLS",
+      "fields": [
+        {
+          "snake": "rom_pls_flow",
+          "label": "Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "CD",
+          "section": "PLS (Pad5)",
+          "subsection": "ROM PLS"
+        },
+        {
+          "snake": "rom_pls_flow_flume",
+          "label": "Flow Flume (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "CE",
+          "section": "PLS (Pad5)",
+          "subsection": "ROM PLS"
+        },
+        {
+          "snake": "rom_pls_calc_cu_grade",
+          "label": "Calc Cu Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "CF",
+          "section": "PLS (Pad5)",
+          "subsection": "ROM PLS"
+        },
+        {
+          "snake": "rom_pls_cu_grade",
+          "label": "Cu Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "CG",
+          "section": "PLS (Pad5)",
+          "subsection": "ROM PLS"
+        },
+        {
+          "snake": "rom_pls_acid",
+          "label": "Acid (pH)",
+          "unit": "pH",
+          "type": "number",
+          "col": "CH",
+          "section": "PLS (Pad5)",
+          "subsection": "ROM PLS"
+        },
+        {
+          "snake": "rom_pls_acid_1",
+          "label": "Acid (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "CI",
+          "section": "PLS (Pad5)",
+          "subsection": "ROM PLS"
+        },
+        {
+          "snake": "rom_pls_flowgrade_cu",
+          "label": "Flow*Grade Cu",
+          "unit": "",
+          "type": "number",
+          "col": "CJ",
+          "section": "PLS (Pad5)",
+          "subsection": "ROM PLS"
+        },
+        {
+          "snake": "rom_pls_flowgrade_ph",
+          "label": "Flow*Grade pH",
+          "unit": "",
+          "type": "number",
+          "col": "CK",
+          "section": "PLS (Pad5)",
+          "subsection": "ROM PLS"
+        },
+        {
+          "snake": "rom_pls_flowgrade_acid",
+          "label": "Flow*Grade Acid",
+          "unit": "",
+          "type": "number",
+          "col": "CL",
+          "section": "PLS (Pad5)",
+          "subsection": "ROM PLS"
+        },
+        {
+          "snake": "rom_pls_gross_acid_pounds",
+          "label": "Gross Acid Pounds (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "CM",
+          "section": "PLS (Pad5)",
+          "subsection": "ROM PLS"
+        },
+        {
+          "snake": "rom_pls_gross_cu_pounds",
+          "label": "Gross Cu Pounds",
+          "unit": "",
+          "type": "number",
+          "col": "CN",
+          "section": "PLS (Pad5)",
+          "subsection": "ROM PLS"
+        },
+        {
+          "snake": "rom_pls_total_net_cu_pounds",
+          "label": "Total Net Cu Pounds",
+          "unit": "",
+          "type": "number",
+          "col": "CO",
+          "section": "PLS (Pad5)",
+          "subsection": "ROM PLS"
+        },
+        {
+          "snake": "rom_pls_pls_raff_cu",
+          "label": "PLS -Raff Cu (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "CP",
+          "section": "PLS (Pad5)",
+          "subsection": "ROM PLS"
+        },
+        {
+          "snake": "combined_pls_total_flow",
+          "label": "Total Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "CQ",
+          "section": "PLS (Pad5)",
+          "subsection": "Combined PLS"
+        },
+        {
+          "snake": "combined_pls_cu_grade",
+          "label": "Cu Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "CR",
+          "section": "PLS (Pad5)",
+          "subsection": "Combined PLS"
+        },
+        {
+          "snake": "combined_pls_calc_grade",
+          "label": "Calc Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "CS",
+          "section": "PLS (Pad5)",
+          "subsection": "Combined PLS"
+        },
+        {
+          "snake": "combined_pls_calc_acid_grade",
+          "label": "Calc Acid Grade",
+          "unit": "",
+          "type": "number",
+          "col": "CT",
+          "section": "PLS (Pad5)",
+          "subsection": "Combined PLS"
+        },
+        {
+          "snake": "combined_pls_acid",
+          "label": "Acid (pH)",
+          "unit": "pH",
+          "type": "number",
+          "col": "CU",
+          "section": "PLS (Pad5)",
+          "subsection": "Combined PLS"
+        },
+        {
+          "snake": "combined_pls_gross_pound",
+          "label": "Gross Pound",
+          "unit": "",
+          "type": "number",
+          "col": "CV",
+          "section": "PLS (Pad5)",
+          "subsection": "Combined PLS"
+        },
+        {
+          "snake": "combined_pls_net_pound",
+          "label": "Net Pound (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "CW",
+          "section": "PLS (Pad5)",
+          "subsection": "Combined PLS"
+        },
+        {
+          "snake": "pls_solution_stacking_total_flow",
+          "label": "Total Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "CX",
+          "section": "PLS (Pad5)",
+          "subsection": "PLS Solution Stacking"
+        },
+        {
+          "snake": "pls_solution_stacking_rom_flow",
+          "label": "ROM Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "CY",
+          "section": "PLS (Pad5)",
+          "subsection": "PLS Solution Stacking"
+        },
+        {
+          "snake": "pls_solution_stacking_nuton_flow",
+          "label": "Nuton Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "CZ",
+          "section": "PLS (Pad5)",
+          "subsection": "PLS Solution Stacking"
+        },
+        {
+          "snake": "pls_solution_stacking_rom_pls_cu",
+          "label": "ROM PLS Cu (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "DA",
+          "section": "PLS (Pad5)",
+          "subsection": "PLS Solution Stacking"
+        },
+        {
+          "snake": "pls_solution_stacking_nuton_pls_cu",
+          "label": "Nuton PLS Cu (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "DB",
+          "section": "PLS (Pad5)",
+          "subsection": "PLS Solution Stacking"
+        },
+        {
+          "snake": "burro_pit_flow",
+          "label": "Flow",
+          "unit": "",
+          "type": "number",
+          "col": "DC",
+          "section": "PLS (Pad5)",
+          "subsection": "Burro Pit"
+        },
+        {
+          "snake": "burro_pit_grade",
+          "label": "Grade",
+          "unit": "",
+          "type": "number",
+          "col": "DD",
+          "section": "PLS (Pad5)",
+          "subsection": "Burro Pit"
+        },
+        {
+          "snake": "burro_pit_lbs",
+          "label": "lbs",
+          "unit": "",
+          "type": "number",
+          "col": "DE",
+          "section": "PLS (Pad5)",
+          "subsection": "Burro Pit"
+        },
+        {
+          "snake": "plant_feed_pls_j_pond_3_cu_plant_avg_from_70011001500",
+          "label": "Cu Plant avg From 7:00,11:00,15:00 (Cu gpl)",
+          "unit": "Cu gpl",
+          "type": "number",
+          "col": "DP",
+          "section": "Plant Feed PLS_J (Pond 3)",
+          "subsection": ""
+        },
+        {
+          "snake": "plant_feed_pls_j_pond_3_cu_grade",
+          "label": "Cu Grade (Cu gpl)",
+          "unit": "Cu gpl",
+          "type": "number",
+          "col": "DQ",
+          "section": "Plant Feed PLS_J (Pond 3)",
+          "subsection": ""
+        },
+        {
+          "snake": "plant_feed_pls_j_pond_3_acid",
+          "label": "Acid (pH)",
+          "unit": "pH",
+          "type": "number",
+          "col": "DR",
+          "section": "Plant Feed PLS_J (Pond 3)",
+          "subsection": ""
+        },
+        {
+          "snake": "plant_feed_pls_j_pond_3_level",
+          "label": "Level (ft)",
+          "unit": "ft",
+          "type": "number",
+          "col": "DS",
+          "section": "Plant Feed PLS_J (Pond 3)",
+          "subsection": ""
+        },
+        {
+          "snake": "atrain_flow",
+          "label": "Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "DV",
+          "section": "Plant PLS Flow",
+          "subsection": "A-Train"
+        },
+        {
+          "snake": "btrain_flow",
+          "label": "Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "DW",
+          "section": "Plant PLS Flow",
+          "subsection": "B-Train"
+        }
+      ]
+    },
+    {
+      "id": "plant",
+      "label": "Plant",
+      "fields": [
+        {
+          "snake": "daily_rain_fall_level",
+          "label": "Level (Inches)",
+          "unit": "Inches",
+          "type": "number",
+          "col": "DT",
+          "section": "Precip  Rain   Fall",
+          "subsection": "Daily  Rain   Fall"
+        },
+        {
+          "snake": "ytd_rain_fall_level",
+          "label": "Level (Inches)",
+          "unit": "Inches",
+          "type": "number",
+          "col": "DU",
+          "section": "Precip  Rain   Fall",
+          "subsection": "YTD Rain Fall"
+        },
+        {
+          "snake": "atrain_flow_1",
+          "label": "Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "DY",
+          "section": "Plant Organic Flow",
+          "subsection": "A-Train"
+        },
+        {
+          "snake": "btrain_flow_1",
+          "label": "Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "DZ",
+          "section": "Plant Organic Flow",
+          "subsection": "B-Train"
+        },
+        {
+          "snake": "oa_ratio",
+          "label": "ratio (ratio)",
+          "unit": "ratio",
+          "type": "number",
+          "col": "EB",
+          "section": "Plant Organic Flow",
+          "subsection": "O/A"
+        }
+      ]
+    },
+    {
+      "id": "electrolyte",
+      "label": "Electrolyte",
+      "fields": [
+        {
+          "snake": "barren_electrolyte_cu_grade",
+          "label": "Cu    Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "EC",
+          "section": "Lean Electrolyte",
+          "subsection": "Barren Electrolyte"
+        },
+        {
+          "snake": "barren_electrolyte_acid_grade",
+          "label": "Acid Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "ED",
+          "section": "Lean Electrolyte",
+          "subsection": "Barren Electrolyte"
+        },
+        {
+          "snake": "barren_electrolyte_mn_grade",
+          "label": "Mn    Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "EE",
+          "section": "Lean Electrolyte",
+          "subsection": "Barren Electrolyte"
+        },
+        {
+          "snake": "barren_electrolyte_fe_grade",
+          "label": "Fe     Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "EF",
+          "section": "Lean Electrolyte",
+          "subsection": "Barren Electrolyte"
+        },
+        {
+          "snake": "barren_electrolyte_co_grade",
+          "label": "Co     Grade (Co     ppm)",
+          "unit": "Co     ppm",
+          "type": "number",
+          "col": "EG",
+          "section": "Lean Electrolyte",
+          "subsection": "Barren Electrolyte"
+        },
+        {
+          "snake": "barren_electrolyte_fe_bleed_flow",
+          "label": "Fe Bleed Flow (Fe Bleed gpm)",
+          "unit": "Fe Bleed gpm",
+          "type": "number",
+          "col": "EH",
+          "section": "Lean Electrolyte",
+          "subsection": "Barren Electrolyte"
+        },
+        {
+          "snake": "barren_electrolyte_h2o_makeup_gpm",
+          "label": "H2O Makeup  gpm (H2O Makeup  gpm)",
+          "unit": "H2O Makeup  gpm",
+          "type": "number",
+          "col": "EI",
+          "section": "Lean Electrolyte",
+          "subsection": "Barren Electrolyte"
+        },
+        {
+          "snake": "barren_electrolyte_orp_mv",
+          "label": "ORP     mV (ORP     mV)",
+          "unit": "ORP     mV",
+          "type": "number",
+          "col": "EJ",
+          "section": "Lean Electrolyte",
+          "subsection": "Barren Electrolyte"
+        },
+        {
+          "snake": "s1_a_cu_grade",
+          "label": "Cu    Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "EK",
+          "section": "Rich Electrolyte",
+          "subsection": "S1 - A"
+        },
+        {
+          "snake": "s1_a_acid_grade",
+          "label": "Acid Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "EL",
+          "section": "Rich Electrolyte",
+          "subsection": "S1 - A"
+        },
+        {
+          "snake": "s1_a_break_time_min_sec",
+          "label": "Break Time    Min / Sec (Break Time    Min / Sec)",
+          "unit": "Break Time    Min / Sec",
+          "type": "number",
+          "col": "EM",
+          "section": "Rich Electrolyte",
+          "subsection": "S1 - A"
+        },
+        {
+          "snake": "s1_a_lean_flow",
+          "label": "Lean Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "EN",
+          "section": "Rich Electrolyte",
+          "subsection": "S1 - A"
+        },
+        {
+          "snake": "s1_b_cu_grade",
+          "label": "Cu    Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "EO",
+          "section": "Rich Electrolyte",
+          "subsection": "S1 - B"
+        },
+        {
+          "snake": "s1_b_acid_grade",
+          "label": "Acid Grade (g/l)",
+          "unit": "g/l",
+          "type": "number",
+          "col": "EP",
+          "section": "Rich Electrolyte",
+          "subsection": "S1 - B"
+        },
+        {
+          "snake": "s1_b_break_time_min_sec",
+          "label": "Break Time    Min / Sec (Break Time    Min / Sec)",
+          "unit": "Break Time    Min / Sec",
+          "type": "number",
+          "col": "EQ",
+          "section": "Rich Electrolyte",
+          "subsection": "S1 - B"
+        },
+        {
+          "snake": "s1_b_lean_flow",
+          "label": "Lean Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "ER",
+          "section": "Rich Electrolyte",
+          "subsection": "S1 - B"
+        }
+      ]
+    },
+    {
+      "id": "ew_sx",
+      "label": "EW / SX",
+      "fields": [
+        {
+          "snake": "cell_block_1_flow",
+          "label": "Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "ES",
+          "section": "Electro-winning",
+          "subsection": "Cell Block 1"
+        },
+        {
+          "snake": "cell_block_2_flow",
+          "label": "Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "ET",
+          "section": "Electro-winning",
+          "subsection": "Cell Block 2"
+        },
+        {
+          "snake": "total_ew_flow_flow",
+          "label": "Flow (GPM)",
+          "unit": "GPM",
+          "type": "number",
+          "col": "EU",
+          "section": "Electro-winning",
+          "subsection": "Total EW Flow"
+        },
+        {
+          "snake": "ew_circulation_temp_f",
+          "label": "Temp   F (Temp   F)",
+          "unit": "Temp   F",
+          "type": "number",
+          "col": "EV",
+          "section": "Electro-winning",
+          "subsection": "EW Circulation"
+        },
+        {
+          "snake": "ppd_extracted_lb",
+          "label": "Lb (Lb)",
+          "unit": "Lb",
+          "type": "number",
+          "col": "EW",
+          "section": "SX Extraction Recovery",
+          "subsection": "PPD Extracted"
+        },
+        {
+          "snake": "ppd_available_lb",
+          "label": "Lb (From    Pad 3)",
+          "unit": "From    Pad 3",
+          "type": "number",
+          "col": "EX",
+          "section": "SX Extraction Recovery",
+          "subsection": "PPD Available"
+        },
+        {
+          "snake": "sx_recovery_",
+          "label": "% (%)",
+          "unit": "%",
+          "type": "number",
+          "col": "EY",
+          "section": "SX Extraction Recovery",
+          "subsection": "SX Recovery"
+        },
+        {
+          "snake": "fe_bleed_lb",
+          "label": "Lb (lbs)",
+          "unit": "lbs",
+          "type": "number",
+          "col": "FA",
+          "section": "SX Extraction Recovery",
+          "subsection": "Fe      Bleed"
+        },
+        {
+          "snake": "sx_net_lb",
+          "label": "Lb (lbs)",
+          "unit": "lbs",
+          "type": "number",
+          "col": "FB",
+          "section": "SX Extraction Recovery",
+          "subsection": "SX Net"
+        },
+        {
+          "snake": "cum_sx_net_lb",
+          "label": "Lb (lbs)",
+          "unit": "lbs",
+          "type": "number",
+          "col": "FC",
+          "section": "SX Extraction Recovery",
+          "subsection": "Cum SX Net"
+        },
+        {
+          "snake": "cell_block_1_lb",
+          "label": "Lb",
+          "unit": "",
+          "type": "number",
+          "col": "FH",
+          "section": "Rectifier Calc PPD",
+          "subsection": "Cell Block #1"
+        },
+        {
+          "snake": "cell_block_2_lb",
+          "label": "Lb",
+          "unit": "",
+          "type": "number",
+          "col": "FI",
+          "section": "Rectifier Calc PPD",
+          "subsection": "Cell Block #2"
+        },
+        {
+          "snake": "total_lb",
+          "label": "Lb",
+          "unit": "",
+          "type": "number",
+          "col": "FJ",
+          "section": "Rectifier Calc PPD",
+          "subsection": "Total"
+        }
+      ]
+    },
+    {
+      "id": "cathode",
+      "label": "Cathode",
+      "fields": [
+        {
+          "snake": "copper_cathode_harvested_ton",
+          "label": "Ton (st)",
+          "unit": "st",
+          "type": "number",
+          "col": "FL",
+          "section": "Copper Cathode Harvest",
+          "subsection": "Copper Cathode Harvested"
+        },
+        {
+          "snake": "copper_cathode_harvested_grade_1_cathode_cell_block_1",
+          "label": "Grade 1 Cathode Cell Block #1 (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "FM",
+          "section": "Copper Cathode Harvest",
+          "subsection": "Copper Cathode Harvested"
+        },
+        {
+          "snake": "copper_cathode_harvested_grade_1_cathode_cell_block_2",
+          "label": "Grade 1 Cathode Cell Block #2 (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "FN",
+          "section": "Copper Cathode Harvest",
+          "subsection": "Copper Cathode Harvested"
+        },
+        {
+          "snake": "copper_cathode_harvested_grade_2_cathode_cell_block_1",
+          "label": "Grade 2 Cathode Cell Block #1 (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "FO",
+          "section": "Copper Cathode Harvest",
+          "subsection": "Copper Cathode Harvested"
+        },
+        {
+          "snake": "copper_cathode_harvested_grade_2_cathode_cell_block_2",
+          "label": "Grade 2 Cathode Cell Block #2 (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "FP",
+          "section": "Copper Cathode Harvest",
+          "subsection": "Copper Cathode Harvested"
+        },
+        {
+          "snake": "copper_cathode_harvested_grad_2_scrap",
+          "label": "Grad 2 Scrap (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "FQ",
+          "section": "Copper Cathode Harvest",
+          "subsection": "Copper Cathode Harvested"
+        },
+        {
+          "snake": "copper_cathode_harvested_total_cu_harvested",
+          "label": "Total Cu Harvested (lb)",
+          "unit": "lb",
+          "type": "number",
+          "col": "FR",
+          "section": "Copper Cathode Harvest",
+          "subsection": "Copper Cathode Harvested"
+        },
+        {
+          "snake": "grade_1_cathode_shipped_lb",
+          "label": "Lb",
+          "unit": "",
+          "type": "number",
+          "col": "FS",
+          "section": "Copper Cathode Inventory",
+          "subsection": "Grade 1 Cathode Shipped"
+        },
+        {
+          "snake": "grade_1_cathode_inventory_lb",
+          "label": "Lb",
+          "unit": "",
+          "type": "number",
+          "col": "FT",
+          "section": "Copper Cathode Inventory",
+          "subsection": "Grade 1  Cathode Inventory"
+        },
+        {
+          "snake": "grade_2_cathode_shipped_lb",
+          "label": "Lb",
+          "unit": "",
+          "type": "number",
+          "col": "FU",
+          "section": "Copper Cathode Inventory",
+          "subsection": "Grade 2 Cathode Shipped"
+        },
+        {
+          "snake": "grade_2_cathode_inventory_lb",
+          "label": "Lb",
+          "unit": "",
+          "type": "number",
+          "col": "FV",
+          "section": "Copper Cathode Inventory",
+          "subsection": "Grade 2 Cathode Inventory"
+        },
+        {
+          "snake": "grade_2_scrap_shipped_lb",
+          "label": "Lb",
+          "unit": "",
+          "type": "number",
+          "col": "FW",
+          "section": "Copper Cathode Inventory",
+          "subsection": "Grade 2 Scrap Shipped"
+        },
+        {
+          "snake": "grade_2_scrap_inventory_lb",
+          "label": "Lb",
+          "unit": "",
+          "type": "number",
+          "col": "FX",
+          "section": "Copper Cathode Inventory",
+          "subsection": "Grade 2 Scrap Inventory"
+        }
+      ]
+    },
+    {
+      "id": "reagents",
+      "label": "Reagents & Misc",
+      "fields": [
+        {
+          "snake": "plant_gal",
+          "label": "Gal",
+          "unit": "",
+          "type": "number",
+          "col": "FY",
+          "section": "Organic Treatment",
+          "subsection": "Plant"
+        },
+        {
+          "snake": "recovered_gal",
+          "label": "Gal",
+          "unit": "",
+          "type": "number",
+          "col": "FZ",
+          "section": "Organic Treatment",
+          "subsection": "Recovered"
+        },
+        {
+          "snake": "cr60_acorga_ppm",
+          "label": "PPM",
+          "unit": "",
+          "type": "number",
+          "col": "GA",
+          "section": "Reagents",
+          "subsection": "CR60 Acorga"
+        },
+        {
+          "snake": "diluent_added_gal",
+          "label": "Gal",
+          "unit": "",
+          "type": "number",
+          "col": "GB",
+          "section": "Reagents",
+          "subsection": "Diluent Added"
+        },
+        {
+          "snake": "cobalt_added_8_sol_gal",
+          "label": "Gal",
+          "unit": "",
+          "type": "number",
+          "col": "GC",
+          "section": "Reagents",
+          "subsection": "Cobalt Added (8% Sol)"
+        },
+        {
+          "snake": "fc1100_gallons_day",
+          "label": "Gallons / Day",
+          "unit": "",
+          "type": "number",
+          "col": "GD",
+          "section": "Reagents",
+          "subsection": "FC1100"
+        },
+        {
+          "snake": "m5774_acorga_added_gal",
+          "label": "Gal",
+          "unit": "",
+          "type": "number",
+          "col": "GE",
+          "section": "Reagents",
+          "subsection": "M5774 Acorga Added"
+        },
+        {
+          "snake": "guar_ml_min",
+          "label": "ml / min",
+          "unit": "",
+          "type": "number",
+          "col": "GF",
+          "section": "Reagents",
+          "subsection": "Guar"
+        },
+        {
+          "snake": "f1_clay_lbs",
+          "label": "lbs",
+          "unit": "",
+          "type": "number",
+          "col": "GG",
+          "section": "Reagents",
+          "subsection": "F1 Clay"
+        },
+        {
+          "snake": "ferrous_fe_sulfate_lbs",
+          "label": "lbs",
+          "unit": "",
+          "type": "number",
+          "col": "GH",
+          "section": "Reagents",
+          "subsection": "Ferrous Fe Sulfate"
+        },
+        {
+          "snake": "pyrite_agglomeration_supersacks",
+          "label": "Supersacks",
+          "unit": "",
+          "type": "number",
+          "col": "GI",
+          "section": "Reagents",
+          "subsection": "Pyrite Agglomeration"
+        },
+        {
+          "snake": "pyrite_big_f_supersacks",
+          "label": "Supersacks",
+          "unit": "",
+          "type": "number",
+          "col": "GJ",
+          "section": "Reagents",
+          "subsection": "Pyrite Big F"
+        },
+        {
+          "snake": "total_pyrite_supersacks_supersacks",
+          "label": "Supersacks",
+          "unit": "",
+          "type": "number",
+          "col": "GK",
+          "section": "Reagents",
+          "subsection": "Total Pyrite Supersacks"
+        },
+        {
+          "snake": "total_pyrite_lbs_agglomeration_lbs",
+          "label": "lbs",
+          "unit": "",
+          "type": "number",
+          "col": "GL",
+          "section": "Reagents",
+          "subsection": "Total Pyrite lbs agglomeration"
+        },
+        {
+          "snake": "total_pyrite_lbs_big_f_lbs",
+          "label": "lbs",
+          "unit": "",
+          "type": "number",
+          "col": "GM",
+          "section": "Reagents",
+          "subsection": "Total Pyrite lbs Big F"
+        },
+        {
+          "snake": "total_pyrite_st",
+          "label": "st",
+          "unit": "",
+          "type": "number",
+          "col": "GN",
+          "section": "Reagents",
+          "subsection": "Total Pyrite"
+        },
+        {
+          "snake": "nutrent_1_gal",
+          "label": "Gal",
+          "unit": "",
+          "type": "number",
+          "col": "GO",
+          "section": "Reagents",
+          "subsection": "Nutrent 1"
+        },
+        {
+          "snake": "nutrent_2_gal",
+          "label": "Gal",
+          "unit": "",
+          "type": "number",
+          "col": "GP",
+          "section": "Reagents",
+          "subsection": "Nutrent 2"
+        },
+        {
+          "snake": "nutrent_3_grams",
+          "label": "Grams",
+          "unit": "",
+          "type": "number",
+          "col": "GQ",
+          "section": "Reagents",
+          "subsection": "Nutrent 3"
+        },
+        {
+          "snake": "floculent_gal",
+          "label": "Gal",
+          "unit": "",
+          "type": "number",
+          "col": "GR",
+          "section": "Reagents",
+          "subsection": "Floculent"
+        },
+        {
+          "snake": "silver_nitrate_lit",
+          "label": "Lit",
+          "unit": "",
+          "type": "number",
+          "col": "GS",
+          "section": "Reagents",
+          "subsection": "Silver Nitrate"
+        },
+        {
+          "snake": "silver_nitrate_kg",
+          "label": "Kg",
+          "unit": "",
+          "type": "number",
+          "col": "GT",
+          "section": "Reagents",
+          "subsection": "Silver Nitrate"
+        },
+        {
+          "snake": "acid_delivered_short_tons",
+          "label": "Short Tons",
+          "unit": "",
+          "type": "number",
+          "col": "GV",
+          "section": "Reagents",
+          "subsection": "Acid Delivered"
+        },
+        {
+          "snake": "acid_sx_usage_short_tons",
+          "label": "Short Tons",
+          "unit": "",
+          "type": "number",
+          "col": "GW",
+          "section": "Reagents",
+          "subsection": "Acid SX Usage"
+        },
+        {
+          "snake": "rom_acid_cure_to_hlp_raff_totalizer_short_tons",
+          "label": "Short Tons",
+          "unit": "",
+          "type": "number",
+          "col": "GX",
+          "section": "Reagents",
+          "subsection": "ROM Acid Cure to HLP Raff Totalizer"
+        },
+        {
+          "snake": "rom_acid_to_hlp_raff_totalizer_short_tons",
+          "label": "Short Tons",
+          "unit": "",
+          "type": "number",
+          "col": "GY",
+          "section": "Reagents",
+          "subsection": "ROM Acid to HLP Raff Totalizer"
+        },
+        {
+          "snake": "big_f_acid_totalizer_short_tons",
+          "label": "Short Tons",
+          "unit": "",
+          "type": "number",
+          "col": "HA",
+          "section": "Reagents",
+          "subsection": "Big F Acid Totalizer"
+        },
+        {
+          "snake": "big_f_acid_target_short_tons",
+          "label": "Short Tons",
+          "unit": "",
+          "type": "number",
+          "col": "HB",
+          "section": "Reagents",
+          "subsection": "Big F Acid Target"
+        },
+        {
+          "snake": "acid_heap_leach_5_short_tons",
+          "label": "Short Tons",
+          "unit": "",
+          "type": "number",
+          "col": "HC",
+          "section": "Reagents",
+          "subsection": "Acid Heap Leach 5"
+        },
+        {
+          "snake": "lng_tank_volume_gal",
+          "label": "Gal",
+          "unit": "",
+          "type": "number",
+          "col": "HE",
+          "section": "Reagents",
+          "subsection": "LNG Tank Volume"
+        },
+        {
+          "snake": "lng_daily_usage_gal",
+          "label": "Gal",
+          "unit": "",
+          "type": "number",
+          "col": "HF",
+          "section": "Reagents",
+          "subsection": "LNG Daily Usage"
+        },
+        {
+          "snake": "lng_delivered_gal",
+          "label": "Gal",
+          "unit": "",
+          "type": "number",
+          "col": "HG",
+          "section": "Reagents",
+          "subsection": "LNG Delivered"
+        },
+        {
+          "snake": "burro_pit_water_gallons",
+          "label": "Gallons",
+          "unit": "",
+          "type": "number",
+          "col": "HH",
+          "section": "Reagents",
+          "subsection": "Burro Pit Water"
+        },
+        {
+          "snake": "smith_well_water_gallons",
+          "label": "Gallons",
+          "unit": "",
+          "type": "number",
+          "col": "HI",
+          "section": "Reagents",
+          "subsection": "Smith Well Water"
+        },
+        {
+          "snake": "moore_well_water_gallons",
+          "label": "Gallons",
+          "unit": "",
+          "type": "number",
+          "col": "HJ",
+          "section": "Reagents",
+          "subsection": "Moore Well Water"
+        },
+        {
+          "snake": "republic_well_water_gallons",
+          "label": "Gallons",
+          "unit": "",
+          "type": "number",
+          "col": "HK",
+          "section": "Reagents",
+          "subsection": "Republic Well Water"
+        },
+        {
+          "snake": "section_19_well_water_gallons",
+          "label": "Gallons",
+          "unit": "",
+          "type": "number",
+          "col": "HL",
+          "section": "Reagents",
+          "subsection": "Section 19 Well Water"
+        }
+      ]
+    }
+  ]
+}

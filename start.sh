@@ -17,8 +17,12 @@ case "$APP" in
     BACKEND_PORT=8002
     FRONTEND_PORT=5174
     ;;
+  data-entry-real)
+    BACKEND_PORT=8003
+    FRONTEND_PORT=5175
+    ;;
   *)
-    echo "Unknown app: $APP. Choose ops-monitor or data-entry."
+    echo "Unknown app: $APP. Choose ops-monitor, data-entry, or data-entry-real."
     exit 1
     ;;
 esac
