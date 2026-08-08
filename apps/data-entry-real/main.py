@@ -110,7 +110,9 @@ def _exec(sql: str) -> list[dict] | None:
             return None
         body = resp.json()
         if body.get("status", {}).get("state") != "SUCCEEDED":
-            logger.warning("SQL state=%s: %.120s", body.get("status", {}).get("state"), sql)
+            err = body.get("status", {}).get("error", {})
+            logger.warning("SQL FAILED [%s]: %s | SQL: %.60s",
+                           err.get("error_code", ""), err.get("message", "")[:300], sql)
             return None
         data_array = (body.get("result") or {}).get("data_array") or []
         if not data_array:
