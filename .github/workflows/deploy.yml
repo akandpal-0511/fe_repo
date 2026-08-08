@@ -39,6 +39,7 @@ jobs:
 
   deploy:
     name: 'Deploy apps bundle'
+    if: false # disabled until DATABRICKS_CLIENT_ID/SECRET secrets are configured
     runs-on: ubuntu-latest
     needs: [build-ops-monitor, build-data-entry, build-data-entry-real]
     env:
