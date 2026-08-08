@@ -1,36 +1,88 @@
-name: deploy
+name: 'Deploy databricks apps'
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+    paths:
+      - 'apps/**'
+      - 'databricks_apps/**'
+      - 'src/**'
+      - '.github/workflows/deploy.yml'
+      - '.github/workflows/build-frontend.yml'
 
 jobs:
+  build-ops-monitor:
+    uses: ./.github/workflows/build-frontend.yml
+    with:
+      app-path: apps/ops-monitor/frontend
+      artifact-name: ops-monitor-dist
+
+  build-data-entry:
+    uses: ./.github/workflows/build-frontend.yml
+    with:
+      app-path: apps/data-entry/frontend
+      artifact-name: data-entry-dist
+
+  build-data-entry-real:
+    uses: ./.github/workflows/build-frontend.yml
+    with:
+      app-path: apps/data-entry-real/frontend
+      artifact-name: data-entry-real-dist
+
   deploy:
+    name: 'Deploy apps bundle'
     runs-on: ubuntu-latest
+    needs: [build-ops-monitor, build-data-entry, build-data-entry-real]
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+      DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
     steps:
       - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
 
-      - uses: actions/setup-node@v4
+      - name: Download ops-monitor dist
+        uses: actions/download-artifact@v4
         with:
-          node-version: "20"
+          name: ops-monitor-dist
+          path: apps/ops-monitor/frontend/dist
 
-      - name: build frontend (data-entry-real)
-        run: |
-          cd apps/data-entry-real/frontend
-          npm ci
-          npm run build
-
-      - uses: actions/setup-python@v5
+      - name: Download data-entry dist
+        uses: actions/download-artifact@v4
         with:
-          python-version: "3.11"
+          name: data-entry-dist
+          path: apps/data-entry/frontend/dist
 
-      - name: install databricks cli
-        run: curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+      - name: Download data-entry-real dist
+        uses: actions/download-artifact@v4
+        with:
+          name: data-entry-real-dist
+          path: apps/data-entry-real/frontend/dist
 
-      - name: deploy bundle
-        env:
-          DATABRICKS_HOST: https://fevm-serverless-stable-82bi8w.cloud.databricks.com
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-        run: |
-          cd databricks_apps
-          databricks bundle deploy -t dev
+      - name: Validate bundle
+        run: databricks bundle validate -t dev
+        working-directory: ./databricks_apps
+
+      - name: Deploy bundle
+        run: databricks bundle deploy -t dev
+        working-directory: ./databricks_apps
+
+      - name: Run ops-monitor app
+        run: databricks bundle run ops_monitor_app -t dev
+        working-directory: ./databricks_apps
+
+      - name: Run data-entry app
+        run: databricks bundle run data_entry_app -t dev
+        working-directory: ./databricks_apps
+
+      - name: Run data-entry-real app
+        run: databricks bundle run data_entry_real_app -t dev
+        working-directory: ./databricks_apps
