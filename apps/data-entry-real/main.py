@@ -41,9 +41,11 @@ _token_cache: dict = {}
 
 
 def _get_token() -> str | None:
+    # On Databricks Apps, DATABRICKS_TOKEN is auto-injected by the platform
     env_token = os.environ.get("DATABRICKS_TOKEN", "")
     if env_token:
         return env_token
+    # Local dev: use CLI profile
     now = time.time()
     if _token_cache.get("token") and _token_cache.get("expires_at", 0) > now + 60:
         return _token_cache["token"]
@@ -144,7 +146,13 @@ def _ensure_infra():
     logger.info("Delta infrastructure ready")
 
 
-_ensure_infra()
+_infra_ready = False
+
+def _lazy_ensure_infra():
+    global _infra_ready
+    if not _infra_ready and _get_token():
+        _ensure_infra()
+        _infra_ready = True
 
 # ── store operations ──────────────────────────────────────────────────────────
 
@@ -224,16 +232,19 @@ def _current_user(request: Request) -> str:
 @app.get("/api/config")
 def api_config():
     """Return form config (tabs + fields) for the frontend to render dynamically."""
+    _lazy_ensure_infra()
     return _CONFIG
 
 
 @app.get("/api/entries")
 def api_list(limit: int = 60, offset: int = 0):
+    _lazy_ensure_infra()
     return _list_rows(limit=limit, offset=offset)
 
 
 @app.get("/api/entries/{stacking_date}")
 def api_get(stacking_date: str):
+    _lazy_ensure_infra()
     row = _get_row(stacking_date)
     if row is None:
         return JSONResponse({"error": "Not found"}, status_code=404)
