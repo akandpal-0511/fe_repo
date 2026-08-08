@@ -1,0 +1,36 @@
+name: 'Build frontend'
+
+on:
+  workflow_call:
+    inputs:
+      app-path:
+        description: 'Path to the frontend directory (e.g. apps/data-entry-real/frontend)'
+        required: true
+        type: string
+      artifact-name:
+        description: 'Name of the uploaded dist artifact'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: 'Build ${{ inputs.artifact-name }}'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install and build
+        run: npm install --no-package-lock && npm run build
+        working-directory: ${{ inputs.app-path }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ${{ inputs.app-path }}/dist
