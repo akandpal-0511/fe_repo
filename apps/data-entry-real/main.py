@@ -233,7 +233,7 @@ def _get_row(stacking_date: str) -> dict | None:
     return rows[0] if rows else None
 
 
-def _list_rows(limit: int = 60, offset: int = 0) -> list[dict]:
+def _list_rows(limit: int = 100000, offset: int = 0) -> list[dict]:
     rows = _exec(f"SELECT * FROM {FULL} ORDER BY stacking_date DESC LIMIT {limit} OFFSET {offset}")
     return rows or []
 
@@ -263,7 +263,7 @@ def api_config():
 
 
 @app.get("/api/entries")
-def api_list(limit: int = 60, offset: int = 0):
+def api_list(limit: int = 100000, offset: int = 0):
     _lazy_ensure_infra()
     return _list_rows(limit=limit, offset=offset)
 

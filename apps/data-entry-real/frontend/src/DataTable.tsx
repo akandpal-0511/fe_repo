@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { TabDef } from './App'
 
 interface Entry {
@@ -11,15 +11,36 @@ interface Props {
   tabs: TabDef[]
 }
 
+const PRESETS = [
+  { label: 'Last 7d',  days: 7   },
+  { label: 'Last 30d', days: 30  },
+  { label: 'Last 90d', days: 90  },
+  { label: 'This year',days: -1  }, // special
+  { label: 'All',      days: 0   }, // 0 = no filter
+]
+
+function toIso(d: Date) {
+  return d.toISOString().slice(0, 10)
+}
+
+function defaultRange() {
+  const to   = new Date()
+  const from = new Date()
+  from.setDate(from.getDate() - 89) // 90 days inclusive
+  return { from: toIso(from), to: toIso(to) }
+}
+
 export default function DataTable({ tabs }: Props) {
-  const [rows, setRows]       = useState<Entry[]>([])
-  const [loading, setLoading] = useState(true)
-  const [search, setSearch]   = useState('')
+  const [rows, setRows]           = useState<Entry[]>([])
+  const [loading, setLoading]     = useState(true)
   const [activeTab, setActiveTab] = useState<string>(tabs[0]?.id ?? '')
+  const [activePreset, setActivePreset] = useState<number>(90)
+  const [from, setFrom] = useState(defaultRange().from)
+  const [to,   setTo  ] = useState(defaultRange().to)
 
   const load = () => {
     setLoading(true)
-    fetch('/api/entries?limit=200')
+    fetch('/api/entries')
       .then(r => r.json())
       .then(data => { setRows(data); setLoading(false) })
       .catch(() => setLoading(false))
@@ -27,12 +48,40 @@ export default function DataTable({ tabs }: Props) {
 
   useEffect(() => { load() }, [])
 
-  const filtered = rows.filter(r =>
-    !search || r.stacking_date?.includes(search)
+  // apply preset → update from/to
+  const applyPreset = (days: number) => {
+    setActivePreset(days)
+    const now = new Date()
+    if (days === 0) {
+      setFrom('')
+      setTo('')
+    } else if (days === -1) {
+      setFrom(`${now.getFullYear()}-01-01`)
+      setTo(toIso(now))
+    } else {
+      const f = new Date()
+      f.setDate(f.getDate() - (days - 1))
+      setFrom(toIso(f))
+      setTo(toIso(now))
+    }
+  }
+
+  // manual range edit clears preset
+  const handleFrom = (v: string) => { setFrom(v); setActivePreset(-99) }
+  const handleTo   = (v: string) => { setTo(v);   setActivePreset(-99) }
+
+  const filtered = useMemo(() =>
+    rows.filter(r => {
+      if (!r.stacking_date) return false
+      if (from && r.stacking_date < from) return false
+      if (to   && r.stacking_date > to)   return false
+      return true
+    }),
+    [rows, from, to]
   )
 
-  const currentTab = tabs.find(t => t.id === activeTab)
-  const tabCols    = currentTab?.fields.map(f => f.snake) ?? []
+  const currentTab  = tabs.find(t => t.id === activeTab)
+  const tabCols     = currentTab?.fields.map(f => f.snake) ?? []
   const displayCols = ['stacking_date', ...tabCols]
 
   const tabSavesCount = (val: string | undefined) => {
@@ -54,23 +103,68 @@ export default function DataTable({ tabs }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 0 }}>
 
-      {/* Header row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, marginBottom: 12, flexWrap: 'wrap' }}>
         <div>
           <h2 style={{ fontSize: 18, fontWeight: 700 }}>Inserted Records</h2>
           <span style={{ color: 'var(--muted)', fontSize: 12 }}>
-            {rows.length} rows · {tabCols.length} columns shown
+            {loading ? 'Loading…' : (
+              <>
+                <span style={{
+                  fontWeight: 700,
+                  color: filtered.length > 0 ? 'var(--accent)' : 'var(--muted)',
+                }}>
+                  {filtered.length}
+                </span>
+                {' '}of {rows.length} rows · {tabCols.length} cols shown
+              </>
+            )}
           </span>
         </div>
-        <input
-          type="date"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={{ width: 160, marginLeft: 'auto' }}
-        />
-        <button className="secondary" onClick={load} style={{ whiteSpace: 'nowrap' }}>
-          ↻ Refresh
-        </button>
+
+        {/* Preset chips */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', marginLeft: 'auto' }}>
+          {PRESETS.map(p => {
+            const isActive = activePreset === p.days
+            return (
+              <button
+                key={p.label}
+                onClick={() => applyPreset(p.days)}
+                style={{
+                  padding: '4px 12px', fontSize: 12, borderRadius: 20,
+                  background: isActive ? 'var(--accent)' : 'var(--surface2)',
+                  color: isActive ? '#fff' : 'var(--muted)',
+                  border: `1px solid ${isActive ? 'var(--accent)' : 'var(--border)'}`,
+                  fontWeight: isActive ? 600 : 400,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {p.label}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Date range pickers */}
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="date"
+            value={from}
+            onChange={e => handleFrom(e.target.value)}
+            style={{ width: 145, fontSize: 12 }}
+          />
+          <span style={{ color: 'var(--muted)', fontSize: 12 }}>→</span>
+          <input
+            type="date"
+            value={to}
+            onChange={e => handleTo(e.target.value)}
+            style={{ width: 145, fontSize: 12 }}
+          />
+          <button className="secondary" onClick={load} style={{ whiteSpace: 'nowrap', fontSize: 12 }}>
+            ↻
+          </button>
+        </div>
       </div>
 
       {/* Tab switcher */}
@@ -141,7 +235,7 @@ export default function DataTable({ tabs }: Props) {
                   <td colSpan={displayCols.length + 1} style={{
                     padding: 40, textAlign: 'center', color: 'var(--muted)',
                   }}>
-                    No records yet
+                    No records in this range
                   </td>
                 </tr>
               ) : filtered.map((row, i) => (
