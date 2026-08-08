@@ -41,14 +41,38 @@ _token_cache: dict = {}
 
 
 def _get_token() -> str | None:
-    # On Databricks Apps, DATABRICKS_TOKEN is auto-injected by the platform
+    # 1. Static token (local dev with PAT, or some app configs)
     env_token = os.environ.get("DATABRICKS_TOKEN", "")
     if env_token:
         return env_token
-    # Local dev: use CLI profile
+
     now = time.time()
     if _token_cache.get("token") and _token_cache.get("expires_at", 0) > now + 60:
         return _token_cache["token"]
+
+    host      = os.environ.get("DATABRICKS_HOST", "").rstrip("/")
+    client_id = os.environ.get("DATABRICKS_CLIENT_ID", "")
+    client_secret = os.environ.get("DATABRICKS_CLIENT_SECRET", "")
+
+    # 2. On Databricks Apps: platform injects CLIENT_ID + CLIENT_SECRET for M2M OAuth
+    if host and client_id and client_secret:
+        try:
+            r = _requests.post(
+                f"{host}/oidc/v1/token",
+                data={"grant_type": "client_credentials", "scope": "all-apis"},
+                auth=(client_id, client_secret),
+                timeout=10,
+            )
+            r.raise_for_status()
+            data = r.json()
+            token = data["access_token"]
+            _token_cache["token"] = token
+            _token_cache["expires_at"] = now + data.get("expires_in", 3600)
+            return token
+        except Exception as exc:
+            logger.warning("M2M token error: %s", exc)
+
+    # 3. Local dev: CLI profile
     try:
         result = subprocess.run(
             ["databricks", "auth", "token", "--profile", "fevm-stable"],
