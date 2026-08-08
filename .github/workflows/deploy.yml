@@ -14,9 +14,9 @@ jobs:
         with:
           node-version: "20"
 
-      - name: build frontend
+      - name: build frontend (data-entry-real)
         run: |
-          cd frontend
+          cd apps/data-entry-real/frontend
           npm ci
           npm run build
 
@@ -31,4 +31,6 @@ jobs:
         env:
           DATABRICKS_HOST: https://fevm-serverless-stable-82bi8w.cloud.databricks.com
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-        run: databricks bundle deploy -t dev
+        run: |
+          cd databricks_apps
+          databricks bundle deploy -t dev
