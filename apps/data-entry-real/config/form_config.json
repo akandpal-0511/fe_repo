@@ -525,7 +525,7 @@
         },
         {
           "snake": "nuton_acid_to_hlp_raff_totalizer_short_tons",
-          "label": "Short Tons",
+          "label": "Nuton Acid to HLP Raff Totalizer",
           "unit": "",
           "type": "number",
           "col": "GZ",
@@ -1023,7 +1023,7 @@
         },
         {
           "snake": "burro_pit_lbs",
-          "label": "lbs",
+          "label": "Burro Pit",
           "unit": "",
           "type": "number",
           "col": "DE",
@@ -1128,7 +1128,7 @@
         },
         {
           "snake": "oa_ratio",
-          "label": "ratio (ratio)",
+          "label": "O/A (ratio)",
           "unit": "ratio",
           "type": "number",
           "col": "EB",
@@ -1320,7 +1320,7 @@
         },
         {
           "snake": "ew_circulation_temp_f",
-          "label": "Temp   F (Temp   F)",
+          "label": "EW Circulation (Temp   F)",
           "unit": "Temp   F",
           "type": "number",
           "col": "EV",
@@ -1329,7 +1329,7 @@
         },
         {
           "snake": "ppd_extracted_lb",
-          "label": "Lb (Lb)",
+          "label": "PPD Extracted (Lb)",
           "unit": "Lb",
           "type": "number",
           "col": "EW",
@@ -1383,7 +1383,7 @@
         },
         {
           "snake": "cell_block_1_lb",
-          "label": "Lb",
+          "label": "Cell Block #1",
           "unit": "",
           "type": "number",
           "col": "FH",
@@ -1392,7 +1392,7 @@
         },
         {
           "snake": "cell_block_2_lb",
-          "label": "Lb",
+          "label": "Cell Block #2",
           "unit": "",
           "type": "number",
           "col": "FI",
@@ -1401,7 +1401,7 @@
         },
         {
           "snake": "total_lb",
-          "label": "Lb",
+          "label": "Total",
           "unit": "",
           "type": "number",
           "col": "FJ",
@@ -1479,7 +1479,7 @@
         },
         {
           "snake": "grade_1_cathode_shipped_lb",
-          "label": "Lb",
+          "label": "Grade 1 Cathode Shipped",
           "unit": "",
           "type": "number",
           "col": "FS",
@@ -1488,7 +1488,7 @@
         },
         {
           "snake": "grade_1_cathode_inventory_lb",
-          "label": "Lb",
+          "label": "Grade 1  Cathode Inventory",
           "unit": "",
           "type": "number",
           "col": "FT",
@@ -1497,7 +1497,7 @@
         },
         {
           "snake": "grade_2_cathode_shipped_lb",
-          "label": "Lb",
+          "label": "Grade 2 Cathode Shipped",
           "unit": "",
           "type": "number",
           "col": "FU",
@@ -1506,7 +1506,7 @@
         },
         {
           "snake": "grade_2_cathode_inventory_lb",
-          "label": "Lb",
+          "label": "Grade 2 Cathode Inventory",
           "unit": "",
           "type": "number",
           "col": "FV",
@@ -1515,7 +1515,7 @@
         },
         {
           "snake": "grade_2_scrap_shipped_lb",
-          "label": "Lb",
+          "label": "Grade 2 Scrap Shipped",
           "unit": "",
           "type": "number",
           "col": "FW",
@@ -1524,7 +1524,7 @@
         },
         {
           "snake": "grade_2_scrap_inventory_lb",
-          "label": "Lb",
+          "label": "Grade 2 Scrap Inventory",
           "unit": "",
           "type": "number",
           "col": "FX",
@@ -1539,7 +1539,7 @@
       "fields": [
         {
           "snake": "plant_gal",
-          "label": "Gal",
+          "label": "Plant (Gal)",
           "unit": "",
           "type": "number",
           "col": "FY",
@@ -1548,7 +1548,7 @@
         },
         {
           "snake": "recovered_gal",
-          "label": "Gal",
+          "label": "Recovered (Gal)",
           "unit": "",
           "type": "number",
           "col": "FZ",
@@ -1557,7 +1557,7 @@
         },
         {
           "snake": "cr60_acorga_ppm",
-          "label": "PPM",
+          "label": "CR60 Acorga (PPM)",
           "unit": "",
           "type": "number",
           "col": "GA",
@@ -1566,7 +1566,7 @@
         },
         {
           "snake": "diluent_added_gal",
-          "label": "Gal",
+          "label": "Diluent Added (Gal)",
           "unit": "",
           "type": "number",
           "col": "GB",
@@ -1575,7 +1575,7 @@
         },
         {
           "snake": "cobalt_added_8_sol_gal",
-          "label": "Gal",
+          "label": "Cobalt Added (8% Sol) (Gal)",
           "unit": "",
           "type": "number",
           "col": "GC",
@@ -1584,7 +1584,7 @@
         },
         {
           "snake": "fc1100_gallons_day",
-          "label": "Gallons / Day",
+          "label": "FC1100 (Gallons / Day)",
           "unit": "",
           "type": "number",
           "col": "GD",
@@ -1593,7 +1593,7 @@
         },
         {
           "snake": "m5774_acorga_added_gal",
-          "label": "Gal",
+          "label": "M5774 Acorga Added (Gal)",
           "unit": "",
           "type": "number",
           "col": "GE",
@@ -1602,7 +1602,7 @@
         },
         {
           "snake": "guar_ml_min",
-          "label": "ml / min",
+          "label": "Guar (ml / min)",
           "unit": "",
           "type": "number",
           "col": "GF",
@@ -1611,7 +1611,7 @@
         },
         {
           "snake": "f1_clay_lbs",
-          "label": "lbs",
+          "label": "F1 Clay (lbs)",
           "unit": "",
           "type": "number",
           "col": "GG",
@@ -1620,7 +1620,7 @@
         },
         {
           "snake": "ferrous_fe_sulfate_lbs",
-          "label": "lbs",
+          "label": "Ferrous Fe Sulfate (lbs)",
           "unit": "",
           "type": "number",
           "col": "GH",
@@ -1629,7 +1629,7 @@
         },
         {
           "snake": "pyrite_agglomeration_supersacks",
-          "label": "Supersacks",
+          "label": "Pyrite Agglomeration (Supersacks)",
           "unit": "",
           "type": "number",
           "col": "GI",
@@ -1638,7 +1638,7 @@
         },
         {
           "snake": "pyrite_big_f_supersacks",
-          "label": "Supersacks",
+          "label": "Pyrite Big F (Supersacks)",
           "unit": "",
           "type": "number",
           "col": "GJ",
@@ -1647,7 +1647,7 @@
         },
         {
           "snake": "total_pyrite_supersacks_supersacks",
-          "label": "Supersacks",
+          "label": "Total Pyrite Supersacks (Supersacks)",
           "unit": "",
           "type": "number",
           "col": "GK",
@@ -1656,7 +1656,7 @@
         },
         {
           "snake": "total_pyrite_lbs_agglomeration_lbs",
-          "label": "lbs",
+          "label": "Total Pyrite lbs agglomeration (lbs)",
           "unit": "",
           "type": "number",
           "col": "GL",
@@ -1665,7 +1665,7 @@
         },
         {
           "snake": "total_pyrite_lbs_big_f_lbs",
-          "label": "lbs",
+          "label": "Total Pyrite lbs Big F (lbs)",
           "unit": "",
           "type": "number",
           "col": "GM",
@@ -1674,7 +1674,7 @@
         },
         {
           "snake": "total_pyrite_st",
-          "label": "st",
+          "label": "Total Pyrite (st)",
           "unit": "",
           "type": "number",
           "col": "GN",
@@ -1683,7 +1683,7 @@
         },
         {
           "snake": "nutrent_1_gal",
-          "label": "Gal",
+          "label": "Nutrent 1 (Gal)",
           "unit": "",
           "type": "number",
           "col": "GO",
@@ -1692,7 +1692,7 @@
         },
         {
           "snake": "nutrent_2_gal",
-          "label": "Gal",
+          "label": "Nutrent 2 (Gal)",
           "unit": "",
           "type": "number",
           "col": "GP",
@@ -1701,7 +1701,7 @@
         },
         {
           "snake": "nutrent_3_grams",
-          "label": "Grams",
+          "label": "Nutrent 3 (Grams)",
           "unit": "",
           "type": "number",
           "col": "GQ",
@@ -1710,7 +1710,7 @@
         },
         {
           "snake": "floculent_gal",
-          "label": "Gal",
+          "label": "Floculent (Gal)",
           "unit": "",
           "type": "number",
           "col": "GR",
@@ -1719,7 +1719,7 @@
         },
         {
           "snake": "silver_nitrate_lit",
-          "label": "Lit",
+          "label": "Silver Nitrate (Lit)",
           "unit": "",
           "type": "number",
           "col": "GS",
@@ -1728,7 +1728,7 @@
         },
         {
           "snake": "silver_nitrate_kg",
-          "label": "Kg",
+          "label": "Silver Nitrate (Kg)",
           "unit": "",
           "type": "number",
           "col": "GT",
@@ -1737,7 +1737,7 @@
         },
         {
           "snake": "acid_delivered_short_tons",
-          "label": "Short Tons",
+          "label": "Acid Delivered (Short Tons)",
           "unit": "",
           "type": "number",
           "col": "GV",
@@ -1746,7 +1746,7 @@
         },
         {
           "snake": "acid_sx_usage_short_tons",
-          "label": "Short Tons",
+          "label": "Acid SX Usage (Short Tons)",
           "unit": "",
           "type": "number",
           "col": "GW",
@@ -1755,7 +1755,7 @@
         },
         {
           "snake": "rom_acid_cure_to_hlp_raff_totalizer_short_tons",
-          "label": "Short Tons",
+          "label": "ROM Acid Cure to HLP Raff Totalizer (Short Tons)",
           "unit": "",
           "type": "number",
           "col": "GX",
@@ -1764,7 +1764,7 @@
         },
         {
           "snake": "rom_acid_to_hlp_raff_totalizer_short_tons",
-          "label": "Short Tons",
+          "label": "ROM Acid to HLP Raff Totalizer (Short Tons)",
           "unit": "",
           "type": "number",
           "col": "GY",
@@ -1773,7 +1773,7 @@
         },
         {
           "snake": "big_f_acid_totalizer_short_tons",
-          "label": "Short Tons",
+          "label": "Big F Acid Totalizer (Short Tons)",
           "unit": "",
           "type": "number",
           "col": "HA",
@@ -1782,7 +1782,7 @@
         },
         {
           "snake": "big_f_acid_target_short_tons",
-          "label": "Short Tons",
+          "label": "Big F Acid Target (Short Tons)",
           "unit": "",
           "type": "number",
           "col": "HB",
@@ -1791,7 +1791,7 @@
         },
         {
           "snake": "acid_heap_leach_5_short_tons",
-          "label": "Short Tons",
+          "label": "Acid Heap Leach 5 (Short Tons)",
           "unit": "",
           "type": "number",
           "col": "HC",
@@ -1800,7 +1800,7 @@
         },
         {
           "snake": "lng_tank_volume_gal",
-          "label": "Gal",
+          "label": "LNG Tank Volume (Gal)",
           "unit": "",
           "type": "number",
           "col": "HE",
@@ -1809,7 +1809,7 @@
         },
         {
           "snake": "lng_daily_usage_gal",
-          "label": "Gal",
+          "label": "LNG Daily Usage (Gal)",
           "unit": "",
           "type": "number",
           "col": "HF",
@@ -1818,7 +1818,7 @@
         },
         {
           "snake": "lng_delivered_gal",
-          "label": "Gal",
+          "label": "LNG Delivered (Gal)",
           "unit": "",
           "type": "number",
           "col": "HG",
@@ -1827,7 +1827,7 @@
         },
         {
           "snake": "burro_pit_water_gallons",
-          "label": "Gallons",
+          "label": "Burro Pit Water (Gallons)",
           "unit": "",
           "type": "number",
           "col": "HH",
@@ -1836,7 +1836,7 @@
         },
         {
           "snake": "smith_well_water_gallons",
-          "label": "Gallons",
+          "label": "Smith Well Water (Gallons)",
           "unit": "",
           "type": "number",
           "col": "HI",
@@ -1845,7 +1845,7 @@
         },
         {
           "snake": "moore_well_water_gallons",
-          "label": "Gallons",
+          "label": "Moore Well Water (Gallons)",
           "unit": "",
           "type": "number",
           "col": "HJ",
@@ -1854,7 +1854,7 @@
         },
         {
           "snake": "republic_well_water_gallons",
-          "label": "Gallons",
+          "label": "Republic Well Water (Gallons)",
           "unit": "",
           "type": "number",
           "col": "HK",
@@ -1863,7 +1863,7 @@
         },
         {
           "snake": "section_19_well_water_gallons",
-          "label": "Gallons",
+          "label": "Section 19 Well Water (Gallons)",
           "unit": "",
           "type": "number",
           "col": "HL",
