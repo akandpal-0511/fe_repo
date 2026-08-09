@@ -117,7 +117,7 @@ export default function TabForm({ tab, initialValues, onSave, saving, alreadySav
                   step={f.type === 'number' ? 'any' : undefined}
                   value={values[f.snake] ?? ''}
                   onChange={e => set(f.snake, e.target.value)}
-                  placeholder={f.unit || undefined}
+                  placeholder={undefined}
                 />
               </div>
             ))}

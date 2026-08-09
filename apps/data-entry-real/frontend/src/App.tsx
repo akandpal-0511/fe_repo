@@ -119,31 +119,54 @@ export default function App() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
 
       {/* ── Info banner ── */}
-      {!bannerDismissed && (
-        <div style={{
-          background: 'var(--surface2)', borderBottom: '1px solid var(--border)',
-          padding: '8px 24px', fontSize: 12,
-          display: 'flex', alignItems: 'center', gap: 12,
-          color: 'var(--muted)',
-        }}>
-          <span style={{ color: 'var(--accent)', fontWeight: 600, flexShrink: 0 }}>How to use</span>
-          <span>
-            1. Pick a date &nbsp;·&nbsp;
-            2. Select a section tab &nbsp;·&nbsp;
-            3. Fill fields &nbsp;·&nbsp;
-            4. <strong style={{ color: 'var(--text)' }}>Save Tab</strong> — each team saves their own section &nbsp;·&nbsp;
-            5. Green dot = saved &nbsp;·&nbsp;
-            6. <strong style={{ color: 'var(--text)' }}>Data</strong> tab to view all records
-          </span>
-          <button
-            onClick={dismissBanner}
-            style={{ background: 'transparent', color: 'var(--muted)', padding: '2px 6px',
-                     fontSize: 13, border: '1px solid var(--border)', marginLeft: 'auto' }}
-          >
-            ✕
-          </button>
-        </div>
-      )}
+      {!bannerDismissed && (() => {
+        const hints = isDataView ? [
+          { icon: '🔍', text: <><strong style={{ color: 'var(--text)' }}>Filter</strong> by date range or preset chips</> },
+          { icon: '✏️', text: <><strong style={{ color: 'var(--text)' }}>Edit</strong> any row — opens the form pre-filled</> },
+          { icon: '🗑️', text: <><strong style={{ color: 'var(--text)' }}>Delete</strong> asks for confirmation before removing</> },
+          { icon: '📑', text: <>Tab chips show <strong style={{ color: 'var(--text)' }}>columns</strong> for that section only</> },
+        ] : isChartsView ? [
+          { icon: '📈', text: <>Select up to <strong style={{ color: 'var(--text)' }}>5 metrics</strong> to overlay on one chart</> },
+          { icon: '🗂️', text: <>Filter metrics <strong style={{ color: 'var(--text)' }}>by tab</strong> — dot marks tabs with active selections</> },
+          { icon: '📅', text: <>Use <strong style={{ color: 'var(--text)' }}>preset chips</strong> or date range to zoom in</> },
+          { icon: '🔎', text: <><strong style={{ color: 'var(--text)' }}>Search</strong> metrics by name inside the dropdown</> },
+        ] : [
+          { icon: '📅', text: <><strong style={{ color: 'var(--text)' }}>Pick date</strong> — loads existing entry automatically</> },
+          { icon: '🗂️', text: <>Each <strong style={{ color: 'var(--text)' }}>section tab</strong> is saved independently by each team</> },
+          { icon: '🟢', text: <><strong style={{ color: 'var(--text)' }}>Green dot</strong> = tab already saved for this date</> },
+          { icon: '📊', text: <>Use the <strong style={{ color: 'var(--text)' }}>Data</strong> tab to view or edit all records</> },
+        ]
+        return (
+          <div style={{
+            background: 'var(--surface2)', borderBottom: '1px solid var(--border)',
+            padding: '7px 24px', fontSize: 12,
+            display: 'flex', alignItems: 'center', gap: 0,
+            color: 'var(--muted)', flexWrap: 'wrap',
+          }}>
+            {hints.map((h, i) => (
+              <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                {i > 0 && (
+                  <span style={{
+                    margin: '0 14px', color: 'var(--border)',
+                    fontSize: 14, userSelect: 'none',
+                  }}>|</span>
+                )}
+                <span style={{ fontSize: 14 }}>{h.icon}</span>
+                <span>{h.text}</span>
+              </span>
+            ))}
+            <button
+              onClick={dismissBanner}
+              style={{
+                background: 'transparent', color: 'var(--muted)', padding: '2px 6px',
+                fontSize: 13, border: '1px solid var(--border)', marginLeft: 'auto',
+              }}
+            >
+              ✕
+            </button>
+          </div>
+        )
+      })()}
 
       {/* ── Top bar ── */}
       <div style={{
