@@ -2,13 +2,16 @@ import { useEffect, useMemo, useState } from 'react'
 import type { TabDef } from './App'
 
 interface Entry {
-  stacking_date: string
+  stacking_date?: string
   _tab_saves?: string
   [key: string]: any
 }
 
 interface Props {
   tabs: TabDef[]
+  rows: Entry[]
+  onRefresh: () => void
+  onEditDate: (date: string) => void
 }
 
 const PRESETS = [
@@ -30,23 +33,31 @@ function defaultRange() {
   return { from: toIso(from), to: toIso(to) }
 }
 
-export default function DataTable({ tabs }: Props) {
-  const [rows, setRows]           = useState<Entry[]>([])
-  const [loading, setLoading]     = useState(true)
+export default function DataTable({ tabs, rows, onRefresh, onEditDate }: Props) {
+  const [loading, setLoading]     = useState(false)
   const [activeTab, setActiveTab] = useState<string>(tabs[0]?.id ?? '')
   const [activePreset, setActivePreset] = useState<number>(90)
   const [from, setFrom] = useState(defaultRange().from)
   const [to,   setTo  ] = useState(defaultRange().to)
+  const [deleting, setDeleting]       = useState<string | null>(null)
+  const [confirmDate, setConfirmDate] = useState<string | null>(null)
 
   const load = () => {
     setLoading(true)
-    fetch('/api/entries')
-      .then(r => r.json())
-      .then(data => { setRows(data); setLoading(false) })
-      .catch(() => setLoading(false))
+    onRefresh()
+    setTimeout(() => setLoading(false), 500)
   }
 
-  useEffect(() => { load() }, [])
+  const handleDelete = async (date: string) => {
+    setDeleting(date)
+    setConfirmDate(null)
+    try {
+      await fetch(`/api/entries/${date}`, { method: 'DELETE' })
+      onRefresh()
+    } finally {
+      setDeleting(null)
+    }
+  }
 
   // apply preset → update from/to
   const applyPreset = (days: number) => {
@@ -200,6 +211,45 @@ export default function DataTable({ tabs }: Props) {
         })}
       </div>
 
+      {/* Delete confirmation modal */}
+      {confirmDate && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 1000,
+          background: 'rgba(0,0,0,0.4)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{
+            background: 'var(--surface)', border: '1px solid var(--border)',
+            borderRadius: 10, padding: '28px 32px', maxWidth: 360, width: '90%',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+          }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 10 }}>Delete record?</h3>
+            <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 24 }}>
+              This will permanently delete all data for <strong style={{ color: 'var(--text)' }}>{confirmDate}</strong>. This cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button
+                className="secondary"
+                onClick={() => setConfirmDate(null)}
+                style={{ fontSize: 13 }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(confirmDate)}
+                style={{
+                  fontSize: 13, padding: '6px 18px', borderRadius: 6,
+                  background: 'var(--warning)', color: '#fff',
+                  border: 'none', cursor: 'pointer', fontWeight: 600,
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Table */}
       {loading ? (
         <div style={{ color: 'var(--muted)', padding: 40, textAlign: 'center' }}>Loading…</div>
@@ -208,6 +258,15 @@ export default function DataTable({ tabs }: Props) {
           <table style={{ borderCollapse: 'collapse', fontSize: 12, minWidth: '100%' }}>
             <thead>
               <tr>
+                <th style={{
+                  padding: '8px 10px', textAlign: 'left',
+                  background: 'var(--surface2)', color: 'var(--muted)',
+                  borderBottom: '2px solid var(--border)',
+                  fontWeight: 600, fontSize: 11, whiteSpace: 'nowrap',
+                  position: 'sticky', left: 0, zIndex: 2,
+                }}>
+                  Actions
+                </th>
                 {displayCols.map(col => (
                   <th key={col} style={{
                     padding: '8px 12px', textAlign: 'left',
@@ -216,7 +275,7 @@ export default function DataTable({ tabs }: Props) {
                     fontWeight: 600, fontSize: 11, letterSpacing: '0.04em',
                     whiteSpace: 'nowrap',
                     position: col === 'stacking_date' ? 'sticky' : undefined,
-                    left: col === 'stacking_date' ? 0 : undefined,
+                    left: col === 'stacking_date' ? 88 : undefined,
                     zIndex: col === 'stacking_date' ? 1 : undefined,
                   }}>
                     {col === 'stacking_date' ? 'Date' : colLabel(col)}
@@ -245,6 +304,35 @@ export default function DataTable({ tabs }: Props) {
                 <tr key={row.stacking_date} style={{
                   background: i % 2 === 0 ? 'var(--surface)' : 'var(--surface2)',
                 }}>
+                  {/* Actions — leftmost sticky */}
+                  <td style={{
+                    padding: '4px 8px', borderBottom: '1px solid var(--border)',
+                    whiteSpace: 'nowrap', position: 'sticky', left: 0,
+                    background: i % 2 === 0 ? 'var(--surface)' : 'var(--surface2)',
+                  }}>
+                    <button
+                      onClick={() => onEditDate(row.stacking_date!)}
+                      style={{
+                        fontSize: 11, padding: '2px 8px', borderRadius: 4, marginRight: 4,
+                        background: 'var(--surface2)', border: '1px solid var(--border)',
+                        color: 'var(--accent)', cursor: 'pointer', fontWeight: 600,
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => setConfirmDate(row.stacking_date!)}
+                      disabled={deleting === row.stacking_date}
+                      style={{
+                        fontSize: 11, padding: '2px 8px', borderRadius: 4,
+                        background: 'var(--surface2)', border: '1px solid var(--border)',
+                        color: 'var(--warning)', cursor: 'pointer', fontWeight: 600,
+                        opacity: deleting === row.stacking_date ? 0.5 : 1,
+                      }}
+                    >
+                      {deleting === row.stacking_date ? '…' : 'Del'}
+                    </button>
+                  </td>
                   {displayCols.map(col => (
                     <td key={col} style={{
                       padding: '6px 12px',
@@ -253,7 +341,7 @@ export default function DataTable({ tabs }: Props) {
                       background: col === 'stacking_date'
                         ? (i % 2 === 0 ? 'var(--surface)' : 'var(--surface2)') : undefined,
                       position: col === 'stacking_date' ? 'sticky' : undefined,
-                      left: col === 'stacking_date' ? 0 : undefined,
+                      left: col === 'stacking_date' ? 88 : undefined,
                       fontWeight: col === 'stacking_date' ? 600 : undefined,
                     }}>
                       {fmt(row[col])}

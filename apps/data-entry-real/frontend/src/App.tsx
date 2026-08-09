@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import TabForm from './TabForm'
 import DataTable from './DataTable'
+import Charts from './Charts'
 
 export interface FieldDef {
   snake: string
@@ -25,7 +26,8 @@ interface FormConfig {
 }
 
 const TODAY = new Date().toISOString().split('T')[0]
-const VIEW_DATA = '__data__'
+const VIEW_DATA   = '__data__'
+const VIEW_CHARTS = '__charts__'
 
 export default function App() {
   const [config, setConfig]       = useState<FormConfig | null>(null)
@@ -36,6 +38,7 @@ export default function App() {
   const [saving, setSaving]       = useState(false)
   const [status, setStatus]       = useState('')
   const [dark, setDark]           = useState(false)
+  const [allRows, setAllRows]     = useState<Record<string, any>[]>([])
   const [bannerDismissed, setBannerDismissed] = useState(
     () => localStorage.getItem('banner_dismissed') === '1'
   )
@@ -62,6 +65,15 @@ export default function App() {
         setActiveTab(filtered.tabs[0]?.id ?? '')
       })
   }, [])
+
+  const loadAllRows = () => {
+    fetch('/api/entries')
+      .then(r => r.json())
+      .then(data => setAllRows(data))
+      .catch(() => {})
+  }
+
+  useEffect(() => { loadAllRows() }, [])
 
   useEffect(() => {
     if (!date) return
@@ -100,7 +112,8 @@ export default function App() {
   const totalTabs = config.tabs.length
   const savedTabs = Object.values(tabSaves).filter(Boolean).length
   const pct       = Math.round((savedTabs / totalTabs) * 100)
-  const isDataView = activeTab === VIEW_DATA
+  const isDataView   = activeTab === VIEW_DATA
+  const isChartsView = activeTab === VIEW_CHARTS
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
@@ -141,8 +154,8 @@ export default function App() {
           Physicals Entry
         </span>
 
-        {/* Date picker — hidden when viewing data table */}
-        {!isDataView && (
+        {/* Date picker — hidden when viewing data/charts */}
+        {!isDataView && !isChartsView && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ color: 'var(--muted)', fontSize: 12 }}>Date</span>
             <input
@@ -155,7 +168,7 @@ export default function App() {
         )}
 
         {/* Completeness bar */}
-        {!isDataView && (
+        {!isDataView && !isChartsView && (
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
               flex: 1, height: 6, background: 'var(--surface2)',
@@ -256,15 +269,38 @@ export default function App() {
               textAlign: 'left', fontSize: 13,
             }}
           >
-            <span style={{ fontSize: 14 }}>📊</span>
+            <span style={{ fontSize: 14 }}>⊞</span>
             Data
+          </button>
+
+          {/* Charts tab */}
+          <button
+            onClick={() => setActiveTab(VIEW_CHARTS)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              width: '100%', padding: '10px 16px', borderRadius: 0,
+              background: isChartsView ? 'var(--surface2)' : 'transparent',
+              color: isChartsView ? 'var(--text)' : 'var(--muted)',
+              borderLeft: isChartsView ? '3px solid var(--accent)' : '3px solid transparent',
+              textAlign: 'left', fontSize: 13,
+            }}
+          >
+            <span style={{ fontSize: 14 }}>📈</span>
+            Charts
           </button>
         </div>
 
         {/* Main content */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 28px' }}>
+        <div style={{ flex: 1, overflowY: isChartsView ? 'hidden' : 'auto', padding: '20px 28px', display: 'flex', flexDirection: 'column' }}>
           {isDataView ? (
-            <DataTable tabs={config.tabs} />
+            <DataTable
+              tabs={config.tabs}
+              rows={allRows}
+              onRefresh={loadAllRows}
+              onEditDate={(d) => { setDate(d); setActiveTab(config.tabs[0]?.id ?? '') }}
+            />
+          ) : isChartsView ? (
+            <Charts tabs={config.tabs} rows={allRows} />
           ) : (
             config.tabs.map(tab => tab.id === activeTab && (
               <TabForm
