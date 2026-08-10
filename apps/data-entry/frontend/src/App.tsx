@@ -25,7 +25,7 @@ export default function App() {
           color: C.TEXT, padding: "14px 0", marginRight: 24,
           whiteSpace: "nowrap",
         }}>
-          Physicals Data Entry
+          Operational Physicals Data Entry
         </span>
 
         {/* Nav tabs */}
