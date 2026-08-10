@@ -174,7 +174,7 @@ export default function App() {
         padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 20,
       }}>
         <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--accent)', flexShrink: 0 }}>
-          Physicals Entry
+          Operational Physicals Entry
         </span>
 
         {/* Date picker — hidden when viewing data/charts */}
