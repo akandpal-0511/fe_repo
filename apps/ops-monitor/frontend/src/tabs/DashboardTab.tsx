@@ -3,12 +3,10 @@ import Plot from "react-plotly.js";
 import { useTheme } from "../theme";
 import { api } from "../api";
 import { CommentsPanel } from "../components/CommentsPanel";
+import { PA_ORDER, paLabel } from "../constants";
 import type { TagProfile, TrendPoint } from "../types";
 
-const DASHBOARD_AREAS = [
-  "PA-1", "PA-2", "PA-3", "PA-4", "PA-5",
-  "PA-6", "PA-7", "PA-8", "PA-9", "PA-10", "PA-11", "PA-12",
-];
+const DASHBOARD_AREAS = [...PA_ORDER];
 
 function isoNDaysAgo(n: number) {
   const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().slice(0, 10);
@@ -177,7 +175,7 @@ function KpiWeeklyView({ area }: { area: string }) {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
           <div>
             <span style={{ fontSize: "0.85rem", fontWeight: 700, color: C.TEXT }}>Sensor Trends</span>
-            <span style={{ fontSize: "0.72rem", color: C.MUTED, marginLeft: 10 }}>{area} · top sensors</span>
+            <span style={{ fontSize: "0.72rem", color: C.MUTED, marginLeft: 10 }}>{paLabel(area)} · top sensors</span>
           </div>
           <div style={{ display: "flex", gap: 4 }}>
             {(["7d", "30d", "90d"] as const).map(r => (
@@ -195,7 +193,7 @@ function KpiWeeklyView({ area }: { area: string }) {
         {trendLoading ? (
           <div style={{ color: C.MUTED, fontSize: "0.82rem", padding: "20px 0", textAlign: "center" }}>Loading…</div>
         ) : chartTags.length === 0 ? (
-          <div style={{ color: C.MUTED, fontSize: "0.82rem", padding: "20px 0", textAlign: "center" }}>No sensor data for {area}.</div>
+          <div style={{ color: C.MUTED, fontSize: "0.82rem", padding: "20px 0", textAlign: "center" }}>No sensor data for {paLabel(area)}.</div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))", gap: 16 }}>
             {chartTags.map((profile, idx) => {
@@ -251,13 +249,13 @@ function KpiDetailedView({ area }: { area: string }) {
   return (
     <div style={{ padding: 16 }}>
       <div style={{ fontSize: "0.72rem", color: C.MUTED, marginBottom: 16 }}>
-        Weekly averages over the last 90 days · {area}
+        Weekly averages over the last 90 days · {paLabel(area)}
       </div>
 
       {trendLoading ? (
         <div style={{ color: C.MUTED }}>Loading…</div>
       ) : chartTags.length === 0 ? (
-        <div style={{ color: C.MUTED }}>No sensor data for {area}.</div>
+        <div style={{ color: C.MUTED }}>No sensor data for {paLabel(area)}.</div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {chartTags.map((profile, idx) => {
@@ -383,7 +381,7 @@ export function DashboardTab() {
             fontWeight: area === a ? 700 : 400,
             cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0,
           }}>
-            {a}
+            {paLabel(a)}
           </button>
         ))}
       </div>
@@ -396,7 +394,7 @@ export function DashboardTab() {
 
         {/* Comments panel */}
         <div style={{ width: 280, flexShrink: 0, borderLeft: `1px solid ${C.BORDER}`, background: C.CARD, overflow: "hidden" }}>
-          <CommentsPanel area={area} tags={[area]} />
+          <CommentsPanel area={area} tags={[paLabel(area)]} />
         </div>
       </div>
     </div>

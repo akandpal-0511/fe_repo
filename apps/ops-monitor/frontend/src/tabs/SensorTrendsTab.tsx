@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Plot from "react-plotly.js";
-import { PA_SUB_AREAS } from "../constants";
+import { PA_ORDER, paLabel } from "../constants";
 import { useTheme } from "../theme";
 import { api } from "../api";
 import { SectionHeader } from "../components/KPIStrip";
@@ -20,24 +20,10 @@ function statusColor(val: number | null, lo: number | null, hi: number | null) {
 }
 
 
+const _FLOW = PA_ORDER.map((pa) => ({ pa, label: paLabel(pa) }));
 const FLOW_STEPS: { pa: string; label: string }[][] = [
-  [
-    { pa: "PA-1",  label: "PA-1"  },
-    { pa: "PA-2",  label: "PA-2"  },
-    { pa: "PA-3",  label: "PA-3"  },
-    { pa: "PA-4",  label: "PA-4"  },
-    { pa: "PA-5",  label: "PA-5"  },
-    { pa: "PA-6",  label: "PA-6"  },
-    { pa: "PA-7",  label: "PA-7"  },
-  ],
-  [
-    { pa: "PA-8",  label: "PA-8"  },
-    { pa: "PA-9",  label: "PA-9"  },
-    { pa: "PA-10", label: "PA-10" },
-    { pa: "PA-11", label: "PA-11" },
-    { pa: "PA-12", label: "PA-12" },
-    { pa: "PA-13", label: "PA-13" },
-  ],
+  _FLOW.slice(0, 7),
+  _FLOW.slice(7),
 ];
 
 function FlowsheetPASelector({ selected, onSelect }: { selected: string; onSelect: (pa: string) => void }) {
@@ -111,7 +97,6 @@ export function SensorTrendsTab({ initialArea, onAreaChange }: { initialArea?: s
 
   const [selArea,      setSelArea]      = useState<string>(initialArea ?? "PA-1");
   const [dsFilter,     setDsFilter]     = useState<"Historian only" | "All sources">("All sources");
-  const [bigfReactors, setBigfReactors] = useState<string[]>([]);
   const [selLabels,    setSelLabels]    = useState<string[]>([]);
   const [sensorSearch, setSensorSearch] = useState("");
 
@@ -133,13 +118,8 @@ export function SensorTrendsTab({ initialArea, onAreaChange }: { initialArea?: s
       .finally(() => setProfLoading(false));
   }, []);
 
-  const _PA_ORDER = [
-    "PA-1", "PA-2", "PA-3", "PA-4", "PA-5",
-    "PA-6", "PA-7", "PA-8", "PA-9", "PA-10",
-    "PA-11", "PA-12", "PA-13",
-  ];
   const _rawAreas = new Set(allProfiles.map((p) => p.PerformanceArea));
-  const paOpts = _PA_ORDER.filter((a) => _rawAreas.has(a));
+  const paOpts = PA_ORDER.filter((a) => _rawAreas.has(a));
   const dbAreas = [selArea];
   let areaProf = allProfiles.filter((p) => dbAreas.includes(p.PerformanceArea));
   if (dsFilter === "Historian only") {
@@ -148,7 +128,7 @@ export function SensorTrendsTab({ initialArea, onAreaChange }: { initialArea?: s
   const isMulti = dbAreas.length > 1;
   const makeLabel = (p: TagProfile) => {
     const base = p.Unit ? `${p.Description} [${p.Unit}]` : p.Description;
-    return isMulti ? `${p.PerformanceArea} · ${base}` : base;
+    return isMulti ? `${paLabel(p.PerformanceArea)} · ${base}` : base;
   };
   const labelToTag = Object.fromEntries(areaProf.map((p) => [makeLabel(p), p.Tag]));
   const allLabels  = areaProf.map(makeLabel);
@@ -231,19 +211,19 @@ export function SensorTrendsTab({ initialArea, onAreaChange }: { initialArea?: s
 
               {/* PA dropdown */}
               <div>
-                <label style={labelStyle}>Performance Area</label>
+                <label style={labelStyle}>Process Area</label>
                 <select
                   value={selArea}
                   onChange={(e) => { setSelArea(e.target.value); onAreaChange?.(e.target.value); setSelLabels([]); setSensorSearch(""); }}
                   style={selectStyle}
                 >
-                  {paOpts.map((a) => <option key={a}>{a}</option>)}
+                  {paOpts.map((a) => <option key={a} value={a}>{paLabel(a)}</option>)}
                 </select>
               </div>
 
               {/* Selected PA + data source */}
               <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                <span style={{ fontSize: "0.8rem", color: C.ACCENT, fontWeight: 700 }}>{selArea}</span>
+                <span style={{ fontSize: "0.8rem", color: C.ACCENT, fontWeight: 700 }}>{paLabel(selArea)}</span>
                 <div style={{ display: "flex", gap: 10 }}>
                   {(["Historian only", "All sources"] as const).map((opt) => (
                     <label key={opt} style={{ fontSize: "0.72rem", color: C.MUTED, cursor: "pointer" }}>
@@ -255,7 +235,6 @@ export function SensorTrendsTab({ initialArea, onAreaChange }: { initialArea?: s
                 </div>
               </div>
 
-              {/* BIGF reactor checkboxes */}
 
               {/* Sensor list */}
               <div style={{ background: C.CARD, border: `1px solid ${C.BORDER}`, borderRadius: 6, padding: 10 }}>

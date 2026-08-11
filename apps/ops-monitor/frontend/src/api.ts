@@ -1,8 +1,8 @@
 import type {
-  TagProfile, LatestValue, TrendPoint, KPICard, BioReactorResponse,
+  TagProfile, LatestValue, TrendPoint, KPICard,
   StackingRow, OreFeedPoint, CommentRow,
   HeatmapResponse, NetworkResponse, CausalityEdge,
-  ForecastResponse, EarlyWarningSensor,
+  EarlyWarningSensor,
 } from "./types";
 
 async function get<T>(path: string): Promise<T> {
@@ -41,12 +41,7 @@ export const api = {
     get<TrendPoint[]>(`/api/trends?tags=${tags.map(encodeURIComponent).join(",")}&start=${start}&end=${end}`),
   kpis:          (area: string)                         => get<KPICard[]>(`/api/kpis/${encodeURIComponent(area)}`),
 
-  // BIGF + bio reactor
-  bigfProfiles:  ()                                     => get<Record<string, { Description: string; Tag: string }[]>>("/api/bigf-profiles"),
-  bioReactorDaily: (measures: string[], start: string, end: string) =>
-    get<BioReactorResponse>(`/api/bio-reactor-daily?measures=${measures.map(encodeURIComponent).join(",")}&start=${start}&end=${end}`),
-
-  // Stacking
+  // Plan Status
   stackingAllocation: (mode: "prod" | "test" = "prod") =>
     get<StackingRow[]>(`/api/stacking/cell-allocation?mode=${mode}`),
   oreFeedRate: (days = 7) =>
@@ -71,8 +66,4 @@ export const api = {
     post<CausalityEdge[]>("/api/causality/granger", body),
   earlyWarning: (body: { target_tag: string; areas: string[]; start: string; end: string; max_lag_hours: number; threshold: number; top_n: number }) =>
     post<EarlyWarningSensor[]>("/api/causality/early-warning", body),
-
-  // Forecast
-  forecast: (body: { tag: string; start: string; end: string; horizon_hours: number; lo?: number | null; hi?: number | null }) =>
-    post<ForecastResponse>("/api/forecast", body),
 };

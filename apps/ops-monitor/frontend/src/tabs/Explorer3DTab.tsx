@@ -6,15 +6,12 @@ import { api } from "../api";
 import { Spinner } from "../components/FlowsheetChart";
 import { SectionHeader } from "../components/KPIStrip";
 import { DateRangeBar } from "../components/DateRangeBar";
+import { PA_ORDER } from "../constants";
 import type { TagProfile, TrendPoint } from "../types";
 
 function isoDate(d: Date) { return d.toISOString().slice(0, 10); }
 
-const _PA_ORDER = [
-  "PA-1", "PA-2", "PA-3", "PA-4", "PA-5",
-  "PA-6", "PA-7", "PA-8", "PA-9", "PA-10",
-  "PA-11", "PA-12", "PA-13",
-];
+const _PA_ORDER = [...PA_ORDER];
 
 function SearchableSelect({ value, options, onChange, selStyle }: {
   value: string; options: string[]; onChange: (v: string) => void; selStyle: React.CSSProperties;

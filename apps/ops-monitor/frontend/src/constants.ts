@@ -31,19 +31,39 @@ export const GENIE_ONE_URL = "https://fevm-serverless-stable-82bi8w.cloud.databr
 // backward-compat alias — prefer useTheme() in components
 export const C = DARK_C;
 
-export const PERF_AREAS = [
-  "Dashboard",
-  "Stacking Plan Status",
-  "3D Heap Viewer",
-  "Multi-PA Analysis",
-  "Causality",
-  "Predict",
-  "Ask Genie",
+// Product name — shown in the header, landing page and browser title.
+export const APP_NAME = "Mine Operations Monitor";
+
+// ── Process-area flowsheet ──────────────────────────────────────────────────
+// A commodity-neutral mining value chain. The backend keys every sensor by a
+// stable "PA-N" id; PA_LABELS maps each id to a human-readable step that reads
+// for any metal (gold, silver, copper, …). To re-skin this demo for a different
+// operation, edit the labels here — nothing else needs to change.
+export const PA_ORDER = [
+  "PA-1", "PA-2", "PA-3", "PA-4", "PA-5", "PA-6", "PA-7",
+  "PA-8", "PA-9", "PA-10", "PA-11", "PA-12", "PA-13",
 ] as const;
 
-export const PA_SUB_AREAS = ["PA-8", "PA-9", "PA-10", "PA-11"] as const;
+export const PA_LABELS: Record<string, string> = {
+  "PA-1":  "Mining",
+  "PA-2":  "Crushing",
+  "PA-3":  "Grinding / Milling",
+  "PA-4":  "Material Handling",
+  "PA-5":  "Leaching",
+  "PA-6":  "Concentration",
+  "PA-7":  "Solution Processing",
+  "PA-8":  "Recovery",
+  "PA-9":  "Product / Refining",
+  "PA-10": "Reagents",
+  "PA-11": "Water & Solution Balance",
+  "PA-12": "Tailings",
+  "PA-13": "Assays & Met Accounting",
+};
 
-export const PERF_AREA_TO_GOLD: Record<string, string> = {};
+/** Human-readable label for a process-area id (falls back to the id itself). */
+export function paLabel(pa: string): string {
+  return PA_LABELS[pa] ?? pa;
+}
 
 // ── Material type colours for the stacking table ──────────────────────────────
 

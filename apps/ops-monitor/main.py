@@ -9,17 +9,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from constants import PA_SUB_AREAS
 from helpers import buildValLookup, fmtVal, statusColor, _lim
 from db import (
     getAllTagProfiles, getTagProfiles, getAllLatestValues,
-    getGoldLatestRow, getTrendData, getBigFAll, clear_cache,
-    getBioReactorDailyTrend, SCALE_UP_LIMITS,
+    getGoldLatestRow, getTrendData, clear_cache,
     get_stacking_data, get_ore_feed_rate,
 )
 from causality import pa_heatmap, sensor_network, granger_test, early_warning
-import nuton_load_store as nl_store
-from forecast import forecast_tag
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -136,46 +132,7 @@ def api_kpis(area: str):
     return result
 
 
-# ── BIGF per-reactor profiles ─────────────────────────────────────────────────
-
-@app.get("/api/bigf-profiles")
-def api_bigf_profiles():
-    all_prof = getAllTagProfiles()
-    result = {}
-    for bf in PA_SUB_AREAS:
-        sub = all_prof[all_prof["PerformanceArea"] == bf] if not all_prof.empty else pd.DataFrame()
-        sensor = sub[
-            sub["DataSource"].str.contains("Historian", na=False, case=False) &
-            (sub["IsCalculated"] == False)
-        ][["Description", "Tag"]].drop_duplicates() if not sub.empty else pd.DataFrame()
-        result[bf] = _df_to_records(sensor)
-    return result
-
-
-# ── Scale Up Bio Reactor daily trends ─────────────────────────────────────────
-
-@app.get("/api/bio-reactor-daily")
-def api_bio_reactor_daily(
-    measures: str = Query(..., description="Comma-separated profile tag names"),
-    start:    str = Query(..., description="ISO date YYYY-MM-DD"),
-    end:      str = Query(..., description="ISO date YYYY-MM-DD"),
-):
-    tags   = tuple(t.strip() for t in measures.split(",") if t.strip())
-    df     = getBioReactorDailyTrend(tags, start, end)
-    points = _df_to_records(df) if not df.empty else []
-
-    limits: dict = {}
-    for tag in tags:
-        if tag in SCALE_UP_LIMITS:
-            limits[tag] = {
-                temp: list(bounds)
-                for temp, bounds in SCALE_UP_LIMITS[tag].items()
-            }
-
-    return {"points": points, "limits": limits}
-
-
-# ── Stacking ──────────────────────────────────────────────────────────────────
+# ── Plan Status ───────────────────────────────────────────────────────────────
 
 @app.get("/api/stacking/cell-allocation")
 def api_stacking(mode: str = "prod"):
@@ -185,84 +142,6 @@ def api_stacking(mode: str = "prod"):
 @app.get("/api/stacking/ore-feed-rate")
 def api_ore_feed_rate(days: int = 7):
     return get_ore_feed_rate(days)
-
-
-# ── Nuton Load daily entry ────────────────────────────────────────────────────
-
-class NutonLoadEntry(BaseModel):
-    report_date: str
-    # Stacking / Crushing
-    crushed_d_tons: float | None = None
-    crushed_n_tons: float | None = None
-    wet_total_crushed_tons: float | None = None
-    dry_crushed_tons: float | None = None
-    stacked_d_tons: float | None = None
-    stacked_n_tons: float | None = None
-    total_stacked_tons: float | None = None
-    grade_tcu_pct: float | None = None
-    grade_ascu_pct: float | None = None
-    grade_cucn_pct: float | None = None
-    grade_cus_pct: float | None = None
-    acid_cons_lb_per_t: float | None = None
-    # Mining
-    mining_tons_primary: float | None = None
-    mining_tons_secondary: float | None = None
-    mining_tons_tertiary: float | None = None
-    # Raffinate Zone-A
-    raffinate_a_acid_cure_flow_gpm: float | None = None
-    raffinate_a_main_flow_gpm: float | None = None
-    raffinate_a_cu_grade_g_l: float | None = None
-    raffinate_a_acid_grade_g_l: float | None = None
-    # Raffinate Zone-B
-    raffinate_b_pad_flow_gpm: float | None = None
-    raffinate_b_cu_grade_g_l: float | None = None
-    raffinate_b_acid_grade_g_l: float | None = None
-    # PLS Zone-B
-    pls_b_flow_gpm: float | None = None
-    pls_b_cu_grade_g_l: float | None = None
-    pls_b_acid_g_l: float | None = None
-    pls_b_ph: float | None = None
-    # PLS Zone-A
-    pls_a_flow_gpm: float | None = None
-    pls_a_cu_grade_g_l: float | None = None
-    pls_a_acid_g_l: float | None = None
-    pls_a_ph: float | None = None
-    # EW
-    ew_block1_dc_amps: float | None = None
-    ew_block2_dc_amps: float | None = None
-    ew_block1_efficiency: float | None = None
-    ew_block2_efficiency: float | None = None
-    total_cu_harvested_lb: float | None = None
-    # Acid
-    acid_delivered_short_tons: float | None = None
-    acid_sx_usage_short_tons: float | None = None
-    acid_cure_a_totalizer_st: float | None = None
-    acid_cure_b_totalizer_st: float | None = None
-    acid_auxiliary_totalizer_st: float | None = None
-    acid_heap_leach_total_st: float | None = None
-    total_acid_consumed_short_tons: float | None = None
-
-
-@app.get("/api/nuton-load")
-def api_nuton_load_list(limit: int = 100, offset: int = 0):
-    return nl_store.get_all(limit=limit, offset=offset)
-
-
-@app.get("/api/nuton-load/{report_date}")
-def api_nuton_load_get(report_date: str):
-    row = nl_store.get_by_date(report_date)
-    if row is None:
-        from fastapi.responses import JSONResponse
-        return JSONResponse({"error": "Not found"}, status_code=404)
-    return row
-
-
-@app.post("/api/nuton-load")
-def api_nuton_load_post(body: NutonLoadEntry, request: Request):
-    entry = body.model_dump()
-    entry["submitted_by"] = _current_user(request)
-    saved = nl_store.upsert(entry)
-    return {"status": "ok", "entry": _sanitize(saved)}
 
 
 # ── Cache management ──────────────────────────────────────────────────────────
@@ -328,22 +207,6 @@ def api_causality_early_warning(body: EarlyWarningIn):
         body.target_tag, body.areas, body.start, body.end,
         body.max_lag_hours, body.threshold, body.top_n,
     )
-
-
-# ── Forecast ──────────────────────────────────────────────────────────────────
-
-class ForecastIn(BaseModel):
-    tag: str
-    start: str
-    end: str
-    horizon_hours: int = 12
-    lo: float | None = None
-    hi: float | None = None
-
-
-@app.post("/api/forecast")
-def api_forecast(body: ForecastIn):
-    return forecast_tag(body.tag, body.start, body.end, body.horizon_hours, body.lo, body.hi)
 
 
 # ── Comments (in-memory for demo) ─────────────────────────────────────────────

@@ -1,5 +1,6 @@
 import { useTheme } from "../theme";
-import { GENIE_ONE_URL } from "../constants";
+import { GENIE_ONE_URL, APP_NAME } from "../constants";
+import { Logo } from "./Logo";
 
 export function Header() {
   const { C, theme, toggleTheme } = useTheme();
@@ -10,18 +11,10 @@ export function Header() {
       borderBottom: `1px solid ${C.BORDER}`, flexShrink: 0,
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        {/* Wordmark — no customer branding */}
-        <div style={{
-          display: "flex", alignItems: "center", justifyContent: "center",
-          width: 34, height: 34, borderRadius: 8,
-          background: "linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%)",
-          flexShrink: 0,
-        }}>
-          <span style={{ color: "#fff", fontWeight: 800, fontSize: "1rem", letterSpacing: "-1px" }}>OP</span>
-        </div>
-        <span style={{ color: C.BORDER }}>|</span>
+        {/* Generic mining mark — no customer branding */}
+        <Logo size={34} />
         <span style={{ fontSize: "0.9rem", color: C.TEXT, fontWeight: 700 }}>
-          Operations Monitor
+          {APP_NAME}
         </span>
         <span style={{
           fontSize: "0.6rem", fontWeight: 700, letterSpacing: 1,

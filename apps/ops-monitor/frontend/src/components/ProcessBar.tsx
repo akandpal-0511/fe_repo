@@ -1,22 +1,15 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "../theme";
 import { api } from "../api";
+import { PA_ORDER, paLabel } from "../constants";
 
-const STEPS = [
-  { pa: "PA-1",  label: "PA-1",  icon: "①" },
-  { pa: "PA-2",  label: "PA-2",  icon: "②" },
-  { pa: "PA-3",  label: "PA-3",  icon: "③" },
-  { pa: "PA-4",  label: "PA-4",  icon: "④" },
-  { pa: "PA-5",  label: "PA-5",  icon: "⑤" },
-  { pa: "PA-6",  label: "PA-6",  icon: "⑥" },
-  { pa: "PA-7",  label: "PA-7",  icon: "⑦" },
-  { pa: "PA-8",  label: "PA-8",  icon: "⑧" },
-  { pa: "PA-9",  label: "PA-9",  icon: "⑨" },
-  { pa: "PA-10", label: "PA-10", icon: "⑩" },
-  { pa: "PA-11", label: "PA-11", icon: "⑪" },
-  { pa: "PA-12", label: "PA-12", icon: "⑫" },
-  { pa: "PA-13", label: "PA-13", icon: "⑬" },
-];
+const STEP_ICONS = ["①","②","③","④","⑤","⑥","⑦","⑧","⑨","⑩","⑪","⑫","⑬"];
+
+const STEPS = PA_ORDER.map((pa, i) => ({
+  pa,
+  label: paLabel(pa),
+  icon: STEP_ICONS[i] ?? "•",
+}));
 
 function statusColor(val: number | null, lo: number | null, hi: number | null): string {
   if (val === null) return "#484f58";
