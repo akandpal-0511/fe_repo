@@ -29,26 +29,15 @@ PROCESS_ORDER = [
     "PA-11", "PA-12", "PA-13",
 ]
 
-PROCESS_RANK: dict[str, int] = {
-    "PA-1":  1,
-    "PA-2":  2,
-    "PA-8":  2,
-    "PA-9":  2,
-    "PA-10": 2,
-    "PA-11": 2,
-    "PA-12": 2,
-    "PA-3":  3,
-    "PA-4":  4,
-    "PA-5":  5,
-    "PA-6":  6,
-    "PA-7":  7,
-    "PA-13": 8,
-}
+# Linear position of each process area in the flowsheet. Used only to filter
+# out physically implausible causal directions (a downstream area "causing" an
+# upstream one). A simple 1..N chain along PROCESS_ORDER.
+PROCESS_RANK: dict[str, int] = {pa: i + 1 for i, pa in enumerate(PROCESS_ORDER)}
 
-FEEDBACK_PAIRS: set[tuple[str, str]] = {
-    ("PA-7", "PA-3"),
-    ("PA-7", "PA-2"),
-}
+# Known recycle/feedback loops where a downstream area legitimately feeds back
+# upstream (so that direction is NOT filtered out). None modelled in this
+# generic demo; add pairs here to allow specific reverse links.
+FEEDBACK_PAIRS: set[tuple[str, str]] = set()
 
 PA_COLOURS = {
     "PA-1":  "#f0883e",

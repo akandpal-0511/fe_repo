@@ -1,29 +1,14 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import Plot from "react-plotly.js";
-import { PA_SUB_AREAS } from "../constants";
+import { PA_ORDER, paLabel } from "../constants";
 import { useTheme } from "../theme";
 import { api } from "../api";
 import { SectionHeader } from "../components/KPIStrip";
 import { Spinner } from "../components/FlowsheetChart";
 import { DateRangeBar } from "../components/DateRangeBar";
-import type { TagProfile, TrendPoint, BioReactorPoint } from "../types";
+import type { TagProfile, TrendPoint } from "../types";
 
 function isoDate(d: Date) { return d.toISOString().slice(0, 10); }
-
-const _PA_ORDER = [
-  "PA-1", "PA-2", "PA-3", "PA-4", "PA-5",
-  "PA-6", "PA-7", "PA-8", "PA-9", "PA-10",
-  "PA-11", "PA-12", "PA-13",
-];
-const PA_EXPAND: Record<string, string[]> = {};
-// Reverse map: db PerformanceArea → display PA name (for colour lookup)
-const DB_PA_TO_DISPLAY: Record<string, string> = {};
-for (const [display, dbs] of Object.entries(PA_EXPAND)) {
-  for (const db of dbs) DB_PA_TO_DISPLAY[db] = display;
-}
-function displayPA(dbPA: string): string {
-  return DB_PA_TO_DISPLAY[dbPA] ?? dbPA;
-}
 
 // Distinct colour per PA slot
 const PA_PALETTE = [
@@ -61,7 +46,6 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
   const [activePAsLocal, setActivePAsLocal] = useState<Set<string>>(new Set(["PA-1", "PA-2"]));
   const activePAs    = activePAsOverride ?? activePAsLocal;
   function setActivePAs(next: Set<string>) { setActivePAsLocal(next); onActivePAsChange?.(next); }
-  const [bigfSubAreas,  setBigfSubAreas]  = useState<Set<string>>(new Set());
   const [dsFilter,      setDsFilter]      = useState<"Historian only" | "All sources">("All sources");
   const [search,        setSearch]        = useState("");
   const [selectedTags,  setSelectedTags]  = useState<SelTag[]>([]);
@@ -72,16 +56,6 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
   const [loadedBatches,   setLoadedBatches]   = useState(0);
   const [totalBatches,    setTotalBatches]    = useState(0);
   const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false);
-
-  // PA-13 specific state
-  const [bioData,   setBioData]   = useState<BioReactorPoint[]>([]);
-  const [bioLimits, setBioLimits] = useState<Record<string, Record<string, [number, number]>>>({});
-
-  /** Returns true if a SelTag is from PA-13 */
-  function isBioTag(tag: string): boolean {
-    const prof = allProfiles.find((p) => p.Tag === tag);
-    return prof?.PerformanceArea === "PA-13";
-  }
 
   useEffect(() => {
     api.allProfiles()
@@ -119,7 +93,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
   const paOpts = useMemo(() => {
     const rawAreas = new Set(allProfiles.map((p) => p.PerformanceArea));
     const available = new Set(rawAreas);
-    return _PA_ORDER.filter((a) => available.has(a));
+    return PA_ORDER.filter((a) => available.has(a));
   }, [allProfiles]);
 
   // Stable colour map: PA → colour (keyed by position in paOpts)
@@ -131,17 +105,12 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
 
   // Resolve colour for PA
   function colourForPA(pa: string): string {
-    return paColorMap[pa] ?? paColorMap[displayPA(pa)] ?? "#aaa";
+    return paColorMap[pa] ?? "#aaa";
   }
 
   // Tags visible in the left picker
   const filteredProfiles = useMemo(() => {
-    const expandedPAs = new Set(
-      Array.from(activePAs).flatMap((pa) =>
-        (PA_EXPAND[pa] ?? [pa])
-      )
-    );
-    let profs = allProfiles.filter((p) => expandedPAs.has(p.PerformanceArea));
+    let profs = allProfiles.filter((p) => activePAs.has(p.PerformanceArea));
     if (dsFilter === "Historian only") {
       profs = profs.filter((p) => p.DataSource?.toLowerCase().includes("historian"));
     }
@@ -150,12 +119,13 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
       profs = profs.filter(
         (p) =>
           p.Description.toLowerCase().includes(q) ||
+          paLabel(p.PerformanceArea).toLowerCase().includes(q) ||
           p.PerformanceArea.toLowerCase().includes(q) ||
           p.Tag.toLowerCase().includes(q)
       );
     }
     return profs;
-  }, [allProfiles, activePAs, bigfSubAreas, dsFilter, search]);
+  }, [allProfiles, activePAs, dsFilter, search]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, TagProfile[]>();
@@ -189,8 +159,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
     if (next.has(pa)) {
       next.delete(pa);
       // deselect any tags from that PA
-      const expanded = new Set(PA_EXPAND[pa] ?? [pa]);
-      setSelectedTags((prev) => prev.filter((t) => !expanded.has(t.pa) && t.pa !== pa));
+      setSelectedTags((prev) => prev.filter((t) => t.pa !== pa));
     } else {
       next.add(pa);
     }
@@ -201,17 +170,14 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
     const tags = selectedTags.map((t) => t.tag);
     if (tags.length === 0 || !start || !end) return;
 
-    const bioTags  = tags.filter(isBioTag);
-    const histTags = tags.filter((t) => !isBioTag(t));
-
     setTrendData([]);
-    setBioData([]);
     setLoadedBatches(0);
     setTrendLoading(true);
 
     const fetches: Promise<void>[] = [];
     let done = 0;
-    const total = (histTags.length > 0 ? Math.ceil(histTags.length / 10) : 0) + (bioTags.length > 0 ? 1 : 0);
+    const BATCH_SIZE = 10;
+    const total = Math.ceil(tags.length / BATCH_SIZE);
     setTotalBatches(total);
 
     const finish = () => {
@@ -220,30 +186,13 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
       if (done === total) { setTrendLoading(false); setHasAttemptedLoad(true); }
     };
 
-    // ── Historian / non-bio tags ───────────────────────────────────────────
-    if (histTags.length > 0) {
-      const BATCH_SIZE = 10;
-      for (let i = 0; i < histTags.length; i += BATCH_SIZE) {
-        const batch = histTags.slice(i, i + BATCH_SIZE);
-        fetches.push(
-          api.trends(batch, start, end)
-            .then((rows) => {
-              const clean = rows.filter((r) => r.Value !== null && Math.abs(r.Value!) < 1e10);
-              setTrendData((prev) => [...prev, ...clean]);
-            })
-            .catch(() => {})
-            .finally(finish)
-        );
-      }
-    }
-
-    // ── PA-13 tags ────────────────────────────────────────────────────────
-    if (bioTags.length > 0) {
+    for (let i = 0; i < tags.length; i += BATCH_SIZE) {
+      const batch = tags.slice(i, i + BATCH_SIZE);
       fetches.push(
-        api.bioReactorDaily(bioTags, start, end)
-          .then(({ points, limits }) => {
-            setBioData(points.filter((p) => p.Value !== null && Math.abs(p.Value) < 1e10));
-            setBioLimits(limits);
+        api.trends(batch, start, end)
+          .then((rows) => {
+            const clean = rows.filter((r) => r.Value !== null && Math.abs(r.Value!) < 1e10);
+            setTrendData((prev) => [...prev, ...clean]);
           })
           .catch(() => {})
           .finally(finish)
@@ -265,25 +214,12 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
 
     if (added.length === 0 || !hasAttemptedLoad || trendLoading || !start || !end) return;
 
-    const addedBio  = added.filter(isBioTag);
-    const addedHist = added.filter((t) => !isBioTag(t));
-
-    if (addedHist.length > 0) {
-      api.trends(addedHist, start, end)
-        .then((rows) => {
-          const clean = rows.filter((r) => r.Value !== null && Math.abs(r.Value!) < 1e10);
-          setTrendData((prev) => [...prev, ...clean]);
-        })
-        .catch(() => {});
-    }
-    if (addedBio.length > 0) {
-      api.bioReactorDaily(addedBio, start, end)
-        .then(({ points, limits }) => {
-          setBioData((prev) => [...prev, ...points.filter((p) => p.Value !== null && Math.abs(p.Value) < 1e10)]);
-          setBioLimits((prev) => ({ ...prev, ...limits }));
-        })
-        .catch(() => {});
-    }
+    api.trends(added, start, end)
+      .then((rows) => {
+        const clean = rows.filter((r) => r.Value !== null && Math.abs(r.Value!) < 1e10);
+        setTrendData((prev) => [...prev, ...clean]);
+      })
+      .catch(() => {});
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTags]);
 
@@ -295,8 +231,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTags]);
 
-  const nonBioTags = selectedTags.filter((t) => !isBioTag(t.tag));
-  const nCols = nonBioTags.length > 1 ? 2 : 1;
+  const nCols = selectedTags.length > 1 ? 2 : 1;
   const hasLoadedData = !trendLoading && hasAttemptedLoad && selectedTags.length > 0;
 
   return (
@@ -304,7 +239,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
       <SectionHeader>
         Multi-PA Analysis&nbsp;
         <span style={{ fontSize: "0.55rem", color: C.MUTED, fontWeight: 400 }}>
-          — pick sensors across any Performance Areas and compare trends side-by-side
+          — pick sensors across any process areas and compare trends side-by-side
         </span>
       </SectionHeader>
 
@@ -376,7 +311,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
               <div style={{ overflowY: "auto", maxHeight: 300, fontSize: "0.72rem" }}>
                 {activePAs.size === 0 && (
                   <div style={{ color: C.MUTED, padding: "10px 4px" }}>
-                    ☝️ Toggle a Performance Area above to see its sensors here.
+                    ☝️ Toggle a process area above to see its sensors here.
                   </div>
                 )}
                 {activePAs.size > 0 && grouped.size === 0 && (
@@ -396,7 +331,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
                       top: 0,
                       background: C.CARD,
                     }}>
-                      {pa} · {profs.length} sensor{profs.length !== 1 ? "s" : ""}
+                      {paLabel(pa)} · {profs.length} sensor{profs.length !== 1 ? "s" : ""}
                     </div>
                     {profs.map((p) => {
                       const isSel = selectedTagSet.has(p.Tag);
@@ -454,7 +389,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
                 </div>
                 {selectedTags.length > 0 && (
                   <button
-                    onClick={() => { setSelectedTags([]); setTrendData([]); setBioData([]); setBioLimits({}); setHasAttemptedLoad(false); }}
+                    onClick={() => { setSelectedTags([]); setTrendData([]); setHasAttemptedLoad(false); }}
                     style={{ ...btnStyle, padding: "2px 8px", fontSize: "0.65rem" }}
                   >
                     Clear all
@@ -464,7 +399,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
 
               {selectedTags.length === 0 ? (
                 <div style={{ color: C.MUTED, fontSize: "0.72rem", padding: "10px 4px" }}>
-                  Click a sensor on the left to add it here. Mix sensors from different PAs freely.
+                  Click a sensor on the left to add it here. Mix sensors from different process areas freely.
                 </div>
               ) : (
                 <div style={{ overflowY: "auto", maxHeight: 300, display: "flex", flexDirection: "column", gap: 5 }}>
@@ -489,7 +424,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
                             {t.desc}
                             {t.unit ? <span style={{ color: C.MUTED }}> [{t.unit}]</span> : null}
                           </div>
-                          <div style={{ fontSize: "0.62rem", color: col, marginTop: 1 }}>{t.pa}</div>
+                          <div style={{ fontSize: "0.62rem", color: col, marginTop: 1 }}>{paLabel(t.pa)}</div>
                         </div>
                         <button
                           onClick={() => setSelectedTags((prev) => prev.filter((x) => x.tag !== t.tag))}
@@ -517,7 +452,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
               {/* Summary legend */}
               {selectedTags.length > 0 && (
                 <div style={{ marginTop: "auto", paddingTop: 10, borderTop: `1px solid ${C.BORDER}` }}>
-                  <div style={{ fontSize: "0.65rem", color: C.MUTED, marginBottom: 4 }}>PAs in selection:</div>
+                  <div style={{ fontSize: "0.65rem", color: C.MUTED, marginBottom: 4 }}>Areas in selection:</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                     {Array.from(new Set(selectedTags.map((t) => t.pa))).map((pa) => (
                       <span
@@ -531,7 +466,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
                           fontSize: "0.65rem",
                         }}
                       >
-                        {pa} ({selectedTags.filter((t) => t.pa === pa).length})
+                        {paLabel(pa)} ({selectedTags.filter((t) => t.pa === pa).length})
                       </span>
                     ))}
                   </div>
@@ -551,9 +486,9 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
             } />
           )}
 
-          {hasLoadedData && nonBioTags.length > 0 && (
+          {hasLoadedData && selectedTags.length > 0 && (
             <div style={{ display: "grid", gridTemplateColumns: `repeat(${nCols}, 1fr)`, gap: 8 }}>
-              {nonBioTags.map((t) => {
+              {selectedTags.map((t) => {
                 const sub      = trendData.filter((r) => r.Tag === t.tag);
                 const lineCol  = colourForPA(t.pa);
 
@@ -583,7 +518,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
                     }}
                   >
                     <b style={{ color: C.TEXT }}>{t.desc}</b>
-                    <div style={{ fontSize: "0.65rem", color: lineCol, marginBottom: 6 }}>{t.pa}</div>
+                    <div style={{ fontSize: "0.65rem", color: lineCol, marginBottom: 6 }}>{paLabel(t.pa)}</div>
                     <span style={{ color: C.MUTED }}>— no data in range</span>
                   </div>
                 );
@@ -602,7 +537,7 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
                       layout={{
                         height: 230,
                         title: {
-                          text: `<b>${t.desc}</b>  <span style="font-size:9px;color:${lineCol}">${t.pa}</span>`,
+                          text: `<b>${t.desc}</b>  <span style="font-size:9px;color:${lineCol}">${paLabel(t.pa)}</span>`,
                           font: { size: 11 },
                           x: 0,
                         },
@@ -636,209 +571,8 @@ export function CrossPATab({ activePAsOverride, onActivePAsChange }: { activePAs
               })}
             </div>
           )}
-
-          {/* ── PA-13 charts (multi-series per measure) ── */}
-          <BioReactorCharts
-            selectedTags={selectedTags}
-            bioData={bioData}
-            bioLimits={bioLimits}
-            isBioTag={isBioTag}
-            colourForPA={colourForPA}
-            hasAttemptedLoad={hasAttemptedLoad}
-            C={C}
-          />
         </>
       )}
     </div>
   );
 }
-
-// ── Bio Reactor sub-component ─────────────────────────────────────────────────
-
-const BIO_CONTAINER_PALETTE = [
-  "#58a6ff","#3fb950","#d29922","#bc8cff","#ffa657",
-  "#39d353","#ff7b72","#79c0ff","#56d364","#e3b341","#db61a2",
-];
-
-interface BioReactorChartsProps {
-  selectedTags:     SelTag[];
-  bioData:          BioReactorPoint[];
-  bioLimits:        Record<string, Record<string, [number, number]>>;
-  isBioTag:         (tag: string) => boolean;
-  colourForPA:      (pa: string) => string;
-  hasAttemptedLoad: boolean;
-  C:                Record<string, string>;
-}
-
-function BioReactorCharts({ selectedTags, bioData, bioLimits, isBioTag, colourForPA, hasAttemptedLoad, C }: BioReactorChartsProps) {
-  const bioSelected = selectedTags.filter((t) => isBioTag(t.tag));
-
-  // Derive filter options from loaded data
-  const allContainers = useMemo(() => Array.from(new Set(bioData.map((p) => p.Container))).sort(), [bioData]);
-  const allTemps      = useMemo(() => Array.from(new Set(bioData.map((p) => p.Temperature))).sort(), [bioData]);
-  const allVolumes    = useMemo(() => Array.from(new Set(bioData.map((p) => p.Volume != null ? String(p.Volume) : ""))).filter(Boolean).sort((a, b) => Number(a) - Number(b)), [bioData]);
-
-  const [activeCont, setActiveCont] = useState<Set<string>>(new Set());
-  const [activeTemp, setActiveTemp] = useState<Set<string>>(new Set());
-  const [activeVol,  setActiveVol]  = useState<Set<string>>(new Set());
-
-  // Sync filter sets when data changes (select all by default)
-  useEffect(() => { setActiveCont(new Set(allContainers)); }, [allContainers.join(",")]);
-  useEffect(() => { setActiveTemp(new Set(allTemps));      }, [allTemps.join(",")]);
-  useEffect(() => { setActiveVol(new Set(allVolumes));     }, [allVolumes.join(",")]);
-
-  if (!hasAttemptedLoad || bioSelected.length === 0) return null;
-
-  // Assign stable colours per container
-  const containerColor: Record<string, string> = {};
-  allContainers.forEach((c, i) => { containerColor[c] = BIO_CONTAINER_PALETTE[i % BIO_CONTAINER_PALETTE.length]; });
-
-  // Apply filters
-  const filteredData = bioData.filter((p) =>
-    activeCont.has(p.Container) &&
-    activeTemp.has(p.Temperature) &&
-    (allVolumes.length === 0 || (p.Volume != null && activeVol.has(String(p.Volume))))
-  );
-
-  const bioCols = bioSelected.length > 1 ? 2 : 1;
-
-  function toggle(set: Set<string>, val: string, setter: (s: Set<string>) => void) {
-    const next = new Set(set);
-    next.has(val) ? next.delete(val) : next.add(val);
-    setter(next);
-  }
-
-  const filterLabelStyle: React.CSSProperties = { fontSize: "0.65rem", color: C.MUTED };
-  const chipStyle = (active: boolean, col: string): React.CSSProperties => ({
-    fontSize: "0.68rem", cursor: "pointer", padding: "2px 8px", borderRadius: 10,
-    background: active ? col + "22" : "transparent",
-    border: `1px solid ${active ? col : C.BORDER}`,
-    color: active ? col : C.MUTED,
-    userSelect: "none" as const,
-  });
-
-  return (
-    <div style={{ marginTop: 10 }}>
-      {/* ── Filter bar ────────────────────────────────────────── */}
-      {bioData.length > 0 && (
-        <div style={{ background: C.CARD, border: `1px solid ${C.BORDER}`, borderRadius: 5, padding: "8px 12px", marginBottom: 8 }}>
-          <div style={{ display: "flex", gap: 20, flexWrap: "wrap", alignItems: "flex-start" }}>
-            {allContainers.length > 0 && (
-              <div>
-                <div style={filterLabelStyle}>Container</div>
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 3 }}>
-                  {allContainers.map((c) => (
-                    <span key={c} style={chipStyle(activeCont.has(c), containerColor[c])}
-                      onClick={() => toggle(activeCont, c, setActiveCont)}>{c}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-            {allTemps.length > 0 && (
-              <div>
-                <div style={filterLabelStyle}>Temperature profile</div>
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 3 }}>
-                  {allTemps.map((t) => (
-                    <span key={t} style={chipStyle(activeTemp.has(t), C.ACCENT)}
-                      onClick={() => toggle(activeTemp, t, setActiveTemp)}>{t}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-            {allVolumes.length > 0 && (
-              <div>
-                <div style={filterLabelStyle}>Volume (L)</div>
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 3 }}>
-                  {allVolumes.map((v) => (
-                    <span key={v} style={chipStyle(activeVol.has(v), C.ACCENT)}
-                      onClick={() => toggle(activeVol, v, setActiveVol)}>{v} L</span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      <div style={{ fontSize: "0.68rem", color: C.MUTED, marginBottom: 6 }}>
-        PA-13 — daily actuals per container
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: `repeat(${bioCols}, 1fr)`, gap: 8 }}>
-        {bioSelected.map((t) => {
-          const pts     = filteredData.filter((p) => p.Measure === t.tag);
-          const lineCol = colourForPA(t.pa);
-
-          if (pts.length === 0) return (
-            <div key={`bio-${t.tag}-${bioCols}`} style={{
-              background: C.CARD, border: `1px solid ${C.BORDER}`,
-              borderRadius: 5, padding: 12, minHeight: 230,
-              display: "flex", flexDirection: "column", justifyContent: "center", fontSize: "0.75rem",
-            }}>
-              <b style={{ color: C.TEXT }}>{t.desc}</b>
-              <div style={{ fontSize: "0.65rem", color: lineCol, marginBottom: 6 }}>{t.pa}</div>
-              <span style={{ color: C.MUTED }}>— no data for current filter selection</span>
-            </div>
-          );
-
-          // Group points by Container
-          const byContainer = pts.reduce<Record<string, BioReactorPoint[]>>((acc, p) => {
-            (acc[p.Container] ??= []).push(p);
-            return acc;
-          }, {});
-
-          const traces: Plotly.Data[] = Object.entries(byContainer).map(([container, cpts]) => ({
-            x: cpts.map((p) => p.Date),
-            y: cpts.map((p) => p.Value),
-            mode: "lines+markers" as const,
-            name: container,
-            line:   { color: containerColor[container] ?? "#aaa", width: 1.5 },
-            marker: { size: 4 },
-            hovertemplate: `<b>${container}</b><br>%{x|%b %d, %Y}<br>%{y:.3g}${t.unit ? " " + t.unit : ""}<extra></extra>`,
-          }));
-
-          // Limit shapes per active temperature profile
-          const shapes: Partial<Plotly.Shape>[] = [];
-          const tempsInFiltered = Array.from(new Set(pts.map((p) => p.Temperature)));
-          const limitsForMeasure = bioLimits[t.tag] ?? {};
-          tempsInFiltered.forEach((temp) => {
-            const bounds = limitsForMeasure[temp];
-            if (!bounds) return;
-            const [lo, hi] = bounds;
-            shapes.push({ type: "line", x0: 0, x1: 1, xref: "paper", y0: lo, y1: lo, line: { color: C.WARN,  dash: "dash", width: 1 } });
-            shapes.push({ type: "line", x0: 0, x1: 1, xref: "paper", y0: hi, y1: hi, line: { color: C.ALARM, dash: "dash", width: 1 } });
-          });
-
-          const containers = Object.keys(byContainer).sort();
-          return (
-            <div key={`bio-${t.tag}-${bioCols}`}>
-              <Plot
-                data={traces}
-                layout={{
-                  height: 260,
-                  title: { text: `<b>${t.desc}</b>  <span style="font-size:9px;color:${lineCol}">${t.pa}</span>`, font: { size: 11 }, x: 0 },
-                  margin: { l: 52, r: 18, t: 36, b: 36 },
-                  plot_bgcolor:  C.CARD,
-                  paper_bgcolor: C.BG,
-                  xaxis:  { gridcolor: C.BORDER, color: C.MUTED, tickfont: { size: 9 }, automargin: true },
-                  yaxis:  { gridcolor: C.BORDER, color: C.MUTED, title: { text: t.unit || "Value" }, automargin: true, tickfont: { size: 9 } },
-                  legend: { font: { size: 9, color: C.MUTED }, bgcolor: "transparent" },
-                  hovermode: "x unified",
-                  font:   { color: C.MUTED, size: 10 },
-                  shapes,
-                } as Partial<Plotly.Layout>}
-                config={{ displayModeBar: false, responsive: true }}
-                useResizeHandler
-                style={{ width: "100%" }}
-              />
-              <div style={{ fontSize: "0.65rem", color: C.MUTED }}>
-                {pts.length.toLocaleString()} readings · {containers.join(", ")}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// styles are defined inside CrossPATab() using C from useTheme()

@@ -49,21 +49,6 @@ export interface SelectedTag {
   desc: string;
 }
 
-export interface BioReactorPoint {
-  Date: string;
-  Container: string;
-  Temperature: string;
-  Volume: number | null;
-  Measure: string;
-  Value: number;
-}
-
-export interface BioReactorResponse {
-  points: BioReactorPoint[];
-  /** measure → temp_profile → [lo, hi] */
-  limits: Record<string, Record<string, [number, number]>>;
-}
-
 export interface StackingRow {
   cell: string;
   panel: number;
@@ -151,41 +136,6 @@ export interface CausalityEdge {
 export interface NetworkResponse {
   nodes: CausalityNode[];
   edges: CausalityEdge[];
-}
-
-// ── Forecast ──────────────────────────────────────────────────────────────────
-
-export interface ForecastPoint {
-  t:    string;
-  v:    number;
-  lo95: number;
-  hi95: number;
-}
-
-export interface HistoryPoint {
-  t: string;
-  v: number;
-}
-
-export interface BreachEta {
-  hours:            number | null;
-  direction:        "high" | "low" | null;
-  projected_value:  number | null;
-  warning_level:    "ok" | "warn" | "alarm";
-}
-
-export interface ForecastResponse {
-  tag:           string;
-  description:   string;
-  unit:          string;
-  lo:            number | null;
-  hi:            number | null;
-  model_used:    "holt" | "prophet" | "lgbm" | null;
-  model_scores:  Record<string, number>;
-  history:       HistoryPoint[];
-  forecast:      ForecastPoint[];
-  breach:        BreachEta;
-  error:         string | null;
 }
 
 export interface EarlyWarningSensor {

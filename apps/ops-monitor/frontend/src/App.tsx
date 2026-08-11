@@ -2,46 +2,53 @@ import { useState } from "react";
 import { useTheme } from "./theme";
 import { Header }          from "./components/Header";
 import { ProcessBar }      from "./components/ProcessBar";
+import { LandingPage }     from "./components/LandingPage";
 import { DashboardTab }    from "./tabs/DashboardTab";
 import { StackingTab }     from "./tabs/StackingTab";
 import { Explorer3DTab }   from "./tabs/Explorer3DTab";
 import { SensorTrendsTab } from "./tabs/SensorTrendsTab";
 import { CrossPATab }      from "./tabs/CrossPATab";
+import { CausalityTab }    from "./tabs/CausalityTab";
 import { AskGenieTab }     from "./tabs/AskGenieTab";
 
 const TABS = [
+  { id: "home",           label: "Home" },
   { id: "dashboard",      label: "Dashboard" },
   { id: "stacking",       label: "Stacking Plan Status" },
   { id: "3d-explorer",    label: "3D Viewer" },
   { id: "sensor-trends",  label: "Sensor Trends" },
   { id: "multi-pa",       label: "Multi-PA Analysis" },
+  { id: "causality",      label: "Causality" },
   { id: "genie",          label: "Ask Genie" },
 ] as const;
 
 type TabId = typeof TABS[number]["id"];
 
 const SHOW_BAR: Set<TabId> = new Set(["stacking", "3d-explorer", "sensor-trends", "multi-pa"]);
-const STATIC_PA: Partial<Record<TabId, string>> = { stacking: "Stacking" };
 
-// One-line demo talking point per tab — shown in a dismissible info banner.
+// One-line talking point per tab — shown in a dismissible info banner so a
+// first-time viewer immediately understands what each view demonstrates.
 const TAB_INFO: Record<TabId, string> = {
-  "dashboard":     "KPI home: plan vs. actual per process area, color-coded, with trends and operator comments.",
-  "stacking":      "Plan Status grid: planned vs. actual units, % complete, and schedule by panel/cell. In-progress cells blink.",
-  "3d-explorer":   "Pick 3 sensors as X/Y/Z axes and see how they relate in 3D over a date range.",
-  "sensor-trends": "Click a process area box to select it, choose sensors from the panel, and view time-series trends.",
-  "multi-pa":      "Overlay sensors across multiple performance areas to correlate cause and effect across the process.",
-  "genie":         "Natural-language questions over your operations data, powered by Databricks Genie (live in production).",
+  "home":          "Overview of the demo — what this operations-monitoring pattern does and how each view maps to the mining value chain.",
+  "dashboard":     "KPI home: plan vs. actual for each process area, colour-coded against limits, with trends and operator comments.",
+  "stacking":      "Plan-vs-actual execution grid: planned vs. actual tonnes, % complete and schedule by block. In-progress blocks pulse.",
+  "3d-explorer":   "Pick any 3 sensors as X / Y / Z axes and see how they relate in 3D over a chosen date range.",
+  "sensor-trends": "Click a process area in the flowsheet, choose sensors, and view their near-real-time time-series trends.",
+  "multi-pa":      "Overlay sensors from different process areas on one timeline to correlate cause and effect across the operation.",
+  "causality":     "Discover which sensors and process areas drive others — cross-correlation heatmap, sensor network graph, and Granger causality test.",
+  "genie":         "Ask questions of your operations data in plain English, powered by Databricks Genie (live in production).",
 };
 
 export default function App() {
   const { C, theme } = useTheme();
-  const [active,      setActive]      = useState<TabId>("dashboard");
+  const [active,      setActive]      = useState<TabId>("home");
   const [infoOpen,    setInfoOpen]    = useState(true);
   const [sensorPA,    setSensorPA]    = useState("PA-1");
   const [explorerPA,  setExplorerPA]  = useState("PA-1");
   // Multi-PA uses a Set
   const [activePAs,   setActivePAs]   = useState<Set<string>>(new Set(["PA-1", "PA-2"]));
 
+  const isHome      = active === "home";
   const isDashboard = active === "dashboard";
   const isMultiPA   = active === "multi-pa";
 
@@ -61,12 +68,13 @@ export default function App() {
     }
   }
 
-  const highlighted = STATIC_PA[active] ??
-    (active === "sensor-trends" ? sensorPA :
-     active === "3d-explorer"   ? explorerPA : null);
+  const highlighted =
+    active === "sensor-trends" ? sensorPA :
+    active === "3d-explorer"   ? explorerPA : null;
 
   function renderTab() {
     switch (active) {
+      case "home":          return <LandingPage onExplore={setActive} />;
       case "dashboard":     return <DashboardTab />;
       case "stacking":      return <StackingTab />;
       case "3d-explorer":   return (
@@ -89,6 +97,7 @@ export default function App() {
           onActivePAsChange={setActivePAs}
         />
       );
+      case "causality":     return <CausalityTab />;
       case "genie":         return <AskGenieTab />;
     }
   }
@@ -119,7 +128,7 @@ export default function App() {
         })}
       </nav>
 
-      {infoOpen ? (
+      {!isHome && (infoOpen ? (
         <div style={{
           display: "flex", alignItems: "flex-start", gap: 10,
           padding: "7px 14px",
@@ -152,7 +161,7 @@ export default function App() {
         >
           ⓘ What is this tab?
         </button>
-      )}
+      ))}
 
       {SHOW_BAR.has(active) && (
         <ProcessBar
@@ -166,7 +175,7 @@ export default function App() {
       <div style={{
         flex: 1,
         overflow: isDashboard ? "hidden" : "auto",
-        padding: isDashboard ? 0 : "10px 14px",
+        padding: (isDashboard || isHome) ? 0 : "10px 14px",
         background: C.BG,
       }}>
         {renderTab()}

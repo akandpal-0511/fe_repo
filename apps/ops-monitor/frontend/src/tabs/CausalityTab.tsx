@@ -4,13 +4,10 @@ import * as d3force from "d3-force";
 import { api } from "../api";
 import { useTheme } from "../theme";
 import { DateRangeBar } from "../components/DateRangeBar";
+import { PA_ORDER, paLabel } from "../constants";
 import type { HeatmapResponse, NetworkResponse, CausalityNode, CausalityEdge } from "../types";
 
-const PROCESS_ORDER = [
-  "PA-1", "PA-2", "PA-3", "PA-4", "PA-5",
-  "PA-6", "PA-7",
-  "PA-8", "PA-9", "PA-10", "PA-11", "PA-12", "PA-13",
-];
+const PROCESS_ORDER = [...PA_ORDER];
 
 const PA_COLOURS: Record<string, string> = {
   "PA-1":  "#f0883e",
@@ -48,6 +45,7 @@ function HeatmapChart({
 }) {
   const { C } = useTheme();
   const { areas, matrix } = data;
+  const labels = areas.map(paLabel);
 
   const z = areas.map((_, i) =>
     areas.map((_, j) => {
@@ -97,8 +95,8 @@ function HeatmapChart({
         paper_bgcolor: C.CARD,
         plot_bgcolor:  C.CARD,
         margin:        { t: 20, r: 20, b: 120, l: 160 },
-        xaxis: { tickfont: { color: C.TEXT, size: 11 }, tickangle: -35 },
-        yaxis: { tickfont: { color: C.TEXT, size: 11 } },
+        xaxis: { tickfont: { color: C.TEXT, size: 11 }, tickangle: -35, tickmode: "array", tickvals: areas, ticktext: labels },
+        yaxis: { tickfont: { color: C.TEXT, size: 11 }, tickmode: "array", tickvals: areas, ticktext: labels },
         height: 480,
       }}
       config={{ displayModeBar: false, responsive: true }}
@@ -397,7 +395,7 @@ function NetworkGraph({ data, grangerRan }: { data: NetworkResponse; grangerRan:
           {[...new Set(nodes.map((n) => n.pa))].map((pa) => (
             <div key={pa} style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 2 }}>
               <span style={{ width: 8, height: 8, borderRadius: "50%", background: PA_COLOURS[pa] ?? "#7d8590", display: "inline-block" }} />
-              {pa}
+              {paLabel(pa)}
             </div>
           ))}
           <div style={{ marginTop: 6, borderTop: `1px solid ${C.BORDER}`, paddingTop: 4 }}>
@@ -627,7 +625,7 @@ export function CausalityTab() {
           Causality Explorer
         </span>
         <span style={{ fontSize: "0.72rem", color: C.MUTED, marginLeft: 10 }}>
-          — discover which sensors drive which across performance areas
+          — discover which sensors drive which across process areas
         </span>
       </div>
 
@@ -635,7 +633,7 @@ export function CausalityTab() {
       <div style={{ background: C.CARD, border: `1px solid ${C.BORDER}`, borderRadius: 8, padding: "10px 14px", marginBottom: 12 }}>
         {/* PA toggles */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
-          <span style={{ fontSize: "0.7rem", color: C.MUTED }}>Performance Areas to include:</span>
+          <span style={{ fontSize: "0.7rem", color: C.MUTED }}>Process areas to include:</span>
           <span style={{ fontSize: "0.67rem", color: C.MUTED, fontStyle: "italic" }}>
             {selectedPAs.size === 0 && "Select 1 PA for intra-sensor analysis · 2+ for cross-PA heatmap"}
             {selectedPAs.size === 1 && "→ intra-sensor network (sensors within this PA)"}
@@ -653,7 +651,7 @@ export function CausalityTab() {
                 borderRadius: 20, padding: "3px 10px", fontSize: "0.72rem",
                 cursor: "pointer", fontWeight: on ? 600 : 400, transition: "all 0.15s",
               }}>
-                {pa}
+                {paLabel(pa)}
               </button>
             );
           })}
@@ -708,14 +706,14 @@ export function CausalityTab() {
           <span style={{ fontSize: "0.78rem", color: C.TEXT }}>
             {drillPair[0] === drillPair[1] ? (
               <>
-                <span style={{ color: PA_COLOURS[drillPair[0]] ?? C.MUTED }}>{drillPair[0]}</span>
+                <span style={{ color: PA_COLOURS[drillPair[0]] ?? C.MUTED }}>{paLabel(drillPair[0])}</span>
                 {" — intra-sensor network"}
               </>
             ) : (
               <>
-                <span style={{ color: PA_COLOURS[drillPair[0]] ?? C.MUTED }}>{drillPair[0]}</span>
+                <span style={{ color: PA_COLOURS[drillPair[0]] ?? C.MUTED }}>{paLabel(drillPair[0])}</span>
                 {" ↔ "}
-                <span style={{ color: PA_COLOURS[drillPair[1]] ?? C.MUTED }}>{drillPair[1]}</span>
+                <span style={{ color: PA_COLOURS[drillPair[1]] ?? C.MUTED }}>{paLabel(drillPair[1])}</span>
               </>
             )}
             {" (r ≥ "}{threshold.toFixed(2)}{", lag ≤ "}{maxLag}h)
@@ -839,7 +837,7 @@ export function CausalityTab() {
                   step: "1",
                   icon: "⚙️",
                   title: "Configure",
-                  body: "Pick the Performance Areas you want to compare, set a date range, and tune the max lag and correlation threshold above.",
+                  body: "Pick the process areas you want to compare, set a date range, and tune the max lag and correlation threshold above.",
                 },
                 {
                   step: "2",
@@ -902,7 +900,7 @@ export function CausalityTab() {
                 rows: [
                   { val: "Low lag (1–6h)", desc: "Near-immediate effect — possibly same process step" },
                   { val: "Med lag (6–24h)", desc: "Upstream PA change takes hours to propagate downstream" },
-                  { val: "High lag (24h+)", desc: "Slow physical process (e.g. leaching chemistry changes)" },
+                  { val: "High lag (24h+)", desc: "Slow physical process (e.g. a gradual chemistry or temperature shift)" },
                 ],
               },
               {
