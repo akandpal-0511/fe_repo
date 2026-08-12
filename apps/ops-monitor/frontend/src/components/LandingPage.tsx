@@ -3,15 +3,15 @@ import { Logo } from "./Logo";
 import { APP_NAME, PA_ORDER, paLabel } from "../constants";
 
 /**
- * Landing / home page — the self-explaining narrative for a first-time viewer.
- * Establishes what the app is (a near-real-time operations monitor that works
- * for ANY mining operation — gold, silver, copper), shows the value chain it
- * models, and maps each capability to the business question it answers.
+ * Landing / home page: the self-explaining narrative for a first-time viewer.
+ * Establishes what the app is (a near-real-time operations monitor for any
+ * mining company), shows the value chain it models, and maps each capability
+ * to the business question it answers.
  */
 
 type TabId =
-  | "home" | "dashboard" | "stacking" | "3d-explorer"
-  | "sensor-trends" | "multi-pa" | "causality" | "genie";
+  | "home" | "dashboard" | "stacking"
+  | "multi-pa" | "causality" | "genie";
 
 interface Capability {
   tab: Exclude<TabId, "home">;
@@ -23,15 +23,11 @@ interface Capability {
 const CAPABILITIES: Capability[] = [
   {
     tab: "dashboard", icon: "📊", title: "KPI Dashboard",
-    blurb: "Plan vs. actual for every process area, colour-coded against operating limits — with weekly / detailed views and operator comments.",
+    blurb: "Plan vs actual for every process area, colour coded against operating limits, with weekly and detailed views plus operator comments.",
   },
   {
     tab: "stacking", icon: "🗓️", title: "Plan Status",
-    blurb: "Execution tracking: planned vs. actual tonnes, % complete and schedule slip by block, so a supervisor sees what's behind at a glance.",
-  },
-  {
-    tab: "sensor-trends", icon: "📈", title: "Sensor Trends",
-    blurb: "Click any step in the flowsheet, pick sensors, and view their near-real-time time-series — the historian, in the browser.",
+    blurb: "Plan vs actual tonnes, % complete and schedule slip by block, plus a 3D heap view of the pad: cells stacked as lifts and coloured by material, so a supervisor sees what is built and what is behind.",
   },
   {
     tab: "multi-pa", icon: "🔗", title: "Multi-PA Analysis",
@@ -39,15 +35,11 @@ const CAPABILITIES: Capability[] = [
   },
   {
     tab: "causality", icon: "🕸️", title: "Causality",
-    blurb: "Cross-correlation heatmap, sensor network graph and Granger test to find which sensors and areas actually drive the others.",
-  },
-  {
-    tab: "3d-explorer", icon: "🧊", title: "3D Viewer",
-    blurb: "Plot any three sensors as X / Y / Z to explore how variables move together — spotting relationships a flat chart hides.",
+    blurb: "Correlation heatmap, sensor network graph and Granger test to find which sensors and areas actually drive the others.",
   },
   {
     tab: "genie", icon: "🧞", title: "Ask Genie",
-    blurb: "Ask questions of the operations data in plain English, powered by Databricks Genie — no SQL, no dashboard hunting.",
+    blurb: "Ask questions of the operations data in plain English, powered by Databricks Genie. No SQL, no dashboard hunting.",
   },
 ];
 
@@ -85,22 +77,23 @@ export function LandingPage({ onExplore }: { onExplore: (tab: TabId) => void }) 
                 {APP_NAME}
               </div>
               <div style={{ fontSize: "0.9rem", color: C.OK, fontWeight: 600, marginTop: 2 }}>
-                Near-real-time site operations, in a Databricks App
+                Near real time site operations, in a Databricks App
               </div>
             </div>
           </div>
 
           <p style={{ fontSize: "1rem", color: C.TEXT, lineHeight: 1.6, maxWidth: 760, marginBottom: 8 }}>
-            A single operations console for a mining site — it brings sensor and
-            historian data into Databricks and turns it into KPIs, trends,
-            plan-vs-actual tracking, cross-area causality and natural-language
-            Q&amp;A that a control room can actually use.
+            A single operations console for a mining site. It turns your
+            operational data into KPIs, trends, plan vs actual tracking,
+            causality across process areas, and plain English answers a
+            control room can actually use.
           </p>
           <p style={{ fontSize: "0.9rem", color: C.MUTED, lineHeight: 1.6, maxWidth: 760 }}>
-            The flow below is a <b>commodity-neutral mining value chain</b> — the
-            same shape applies whether you mine gold, silver or copper. Every
-            operation starts with <b>Mining</b>, then moves down the chain to
-            product. The data shown here is synthetic.
+            It works for <b>any mining company</b>. Every operation starts
+            with <b>Mining</b>, then moves down the chain to product. The app
+            assumes you already bring your data into Databricks and that the
+            tables behind it exist as Delta tables. The data shown here is
+            synthetic.
           </p>
 
           <div style={{ display: "flex", gap: 10, marginTop: 22, flexWrap: "wrap" }}>
@@ -192,8 +185,8 @@ export function LandingPage({ onExplore }: { onExplore: (tab: TabId) => void }) 
           borderTop: `1px solid ${C.BORDER}`, paddingTop: 16,
         }}>
           Built on Databricks Apps (React + FastAPI) reading from a Databricks
-          SQL warehouse. Demo data is synthetic; the same pattern connects to a
-          site's real historian and Unity Catalog tables.
+          SQL warehouse. Demo data is synthetic; the same pattern reads a
+          site's real Delta tables in Unity Catalog.
         </div>
       </div>
     </div>

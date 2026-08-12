@@ -5,8 +5,6 @@ import { ProcessBar }      from "./components/ProcessBar";
 import { LandingPage }     from "./components/LandingPage";
 import { DashboardTab }    from "./tabs/DashboardTab";
 import { StackingTab }     from "./tabs/StackingTab";
-import { Explorer3DTab }   from "./tabs/Explorer3DTab";
-import { SensorTrendsTab } from "./tabs/SensorTrendsTab";
 import { CrossPATab }      from "./tabs/CrossPATab";
 import { CausalityTab }    from "./tabs/CausalityTab";
 import { AskGenieTab }     from "./tabs/AskGenieTab";
@@ -15,8 +13,6 @@ const TABS = [
   { id: "home",           label: "Home" },
   { id: "dashboard",      label: "Dashboard" },
   { id: "stacking",       label: "Stacking Plan Status" },
-  { id: "3d-explorer",    label: "3D Viewer" },
-  { id: "sensor-trends",  label: "Sensor Trends" },
   { id: "multi-pa",       label: "Multi-PA Analysis" },
   { id: "causality",      label: "Causality" },
   { id: "genie",          label: "Ask Genie" },
@@ -24,16 +20,15 @@ const TABS = [
 
 type TabId = typeof TABS[number]["id"];
 
-const SHOW_BAR: Set<TabId> = new Set(["stacking", "3d-explorer", "sensor-trends", "multi-pa"]);
+// The flowsheet bar is a live area picker only on Multi-PA (toggle areas in/out).
+const SHOW_BAR: Set<TabId> = new Set(["multi-pa"]);
 
 // One-line talking point per tab — shown in a dismissible info banner so a
 // first-time viewer immediately understands what each view demonstrates.
 const TAB_INFO: Record<TabId, string> = {
   "home":          "Overview of the demo — what this operations-monitoring pattern does and how each view maps to the mining value chain.",
   "dashboard":     "KPI home: plan vs. actual for each process area, colour-coded against limits, with trends and operator comments.",
-  "stacking":      "Plan-vs-actual execution grid: planned vs. actual tonnes, % complete and schedule by block. In-progress blocks pulse.",
-  "3d-explorer":   "Pick any 3 sensors as X / Y / Z axes and see how they relate in 3D over a chosen date range.",
-  "sensor-trends": "Click a process area in the flowsheet, choose sensors, and view their near-real-time time-series trends.",
+  "stacking":      "Plan-vs-actual execution grid with a 3D heap view: cells on the ground grid, panels stacked as lifts, coloured by material. Planned-but-unstacked cells show as faint footprints.",
   "multi-pa":      "Overlay sensors from different process areas on one timeline to correlate cause and effect across the operation.",
   "causality":     "Discover which sensors and process areas drive others — cross-correlation heatmap, sensor network graph, and Granger causality test.",
   "genie":         "Ask questions of your operations data in plain English, powered by Databricks Genie (live in production).",
@@ -43,9 +38,7 @@ export default function App() {
   const { C, theme } = useTheme();
   const [active,      setActive]      = useState<TabId>("home");
   const [infoOpen,    setInfoOpen]    = useState(true);
-  const [sensorPA,    setSensorPA]    = useState("PA-1");
-  const [explorerPA,  setExplorerPA]  = useState("PA-1");
-  // Multi-PA uses a Set
+  // Multi-PA uses a Set of active areas, toggled from the flowsheet bar.
   const [activePAs,   setActivePAs]   = useState<Set<string>>(new Set(["PA-1", "PA-2"]));
 
   const isHome      = active === "home";
@@ -53,44 +46,17 @@ export default function App() {
   const isMultiPA   = active === "multi-pa";
 
   function handleProcessStepClick(pa: string) {
-    if (isMultiPA) {
-      // toggle in/out of set
-      const next = new Set(activePAs);
-      next.has(pa) ? next.delete(pa) : next.add(pa);
-      setActivePAs(next);
-    } else if (active === "sensor-trends") {
-      setSensorPA(pa);
-    } else if (active === "3d-explorer") {
-      setExplorerPA(pa);
-    } else {
-      setSensorPA(pa);
-      setActive("sensor-trends");
-    }
+    // Bar only renders on Multi-PA now — toggle the area in/out of the set.
+    const next = new Set(activePAs);
+    next.has(pa) ? next.delete(pa) : next.add(pa);
+    setActivePAs(next);
   }
-
-  const highlighted =
-    active === "sensor-trends" ? sensorPA :
-    active === "3d-explorer"   ? explorerPA : null;
 
   function renderTab() {
     switch (active) {
       case "home":          return <LandingPage onExplore={setActive} />;
       case "dashboard":     return <DashboardTab />;
       case "stacking":      return <StackingTab />;
-      case "3d-explorer":   return (
-        <Explorer3DTab
-          key={explorerPA}
-          initialArea={explorerPA}
-          onAreaChange={setExplorerPA}
-        />
-      );
-      case "sensor-trends": return (
-        <SensorTrendsTab
-          key={sensorPA}
-          initialArea={sensorPA}
-          onAreaChange={setSensorPA}
-        />
-      );
       case "multi-pa":      return (
         <CrossPATab
           activePAsOverride={activePAs}
@@ -165,7 +131,7 @@ export default function App() {
 
       {SHOW_BAR.has(active) && (
         <ProcessBar
-          highlighted={isMultiPA ? null : highlighted}
+          highlighted={null}
           highlightedSet={isMultiPA ? activePAs : undefined}
           multiSelect={isMultiPA}
           onStepClick={handleProcessStepClick}

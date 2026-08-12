@@ -12,6 +12,10 @@ function isoNDaysAgo(n: number) {
   const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().slice(0, 10);
 }
 function isoToday() { return new Date().toISOString().slice(0, 10); }
+function isoHoursAgo(n: number) {
+  const d = new Date(); d.setHours(d.getHours() - n); return d.toISOString().slice(0, 19);
+}
+function isoNow() { return new Date().toISOString().slice(0, 19); }
 
 function pickChartTags(profiles: TagProfile[]): TagProfile[] {
   return profiles.filter(p => !p.IsCalculated && p.DataSource?.toLowerCase().includes("historian")).slice(0, 4);
@@ -21,23 +25,6 @@ function groupByTag(points: TrendPoint[]): Record<string, TrendPoint[]> {
   const out: Record<string, TrendPoint[]> = {};
   for (const p of points) { if (!out[p.Tag]) out[p.Tag] = []; out[p.Tag].push(p); }
   return out;
-}
-
-// Bucket trend points into weekly avg for bar chart
-function weeklyBuckets(pts: TrendPoint[]): { week: string; avg: number }[] {
-  const byWeek: Record<string, number[]> = {};
-  for (const p of pts) {
-    if (p.Value == null) continue;
-    const d = new Date(p.Timestamp_AZ);
-    const monday = new Date(d);
-    monday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-    const key = monday.toISOString().slice(0, 10);
-    if (!byWeek[key]) byWeek[key] = [];
-    byWeek[key].push(p.Value as number);
-  }
-  return Object.entries(byWeek)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([week, vals]) => ({ week, avg: vals.reduce((s, v) => s + v, 0) / vals.length }));
 }
 
 const CHART_COLORS = ["#58a6ff", "#f0883e", "#3fb950", "#d29922", "#a371f7", "#79c0ff"];
@@ -225,11 +212,18 @@ function KpiWeeklyView({ area }: { area: string }) {
 
 // ── KPI Detailed view ─────────────────────────────────────────────────────────
 
+const DETAIL_WINDOWS = [
+  { label: "6 h",  hours: 6 },
+  { label: "12 h", hours: 12 },
+  { label: "24 h", hours: 24 },
+] as const;
+
 function KpiDetailedView({ area }: { area: string }) {
   const { C } = useTheme();
   const [profiles,     setProfiles]     = useState<TagProfile[]>([]);
   const [trendPoints,  setTrendPoints]  = useState<TrendPoint[]>([]);
   const [trendLoading, setTrendLoading] = useState(false);
+  const [hours,        setHours]        = useState<number>(24);
 
   useEffect(() => {
     api.areaProfiles(area).then(setProfiles).catch(() => setProfiles([]));
@@ -239,17 +233,29 @@ function KpiDetailedView({ area }: { area: string }) {
     const tags = pickChartTags(profiles);
     if (!tags.length) { setTrendPoints([]); return; }
     setTrendLoading(true);
-    api.trends(tags.map(t => t.Tag), isoNDaysAgo(90), isoToday())
+    api.trends(tags.map(t => t.Tag), isoHoursAgo(hours), isoNow())
       .then(setTrendPoints).catch(() => setTrendPoints([])).finally(() => setTrendLoading(false));
-  }, [profiles]);
+  }, [profiles, hours]);
 
   const chartTags = pickChartTags(profiles);
   const grouped   = groupByTag(trendPoints);
 
   return (
     <div style={{ padding: 16 }}>
-      <div style={{ fontSize: "0.72rem", color: C.MUTED, marginBottom: 16 }}>
-        Weekly averages over the last 90 days · {paLabel(area)}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, flexWrap: "wrap", gap: 8 }}>
+        <div style={{ fontSize: "0.72rem", color: C.MUTED }}>
+          5 minute interval readings · last {hours} hours · {paLabel(area)}
+        </div>
+        <div style={{ display: "flex", gap: 4 }}>
+          {DETAIL_WINDOWS.map(w => (
+            <button key={w.hours} onClick={() => setHours(w.hours)} style={{
+              padding: "3px 10px", fontSize: "0.72rem", borderRadius: 4, cursor: "pointer",
+              border: `1px solid ${hours === w.hours ? C.ACCENT : C.BORDER}`,
+              background: hours === w.hours ? C.ACCENT : C.CARD2,
+              color: hours === w.hours ? "#fff" : C.MUTED, fontWeight: hours === w.hours ? 700 : 400,
+            }}>{w.label}</button>
+          ))}
+        </div>
       </div>
 
       {trendLoading ? (
@@ -260,77 +266,68 @@ function KpiDetailedView({ area }: { area: string }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {chartTags.map((profile, idx) => {
             const pts   = grouped[profile.Tag] ?? [];
-            const weeks = weeklyBuckets(pts);
             const color = CHART_COLORS[idx % CHART_COLORS.length];
-            // Simulated "plan" line at +10% above avg
-            const avgVal = weeks.length ? weeks.reduce((s, w) => s + w.avg, 0) / weeks.length : 0;
-            const planLine = weeks.map(() => avgVal * 1.1);
+            const vals  = pts.map(p => p.Value).filter((v): v is number => v != null);
+            const latest = vals.length ? vals[vals.length - 1] : null;
+            const avg    = vals.length ? vals.reduce((s, v) => s + v, 0) / vals.length : null;
+            const min    = vals.length ? Math.min(...vals) : null;
+            const max    = vals.length ? Math.max(...vals) : null;
+            const x0 = pts[0]?.Timestamp_AZ, x1 = pts[pts.length - 1]?.Timestamp_AZ;
+
+            // Actual line + operating-limit band from the tag's real Lower/Upper limits.
+            const traces: Plotly.Data[] = [
+              {
+                type: "scatter", mode: "lines", name: "Actual",
+                x: pts.map(p => p.Timestamp_AZ), y: pts.map(p => p.Value),
+                line: { color, width: 1.2 },
+                hovertemplate: `<b>%{y:.2f}</b> ${profile.Unit || ""}<br>%{x}<extra>Actual</extra>`,
+              } as Plotly.Data,
+            ];
+            if (profile.LowerLimit != null) traces.push({
+              type: "scatter", mode: "lines", name: "Lower limit",
+              x: [x0, x1], y: [profile.LowerLimit, profile.LowerLimit],
+              line: { color: C.ALARM, width: 1, dash: "dot" }, hoverinfo: "skip",
+            } as Plotly.Data);
+            if (profile.UpperLimit != null) traces.push({
+              type: "scatter", mode: "lines", name: "Upper limit",
+              x: [x0, x1], y: [profile.UpperLimit, profile.UpperLimit],
+              line: { color: C.ALARM, width: 1, dash: "dot" }, hoverinfo: "skip",
+            } as Plotly.Data);
+
+            const stat = (label: string, v: number | null) => (
+              <span>{label} <b style={{ color: C.TEXT }}>{v != null ? v.toFixed(1) : "—"}</b></span>
+            );
 
             return (
               <div key={profile.Tag} style={{ background: C.CARD, border: `1px solid ${C.BORDER}`, borderRadius: 8, padding: "14px 16px" }}>
-                <div style={{ fontSize: "0.85rem", fontWeight: 700, color: C.TEXT, marginBottom: 2 }}>{profile.Description}</div>
-                <div style={{ fontSize: "0.7rem", color: C.MUTED, marginBottom: 12 }}>Weekly avg · {profile.Unit || "—"}</div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
+                  <div>
+                    <div style={{ fontSize: "0.85rem", fontWeight: 700, color: C.TEXT }}>{profile.Description}</div>
+                    <div style={{ fontSize: "0.7rem", color: C.MUTED, marginTop: 2, fontFamily: "monospace" }}>{profile.Tag} · {profile.Unit || "—"}</div>
+                  </div>
+                  <div style={{ fontSize: "0.7rem", color: C.MUTED, display: "flex", gap: 14, flexWrap: "wrap" }}>
+                    {stat("Latest", latest)}{stat("Avg", avg)}{stat("Min", min)}{stat("Max", max)}
+                    <span>{pts.length} pts</span>
+                  </div>
+                </div>
 
-                {weeks.length === 0 ? (
-                  <div style={{ color: C.MUTED, fontSize: "0.8rem" }}>No data</div>
+                {pts.length === 0 ? (
+                  <div style={{ color: C.MUTED, fontSize: "0.8rem", marginTop: 10 }}>No data</div>
                 ) : (
-                  <>
-                    <Plot
-                      data={[
-                        {
-                          type: "bar", name: "Actual",
-                          x: weeks.map(w => w.week), y: weeks.map(w => w.avg),
-                          marker: { color },
-                          hovertemplate: `<b>%{y:.2f}</b> ${profile.Unit || ""}<extra>Actual</extra>`,
-                        } as Plotly.Data,
-                        {
-                          type: "scatter", mode: "lines", name: "Plan",
-                          x: weeks.map(w => w.week), y: planLine,
-                          line: { color: C.ALARM, width: 2, dash: "dot" },
-                          hovertemplate: `<b>%{y:.2f}</b> ${profile.Unit || ""}<extra>Plan</extra>`,
-                        } as Plotly.Data,
-                      ]}
-                      layout={{
-                        height: 200,
-                        paper_bgcolor: "transparent", plot_bgcolor: "transparent",
-                        margin: { l: 50, r: 16, t: 8, b: 40 },
-                        xaxis: { type: "date", gridcolor: C.BORDER, color: C.MUTED, tickfont: { size: 10, color: C.MUTED } },
-                        yaxis: { gridcolor: C.BORDER, color: C.MUTED, tickfont: { size: 10, color: C.MUTED }, title: { text: profile.Unit || "", font: { color: C.MUTED, size: 10 } } },
-                        legend: { font: { color: C.MUTED, size: 10 }, bgcolor: "transparent" },
-                        font: { color: C.TEXT },
-                        barmode: "overlay",
-                      } as Partial<Plotly.Layout>}
-                      config={{ displayModeBar: false, responsive: true }}
-                      useResizeHandler style={{ width: "100%" }}
-                    />
-
-                    {/* Summary table */}
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.75rem", marginTop: 10 }}>
-                      <thead>
-                        <tr style={{ borderBottom: `1px solid ${C.BORDER}` }}>
-                          {["Week", "Avg Actual", "Plan", "vs Plan"].map(h => (
-                            <th key={h} style={{ padding: "4px 8px", textAlign: h === "Week" ? "left" : "right", color: C.MUTED, fontWeight: 600 }}>{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {weeks.slice(-8).map((w, i) => {
-                          const plan = planLine[i] ?? avgVal * 1.1;
-                          const diff = ((w.avg - plan) / plan) * 100;
-                          return (
-                            <tr key={w.week} style={{ borderBottom: `1px solid ${C.BORDER}22` }}>
-                              <td style={{ padding: "4px 8px", color: C.TEXT }}>{w.week}</td>
-                              <td style={{ padding: "4px 8px", textAlign: "right", color: C.TEXT, fontWeight: 600 }}>{w.avg.toFixed(2)}</td>
-                              <td style={{ padding: "4px 8px", textAlign: "right", color: C.MUTED }}>{plan.toFixed(2)}</td>
-                              <td style={{ padding: "4px 8px", textAlign: "right", fontWeight: 600, color: diff >= 0 ? C.OK : C.ALARM }}>
-                                {diff >= 0 ? "▲" : "▼"} {Math.abs(diff).toFixed(1)}%
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </>
+                  <Plot
+                    data={traces}
+                    layout={{
+                      height: 220,
+                      paper_bgcolor: "transparent", plot_bgcolor: "transparent",
+                      margin: { l: 50, r: 16, t: 10, b: 40 },
+                      xaxis: { type: "date", gridcolor: C.BORDER, color: C.MUTED, tickfont: { size: 10, color: C.MUTED } },
+                      yaxis: { gridcolor: C.BORDER, color: C.MUTED, tickfont: { size: 10, color: C.MUTED }, title: { text: profile.Unit || "", font: { color: C.MUTED, size: 10 } } },
+                      showlegend: false,
+                      font: { color: C.TEXT },
+                    } as Partial<Plotly.Layout>}
+                    config={{ displayModeBar: false, responsive: true }}
+                    useResizeHandler style={{ width: "100%", marginTop: 10 }}
+                  />
                 )}
               </div>
             );
