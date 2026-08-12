@@ -34,30 +34,21 @@ export const C = DARK_C;
 // Product name — shown in the header, landing page and browser title.
 export const APP_NAME = "Mine Operations Monitor";
 
-// ── Process-area flowsheet ──────────────────────────────────────────────────
-// A commodity-neutral mining value chain. The backend keys every sensor by a
-// stable "PA-N" id; PA_LABELS maps each id to a human-readable step that reads
-// for any metal (gold, silver, copper, …). To re-skin this demo for a different
-// operation, edit the labels here — nothing else needs to change.
+// ── Process area flowsheet ──────────────────────────────────────────────────
+// A mining value chain that fits any mining company. The backend keys every
+// sensor by a stable "PA-N" id; PA_LABELS maps each id to a readable step.
+// To reskin this demo for a different operation, edit the labels here.
 export const PA_ORDER = [
-  "PA-1", "PA-2", "PA-3", "PA-4", "PA-5", "PA-6", "PA-7",
-  "PA-8", "PA-9", "PA-10", "PA-11", "PA-12", "PA-13",
+  "PA-1", "PA-2", "PA-3", "PA-4", "PA-5", "PA-6",
 ] as const;
 
 export const PA_LABELS: Record<string, string> = {
   "PA-1":  "Mining",
   "PA-2":  "Crushing",
-  "PA-3":  "Grinding / Milling",
-  "PA-4":  "Material Handling",
-  "PA-5":  "Leaching",
-  "PA-6":  "Concentration",
-  "PA-7":  "Solution Processing",
-  "PA-8":  "Recovery",
-  "PA-9":  "Product / Refining",
-  "PA-10": "Reagents",
-  "PA-11": "Water & Solution Balance",
-  "PA-12": "Tailings",
-  "PA-13": "Assays & Met Accounting",
+  "PA-3":  "Grinding",
+  "PA-4":  "Processing",
+  "PA-5":  "Recovery",
+  "PA-6":  "Recovery Reconciliation",
 };
 
 /** Human-readable label for a process-area id (falls back to the id itself). */

@@ -3,6 +3,7 @@ import Plot from "react-plotly.js";
 import { fetchStackingAllocation, fetchOreFeedRate } from "../api";
 import type { StackingRow, StackingMap, OreFeedPoint } from "../types";
 import { getMaterialColors, MATERIAL_LEGEND } from "../constants";
+import { HeapView3D } from "../components/HeapView3D";
 import { useTheme } from "../theme";
 import type { Colors } from "../theme";
 
@@ -208,6 +209,7 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
   const [chartOpen, setChartOpen]       = useState(true);
   const [dailyOpen, setDailyOpen]       = useState(true);
   const [dailyMode, setDailyMode]       = useState<"calendar" | "shift">("calendar");
+  const [heapOpen, setHeapOpen]         = useState(true);
 
   useEffect(() => {
     setFeedLoading(true);
@@ -253,6 +255,25 @@ export function StackingTab({ refreshKey: externalRefreshKey = 0, onDataLoaded }
         @keyframes cell-pulse-dim { 0%,100%{filter:brightness(1)} 50%{filter:brightness(0.78)} }
       `}</style>
 
+      {/* 3D Heap View (collapsible) */}
+      {cells.length > 0 && (
+        <div style={{ marginBottom: 14, border: `1px solid ${C.BORDER}`, borderRadius: 8, overflow: "hidden" }}>
+          <button
+            onClick={() => setHeapOpen(o => !o)}
+            style={{
+              width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+              background: C.CARD2, border: "none", padding: "8px 14px", cursor: "pointer",
+              color: C.TEXT, fontSize: "0.78rem", fontWeight: 600,
+            }}
+          >
+            <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span>3D Heap View</span>
+              <span style={{ fontSize: "0.7rem", color: C.ACCENT, fontWeight: 400 }}>{heapOpen ? "▲ click to hide" : "▼ click to expand"}</span>
+            </span>
+          </button>
+          {heapOpen && <HeapView3D data={data} panels={panels} cells={cells} />}
+        </div>
+      )}
 
       {/* Feed Rate chart (collapsible) */}
       <div style={{ marginBottom: 14, border: `1px solid ${C.BORDER}`, borderRadius: 8, overflow: "hidden" }}>

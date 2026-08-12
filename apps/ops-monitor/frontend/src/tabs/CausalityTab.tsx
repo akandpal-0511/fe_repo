@@ -16,13 +16,6 @@ const PA_COLOURS: Record<string, string> = {
   "PA-4":  "#58a6ff",
   "PA-5":  "#a371f7",
   "PA-6":  "#79c0ff",
-  "PA-7":  "#56d364",
-  "PA-8":  "#ff7b72",
-  "PA-9":  "#ffa657",
-  "PA-10": "#d2a8ff",
-  "PA-11": "#7ee787",
-  "PA-12": "#ffa657",
-  "PA-13": "#e3b341",
 };
 
 function isoToday() {
